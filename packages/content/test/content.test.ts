@@ -1,0 +1,42 @@
+import { describe, expect, it } from "vitest";
+import { createRng, newGame, startTurn, openEvents, resolveEvent, endTurn, nextTurn, actionsFor, resolveAction, type GameState, type FactionId } from "@guul/engine";
+import { content } from "../src";
+
+describe("카드 데이터", () => {
+  it("zod 검증을 통과하고 세력별 수량이 맞다", () => {
+    const cnt = (f: string) => content.cards.filter((c) => c.faction === f).length;
+    expect(cnt("arkandal")).toBeGreaterThanOrEqual(40);
+    expect(cnt("iruth")).toBeGreaterThanOrEqual(40);
+    expect(cnt("voodoo")).toBeGreaterThanOrEqual(40);
+    expect(cnt("common")).toBeGreaterThanOrEqual(40);
+    expect(Object.keys(content.fixed).sort()).toEqual(["10", "20", "30", "40"]);
+  });
+  it("모든 카드 id 가 유일하다", () => {
+    const ids = [...content.cards, ...content.situational, ...content.collapse, ...Object.values(content.fixed)].map((c) => c.id);
+    expect(new Set(ids).size).toBe(ids.length);
+  });
+});
+
+function autoplay(f: FactionId, seed: number): GameState {
+  let s = startTurn(newGame(f, seed), content);
+  const rng = createRng(seed ^ 0x9e3779b9);
+  let guard = 0;
+  while (!s.ended && guard++ < 500) {
+    if (s.phase === "start") { s = openEvents(s); continue; }
+    if (s.phase === "event") { s = resolveEvent(s, Math.floor(rng.next() * (s.events[s.eventIdx]?.choices.length ?? 1))).state; continue; }
+    if (s.phase === "action") {
+      if (s.ap > 0) { const acts = actionsFor(s, content); const a = acts[Math.floor(rng.next() * acts.length)]!; s = resolveAction(s, content, a.id, Math.floor(rng.next() * a.card.choices.length)).state; }
+      else s = endTurn(s);
+      continue;
+    }
+    if (s.phase === "end") { s = nextTurn(s, content); continue; }
+    break;
+  }
+  return s;
+}
+
+describe("40턴 자동 플레이", () => {
+  it.each(["arkandal", "iruth", "voodoo"] as const)("%s 세력이 오류 없이 끝까지 진행된다", (f) => {
+    for (let seed = 1; seed <= 20; seed++) { const s = autoplay(f, seed * 101); expect(s.ended).not.toBeNull(); expect(s.turn).toBeLessThanOrEqual(40); }
+  });
+});

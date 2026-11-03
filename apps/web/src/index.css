@@ -1,0 +1,36 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root{ color-scheme:dark; }
+html{background:#14110e}
+body{background:#14110e;color:#ebe0cb;font-family:"Gowun Batang","Nanum Myeongjo",Batang,serif;font-size:15px;line-height:1.6;margin:0;min-height:100%;
+  background-image:radial-gradient(ellipse at 50% -10%,#2a2118 0%,transparent 60%);background-attachment:fixed}
+[hidden]{display:none!important}
+button{cursor:pointer}
+button:focus-visible{outline:2px solid #cfa752;outline-offset:2px}
+.gutter{padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px))}
+@layer components{
+  .btn-gold{@apply bg-gold text-[#1a140c] font-ui font-semibold text-[15px] px-6 py-2.5 rounded-[3px] border border-gold hover:bg-gold-hi transition-colors}
+  .btn{@apply bg-panel2 border border-line2 font-ui text-[13px] px-3 py-1.5 rounded-[3px] hover:border-gold-dim transition-colors}
+  .eyebrow{@apply font-ui text-[11px] tracking-[0.14em] text-gold-dim}
+  .chip{@apply font-ui text-[11.5px] px-1.5 py-px rounded-[2px] border tabular-nums}
+}
+
+/* ── 일러스트 ── */
+.art-svg{width:100%;height:100%;display:block;color:#1b140d}
+.illus{display:flex;align-items:center;justify-content:center;gap:2px;color:#1b140d}
+[data-faction]{--f-main:#6d7f8c;--f-sub:#b9c3c9}
+[data-faction="arkandal"]{--f-main:#6d7f8c;--f-sub:#c3ccd2}
+[data-faction="iruth"]{--f-main:#7fa8bd;--f-sub:#c6dae3}
+[data-faction="voodoo"]{--f-main:#8f9c4a;--f-sub:#cdd2a6}
+.illus-item{display:block}
+.illus-1 .illus-item{width:100%}
+.illus-2 .illus-item{width:52%}
+.illus-2 .illus-item:nth-child(2){width:44%;margin-left:-6%;opacity:.92}
+.illus-3 .illus-item{width:40%}
+.illus-3 .illus-item:nth-child(2){width:46%;margin:0 -7%;z-index:1}
+.illus-3 .illus-item:nth-child(3){width:38%;opacity:.9}
+.art-sway{animation:artsway 4s ease-in-out infinite;transform-origin:50% 90%}
+@keyframes artsway{0%,100%{transform:rotate(-2deg)}50%{transform:rotate(2deg)}}
+@media (prefers-reduced-motion:reduce){.art-sway{animation:none}}

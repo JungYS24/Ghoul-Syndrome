@@ -1,0 +1,18 @@
+{
+  "_comment": "등급 경계 (5d20 합 + 보정 = 최종값 기준). min 이상이면 해당 등급. 위에서부터 검사합니다.",
+  "grades": [
+    { "min": 73, "name": "경이로운 대성공", "tone": "crit" },
+    { "min": 68, "name": "대성공", "tone": "great" },
+    { "min": 61, "name": "확실한 성공", "tone": "success" },
+    { "min": 52, "name": "성공", "tone": "success" },
+    { "min": 49, "name": "반쪽 성공", "tone": "partial" },
+    { "min": 43, "name": "실패", "tone": "fail" },
+    { "min": 40, "name": "뼈아픈 실패", "tone": "fail" },
+    { "min": 30, "name": "대실패", "tone": "fumble" },
+    { "min": 1, "name": "후유증을 남긴 대실패", "tone": "after" }
+  ],
+  "multAnchors": [[1, 0.30], [38, 0.63], [39, 0.70], [55, 0.95], [66, 1.11], [82, 1.35], [88, 1.45], [96, 1.50], [98, 1.57], [99, 1.60], [100, 1.60]],
+  "onFailBelow": 40,
+  "aftermathAtOrBelow": 29,
+  "successAtLeast": 49
+}

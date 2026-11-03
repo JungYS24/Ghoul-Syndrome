@@ -1,0 +1,22 @@
+{
+  "name": "guul-syndrome",
+  "private": true,
+  "version": "0.1.0",
+  "type": "module",
+  "packageManager": "pnpm@10.28.0",
+  "scripts": {
+    "gen": "pnpm --filter @guul/engine gen",
+    "test": "pnpm -r test",
+    "typecheck": "pnpm -r typecheck",
+    "dev": "pnpm --filter @guul/web dev",
+    "build": "pnpm gen && pnpm --filter @guul/web build",
+    "build:single": "pnpm gen && pnpm --filter @guul/web build:single",
+    "sim": "tsx scripts/sim.ts"
+  },
+  "devDependencies": {
+    "typescript": "5.6.3",
+    "tsx": "4.19.2",
+    "vitest": "2.1.8",
+    "@types/node": "22.10.2"
+  }
+}

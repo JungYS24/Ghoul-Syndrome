@@ -1,0 +1,8329 @@
+{
+ "cards": [
+  {
+   "id": "ark-border-fever",
+   "faction": "arkandal",
+   "title": "감염된 국경 수비대",
+   "text": "북부 요새에서 병사 3천 명이 발열을 호소합니다. 수비대장은 명령을 기다립니다.",
+   "art": [
+    "fortress",
+    "soldier"
+   ],
+   "weight": 10,
+   "choices": [
+    {
+     "label": "요새를 봉쇄하고 소각",
+     "art": [
+      "torch",
+      "fire"
+     ],
+     "check": {
+      "stat": "order"
+     },
+     "effects": {
+      "infection": -15,
+      "army": -0.3,
+      "wrath": 10
+     },
+     "onFail": {
+      "army": -0.8,
+      "order": -10
+     }
+    },
+    {
+     "label": "격리 병동 운영",
+     "art": [
+      "tent",
+      "potion"
+     ],
+     "check": {
+      "stat": "finance",
+      "mod": 5
+     },
+     "effects": {
+      "infection": -8,
+      "silver": -4
+     },
+     "onFail": {
+      "infection": 5,
+      "morale": -8
+     }
+    }
+   ],
+   "season": [
+    "summer",
+    "autumn"
+   ],
+   "when": {
+    "infection": {
+     "min": 31
+    }
+   }
+  },
+  {
+   "id": "ark-roll-forgery",
+   "faction": "arkandal",
+   "title": "위조된 징집 명부",
+   "text": "귀족 가문들이 자제의 이름을 명부에서 지웠다는 고발이 들어왔습니다. 병사들이 술렁입니다.",
+   "art": [
+    "scroll",
+    "crown"
+   ],
+   "weight": 8,
+   "choices": [
+    {
+     "label": "귀족을 공개 처벌",
+     "art": [
+      "sword"
+     ],
+     "check": {
+      "stat": "order"
+     },
+     "effects": {
+      "order": 8,
+      "army": 0.3,
+      "legit": -5
+     },
+     "onFail": {
+      "legit": -10
+     }
+    },
+    {
+     "label": "조용히 묵인",
+     "art": [
+      "coin"
+     ],
+     "check": {
+      "stat": "legit",
+      "mod": 5
+     },
+     "effects": {
+      "silver": 4,
+      "order": -6
+     }
+    }
+   ]
+  },
+  {
+   "id": "ark-black-well",
+   "faction": "arkandal",
+   "title": "요새 우물의 검은 물",
+   "text": "성채 중앙 우물에서 썩은 냄새가 올라옵니다. 바닥에 무엇이 가라앉았는지 아무도 내려가 보려 하지 않습니다.",
+   "art": [
+    "well",
+    "corpse"
+   ],
+   "weight": 8,
+   "choices": [
+    {
+     "label": "우물을 메우고 새로 판다",
+     "art": [
+      "pickaxe",
+      "well"
+     ],
+     "check": {
+      "stat": "finance"
+     },
+     "effects": {
+      "infection": -6,
+      "silver": -5
+     },
+     "onFail": {
+      "infection": 4
+     }
+    },
+    {
+     "label": "끓인 물 배급령",
+     "art": [
+      "fire"
+     ],
+     "check": {
+      "stat": "order",
+      "mod": 5
+     },
+     "effects": {
+      "infection": -3,
+      "food": -3,
+      "order": -3
+     }
+    }
+   ]
+  },
+  {
+   "id": "ark-hero-march",
+   "faction": "arkandal",
+   "title": "영웅왕의 출정 요구",
+   "text": "전운이 친위대를 이끌고 라벤 폐허의 구울 소굴을 불태우겠다고 선언합니다.",
+   "art": [
+    "crown",
+    "banner"
+   ],
+   "weight": 7,
+   "choices": [
+    {
+     "label": "출정을 허락한다",
+     "art": [
+      "sword",
+      "fire"
+     ],
+     "check": {
+      "stat": "order",
+      "mod": -5
+     },
+     "effects": {
+      "infection": -10,
+      "neutral": -6,
+      "legit": 6,
+      "army": -0.4,
+      "wrath": 6
+     },
+     "onFail": {
+      "army": -1,
+      "morale": -8
+     }
+    },
+    {
+     "label": "왕을 만류한다",
+     "art": [
+      "scroll"
+     ],
+     "check": {
+      "stat": "legit"
+     },
+     "effects": {
+      "order": 4,
+      "legit": -5
+     }
+    }
+   ],
+   "when": {
+    "turn": {
+     "min": 3
+    }
+   }
+  },
+  {
+   "id": "ark-mine-collapse",
+   "faction": "arkandal",
+   "title": "미스릴 갱도 붕괴",
+   "text": "동쪽 광맥이 무너져 광부 수백 명이 갇혔습니다. 갱도 깊은 곳에서 긁는 소리가 들린다는 보고입니다.",
+   "art": [
+    "pickaxe",
+    "ghoul"
+   ],
+   "weight": 7,
+   "choices": [
+    {
+     "label": "구조대 투입",
+     "art": [
+      "soldier"
+     ],
+     "check": {
+      "stat": "order"
+     },
+     "effects": {
+      "morale": 6,
+      "strat": -5
+     },
+     "onFail": {
+      "infection": 5,
+      "pop": -0.3
+     }
+    },
+    {
+     "label": "갱도를 봉인",
+     "art": [
+      "wall"
+     ],
+     "check": {
+      "stat": "finance",
+      "mod": 5
+     },
+     "effects": {
+      "strat": -15,
+      "morale": -6
+     }
+    }
+   ]
+  },
+  {
+   "id": "ark-barracks-fever",
+   "faction": "arkandal",
+   "title": "병영 집단 발열",
+   "text": "밀집한 병영에서 하룻밤 사이 수백 명이 쓰러졌습니다. 기침 소리가 막사를 타고 번집니다.",
+   "art": [
+    "tent",
+    "soldier"
+   ],
+   "weight": 9,
+   "choices": [
+    {
+     "label": "병영을 분산 배치",
+     "art": [
+      "tent"
+     ],
+     "check": {
+      "stat": "order",
+      "mod": -5
+     },
+     "effects": {
+      "infection": -8,
+      "silver": -4,
+      "order": -6
+     },
+     "onFail": {
+      "infection": 6
+     }
+    },
+    {
+     "label": "발병자 즉결 처형",
+     "art": [
+      "sword",
+      "corpse"
+     ],
+     "check": {
+      "stat": "order",
+      "mod": 10
+     },
+     "effects": {
+      "infection": -10,
+      "army": -0.3,
+      "wrath": 8,
+      "morale": -8
+     }
+    }
+   ],
+   "when": {
+    "infection": {
+     "min": 40
+    }
+   }
+  },
+  {
+   "id": "ark-smiths",
+   "faction": "arkandal",
+   "title": "대장장이 길드의 청원",
+   "text": "길드는 세금을 깎아 주면 미스릴 제련을 두 배로 늘리겠다고 약속합니다.",
+   "art": [
+    "pickaxe",
+    "coin"
+   ],
+   "weight": 7,
+   "choices": [
+    {
+     "label": "세금 감면",
+     "art": [
+      "coin"
+     ],
+     "check": {
+      "stat": "finance"
+     },
+     "effects": {
+      "strat": 12,
+      "morale": 4,
+      "finance": -6
+     }
+    },
+    {
+     "label": "광물 징발",
+     "art": [
+      "cart"
+     ],
+     "check": {
+      "stat": "order"
+     },
+     "effects": {
+      "strat": 18,
+      "morale": -8
+     },
+     "onFail": {
+      "order": -6
+     }
+    }
+   ],
+   "season": [
+    "spring",
+    "summer"
+   ]
+  },
+  {
+   "id": "ark-refugees",
+   "faction": "arkandal",
+   "title": "북방 난민 행렬",
+   "text": "얼어붙은 길을 따라 2만 명의 난민이 성문 앞에 도착했습니다. 몇몇은 붕대를 감고 있습니다.",
+   "art": [
+    "cart",
+    "fortress"
+   ],
+   "weight": 8,
+   "choices": [
+    {
+     "label": "모두 받아들인다",
+     "art": [
+      "grain"
+     ],
+     "check": {
+      "stat": "morale"
+     },
+     "effects": {
+      "pop": 2,
+      "morale": 6,
+      "infection": 6
+     }
+    },
+    {
+     "label": "성문을 닫는다",
+     "art": [
+      "wall"
+     ],
+     "check": {
+      "stat": "order",
+      "mod": 5
+     },
+     "effects": {
+      "infection": -3,
+      "legit": -6,
+      "wrath": 3
+     }
+    },
+    {
+     "label": "장정만 징집",
+     "art": [
+      "soldier"
+     ],
+     "check": {
+      "stat": "order",
+      "mod": -5
+     },
+     "effects": {
+      "army": 0.5,
+      "infection": 3,
+      "morale": -4
+     }
+    }
+   ]
+  },
+  {
+   "id": "ark-frozen-wall",
+   "faction": "arkandal",
+   "title": "얼어붙은 성벽",
+   "text": "혹한에 회반죽이 굳지 않습니다. 공사 감독관은 일꾼들이 손가락을 잃고 있다고 보고합니다.",
+   "art": [
+    "wall",
+    "blizzard"
+   ],
+   "weight": 9,
+   "choices": [
+    {
+     "label": "땔감 배급",
+     "art": [
+      "fire"
+     ],
+     "check": {
+      "stat": "finance"
+     },
+     "effects": {
+      "morale": 5,
+      "food": -4,
+      "silver": -3
+     }
+    },
+    {
+     "label": "공사 강행",
+     "art": [
+      "pickaxe"
+     ],
+     "check": {
+      "stat": "order",
+      "mod": -10
+     },
+     "effects": {
+      "wall": 6,
+      "pop": -0.5,
+      "morale": -6
+     },
+     "onFail": {
+      "wall": -3
+     }
+    }
+   ],
+   "season": [
+    "winter"
+   ]
+  },
+  {
+   "id": "ark-blueprint",
+   "faction": "arkandal",
+   "title": "방벽 설계도",
+   "text": "라벤 마도 학궁 출신 기술자가 미스릴 골조를 쓴 새 방벽 설계도를 바칩니다.",
+   "art": [
+    "scroll",
+    "wall"
+   ],
+   "weight": 8,
+   "choices": [
+    {
+     "label": "미스릴로 보강",
+     "art": [
+      "crystal",
+      "wall"
+     ],
+     "check": {
+      "stat": "finance"
+     },
+     "effects": {
+      "wall": 9,
+      "strat": -20
+     }
+    },
+    {
+     "label": "노역 동원",
+     "art": [
+      "pickaxe"
+     ],
+     "check": {
+      "stat": "order"
+     },
+     "effects": {
+      "wall": 7,
+      "morale": -8,
+      "pop": -0.5
+     }
+    }
+   ],
+   "when": {
+    "turn": {
+     "min": 6
+    }
+   }
+  },
+  {
+   "id": "ark-nightmare",
+   "faction": "arkandal",
+   "title": "전운의 악몽",
+   "text": "왕이 밤마다 재가 된 마도왕의 꿈을 꾼다고 합니다. 궁정은 불길한 징조라 수군댑니다.",
+   "art": [
+    "crown",
+    "moon"
+   ],
+   "weight": 6,
+   "choices": [
+    {
+     "label": "사제단 소환",
+     "art": [
+      "altar"
+     ],
+     "check": {
+      "stat": "legit"
+     },
+     "effects": {
+      "wrath": -4,
+      "legit": 4,
+      "silver": -4
+     }
+    },
+    {
+     "label": "소문을 금한다",
+     "art": [
+      "shield"
+     ],
+     "check": {
+      "stat": "order"
+     },
+     "effects": {
+      "order": 3,
+      "wrath": 3
+     }
+    }
+   ],
+   "when": {
+    "wrath": {
+     "min": 20
+    }
+   }
+  },
+  {
+   "id": "ark-deserters",
+   "faction": "arkandal",
+   "title": "탈영병 무리",
+   "text": "남부 초소에서 병사 2천 명이 무기를 버리고 사라졌습니다. 그들 중 일부는 물린 상처가 있었습니다.",
+   "art": [
+    "soldier",
+    "raven"
+   ],
+   "weight": 7,
+   "choices": [
+    {
+     "label": "추격해 처형",
+     "art": [
+      "sword"
+     ],
+     "check": {
+      "stat": "order"
+     },
+     "effects": {
+      "order": 6,
+      "army": -0.2,
+      "wrath": 4,
+      "infection": -3
+     }
+    },
+    {
+     "label": "사면령 반포",
+     "art": [
+      "scroll"
+     ],
+     "check": {
+      "stat": "legit"
+     },
+     "effects": {
+      "army": 0.3,
+      "legit": 3,
+      "infection": 4,
+      "order": -4
+     }
+    }
+   ]
+  },
+  {
+   "id": "ark-iron-ration",
+   "faction": "arkandal",
+   "title": "철의 배급",
+   "text": "군량 관리관이 민간 배급을 줄이고 병사 몫을 늘리자고 건의합니다.",
+   "art": [
+    "grain",
+    "soldier"
+   ],
+   "weight": 7,
+   "choices": [
+    {
+     "label": "군량 우선",
+     "art": [
+      "shield"
+     ],
+     "check": {
+      "stat": "order"
+     },
+     "effects": {
+      "food": 8,
+      "order": 4,
+      "morale": -8
+     }
+    },
+    {
+     "label": "민간 우선",
+     "art": [
+      "grain"
+     ],
+     "check": {
+      "stat": "morale"
+     },
+     "effects": {
+      "morale": 6,
+      "order": -4,
+      "food": -4
+     }
+    }
+   ]
+  },
+  {
+   "id": "ark-beacon",
+   "faction": "arkandal",
+   "title": "봉화망 재건",
+   "text": "대륙 북부의 옛 봉화대들을 다시 잇자는 계획이 올라왔습니다. 발병 소식을 하루 만에 전할 수 있습니다.",
+   "art": [
+    "fire",
+    "fortress"
+   ],
+   "weight": 6,
+   "choices": [
+    {
+     "label": "봉화대 재건",
+     "art": [
+      "fire"
+     ],
+     "check": {
+      "stat": "finance"
+     },
+     "effects": {
+      "infection": -5,
+      "neutral": -2,
+      "silver": -6
+     }
+    },
+    {
+     "label": "병력으로 순찰",
+     "art": [
+      "soldier"
+     ],
+     "check": {
+      "stat": "order"
+     },
+     "effects": {
+      "infection": -3,
+      "army": -0.2
+     }
+    }
+   ]
+  },
+  {
+   "id": "ark-mithril-trade",
+   "faction": "arkandal",
+   "title": "미스릴 밀거래",
+   "text": "아이루스 상인이 미스릴을 시세의 두 배에 사겠다고 제안합니다. 방벽에 쓸 몫이 줄어듭니다.",
+   "art": [
+    "crystal",
+    "ship"
+   ],
+   "weight": 7,
+   "choices": [
+    {
+     "label": "판다",
+     "art": [
+      "coin"
+     ],
+     "check": {
+      "stat": "finance"
+     },
+     "effects": {
+      "silver": 18,
+      "strat": -20,
+      "rel": 3
+     }
+    },
+    {
+     "label": "거절한다",
+     "art": [
+      "shield"
+     ],
+     "check": {
+      "stat": "legit"
+     },
+     "effects": {
+      "legit": 3,
+      "rel": -4
+     }
+    }
+   ]
+  },
+  {
+   "id": "ark-child-soldiers",
+   "faction": "arkandal",
+   "title": "소년병 징집령",
+   "text": "병력이 모자라자 장군들이 열네 살 소년까지 명부에 올리자고 합니다.",
+   "art": [
+    "soldier",
+    "banner"
+   ],
+   "weight": 6,
+   "choices": [
+    {
+     "label": "징집령 승인",
+     "art": [
+      "soldier"
+     ],
+     "check": {
+      "stat": "order"
+     },
+     "effects": {
+      "army": 0.8,
+      "morale": -10,
+      "wrath": 4
+     }
+    },
+    {
+     "label": "거부한다",
+     "art": [
+      "crown"
+     ],
+     "check": {
+      "stat": "legit"
+     },
+     "effects": {
+      "legit": 5,
+      "order": -3
+     }
+    }
+   ],
+   "when": {
+    "turn": {
+     "min": 8
+    }
+   }
+  },
+  {
+   "id": "ark-burned-village",
+   "faction": "arkandal",
+   "title": "불타는 마을",
+   "text": "국경 마을 하나를 통째로 태우면 감염이 멎을 것이라고 공병대장이 말합니다. 마을에는 아직 산 사람이 있습니다.",
+   "art": [
+    "fire",
+    "grave"
+   ],
+   "weight": 8,
+   "choices": [
+    {
+     "label": "마을을 태운다",
+     "art": [
+      "torch",
+      "fire"
+     ],
+     "check": {
+      "stat": "order"
+     },
+     "effects": {
+      "infection": -14,
+      "pop": -0.6,
+      "wrath": 12,
+      "morale": -6
+     }
+    },
+    {
+     "label": "주민부터 옮긴다",
+     "art": [
+      "cart"
+     ],
+     "check": {
+      "stat": "finance",
+      "mod": -5
+     },
+     "effects": {
+      "infection": -6,
+      "silver": -6,
+      "food": -4
+     },
+     "onFail": {
+      "infection": 6
+     }
+    }
+   ],
+   "when": {
+    "infection": {
+     "min": 35
+    }
+   }
+  },
+  {
+   "id": "ark-war-council",
+   "faction": "arkandal",
+   "title": "장군 회의",
+   "text": "장군들은 방벽에 자원을 몰지, 병력에 몰지 의견이 갈렸습니다.",
+   "art": [
+    "banner",
+    "scroll"
+   ],
+   "weight": 7,
+   "choices": [
+    {
+     "label": "방벽파의 손을 든다",
+     "art": [
+      "wall"
+     ],
+     "check": {
+      "stat": "legit"
+     },
+     "effects": {
+      "wall": 5,
+      "order": -3
+     }
+    },
+    {
+     "label": "병력파의 손을 든다",
+     "art": [
+      "soldier"
+     ],
+     "check": {
+      "stat": "order"
+     },
+     "effects": {
+      "army": 0.6,
+      "strat": -6
+     }
+    }
+   ]
+  },
+  {
+   "id": "ark-plague-cart",
+   "faction": "arkandal",
+   "title": "시체 수레",
+   "text": "새벽마다 시체 수레가 성 밖 구덩이로 나갑니다. 수레꾼들이 일을 거부합니다.",
+   "art": [
+    "cart",
+    "corpse"
+   ],
+   "weight": 7,
+   "choices": [
+    {
+     "label": "수당을 올린다",
+     "art": [
+      "coin"
+     ],
+     "check": {
+      "stat": "finance"
+     },
+     "effects": {
+      "infection": -4,
+      "silver": -5
+     }
+    },
+    {
+     "label": "죄수에게 맡긴다",
+     "art": [
+      "chain"
+     ],
+     "check": {
+      "stat": "order"
+     },
+     "effects": {
+      "infection": -3,
+      "order": 2,
+      "wrath": 3
+     },
+     "onFail": {
+      "infection": 5
+     }
+    }
+   ],
+   "when": {
+    "infection": {
+     "min": 25
+    }
+   }
+  },
+  {
+   "id": "ark-saint-relic",
+   "faction": "arkandal",
+   "title": "성유물의 행렬",
+   "text": "샤리아 성당이 성유물을 들고 요새를 순회하자고 청합니다. 병사들의 사기가 오를 것입니다.",
+   "art": [
+    "altar",
+    "banner"
+   ],
+   "weight": 6,
+   "choices": [
+    {
+     "label": "행렬을 허락",
+     "art": [
+      "bell"
+     ],
+     "check": {
+      "stat": "legit"
+     },
+     "effects": {
+      "legit": 6,
+      "morale": 4,
+      "infection": 3,
+      "wrath": -3
+     }
+    },
+    {
+     "label": "요새 안에서만",
+     "art": [
+      "fortress"
+     ],
+     "check": {
+      "stat": "order"
+     },
+     "effects": {
+      "legit": 2,
+      "order": 2
+     }
+    }
+   ],
+   "season": [
+    "spring"
+   ]
+  },
+  {
+   "id": "ark-gate-panic",
+   "faction": "arkandal",
+   "title": "성문의 공포",
+   "text": "구울 무리가 성문 앞에 나타났다는 거짓 경보에 시민들이 짓밟혀 죽었습니다.",
+   "art": [
+    "ghoul",
+    "wall"
+   ],
+   "weight": 6,
+   "choices": [
+    {
+     "label": "경보 체계를 고친다",
+     "art": [
+      "bell"
+     ],
+     "check": {
+      "stat": "finance"
+     },
+     "effects": {
+      "order": 4,
+      "silver": -4
+     }
+    },
+    {
+     "label": "거짓 경보자를 교수형",
+     "art": [
+      "chain"
+     ],
+     "check": {
+      "stat": "order"
+     },
+     "effects": {
+      "order": 6,
+      "morale": -4,
+      "wrath": 2
+     }
+    }
+   ]
+  },
+  {
+   "id": "ark-hound",
+   "faction": "arkandal",
+   "title": "구울 사냥개",
+   "text": "사냥꾼들이 구울 냄새를 맡는 개를 길렀다고 합니다. 값은 비쌉니다.",
+   "art": [
+    "soldier",
+    "ghoul"
+   ],
+   "weight": 6,
+   "choices": [
+    {
+     "label": "군견대 창설",
+     "art": [
+      "shield"
+     ],
+     "check": {
+      "stat": "finance"
+     },
+     "effects": {
+      "infection": -6,
+      "silver": -8
+     }
+    },
+    {
+     "label": "사냥꾼만 고용",
+     "art": [
+      "coin"
+     ],
+     "check": {
+      "stat": "finance",
+      "mod": 5
+     },
+     "effects": {
+      "infection": -3,
+      "silver": -3
+     }
+    }
+   ],
+   "when": {
+    "turn": {
+     "min": 5
+    }
+   }
+  },
+  {
+   "id": "ark-supply-raid",
+   "faction": "arkandal",
+   "title": "보급대 습격",
+   "text": "구울 떼가 남쪽 보급로의 마차 행렬을 덮쳤습니다. 식량 수레 절반이 사라졌습니다.",
+   "art": [
+    "cart",
+    "ghoul"
+   ],
+   "weight": 7,
+   "choices": [
+    {
+     "label": "호위를 늘린다",
+     "art": [
+      "soldier"
+     ],
+     "check": {
+      "stat": "order"
+     },
+     "effects": {
+      "food": -6,
+      "army": -0.2,
+      "order": 3
+     }
+    },
+    {
+     "label": "보급로를 바꾼다",
+     "art": [
+      "scroll"
+     ],
+     "check": {
+      "stat": "finance"
+     },
+     "effects": {
+      "food": -3,
+      "silver": -4
+     }
+    }
+   ]
+  },
+  {
+   "id": "ark-oath",
+   "faction": "arkandal",
+   "title": "철벽의 서약",
+   "text": "전운이 온 국민에게 방벽 완공까지 축제를 금하는 서약을 받으려 합니다.",
+   "art": [
+    "crown",
+    "wall"
+   ],
+   "weight": 6,
+   "choices": [
+    {
+     "label": "서약을 강제",
+     "art": [
+      "banner"
+     ],
+     "check": {
+      "stat": "order"
+     },
+     "effects": {
+      "wall": 4,
+      "order": 4,
+      "morale": -8
+     }
+    },
+    {
+     "label": "자원자만 받는다",
+     "art": [
+      "scroll"
+     ],
+     "check": {
+      "stat": "legit"
+     },
+     "effects": {
+      "wall": 2,
+      "legit": 3
+     }
+    }
+   ],
+   "when": {
+    "turn": {
+     "min": 10
+    }
+   }
+  },
+  {
+   "id": "ark-iruth-envoy",
+   "faction": "arkandal",
+   "title": "아이루스의 사절",
+   "text": "아이루스 사절이 빙철 격리 기술을 넘겨주는 대가로 미스릴 광산 지분을 요구합니다.",
+   "art": [
+    "treaty",
+    "ship"
+   ],
+   "weight": 7,
+   "choices": [
+    {
+     "label": "조약 체결",
+     "art": [
+      "treaty"
+     ],
+     "check": {
+      "stat": "legit",
+      "mod": -10
+     },
+     "effects": {
+      "rel": 10,
+      "infection": -6,
+      "strat": -15
+     }
+    },
+    {
+     "label": "돌려보낸다",
+     "art": [
+      "shield"
+     ],
+     "check": {
+      "stat": "order"
+     },
+     "effects": {
+      "rel": -6,
+      "legit": 2
+     }
+    }
+   ]
+  },
+  {
+   "id": "ark-heretic-trail",
+   "faction": "arkandal",
+   "title": "이단의 흔적",
+   "text": "요새 지하 묘지에서 구울 부두교의 상징이 발견되었습니다.",
+   "art": [
+    "eye",
+    "grave"
+   ],
+   "weight": 8,
+   "choices": [
+    {
+     "label": "지하 묘지 수색",
+     "art": [
+      "torch"
+     ],
+     "check": {
+      "stat": "order"
+     },
+     "effects": {
+      "voodooPower": -8,
+      "infection": -3,
+      "army": -0.1
+     },
+     "onFail": {
+      "infection": 5
+     }
+    },
+    {
+     "label": "묘지를 봉인",
+     "art": [
+      "wall"
+     ],
+     "check": {
+      "stat": "legit"
+     },
+     "effects": {
+      "infection": -2,
+      "legit": 2
+     }
+    }
+   ],
+   "when": {
+    "voodooAi": true
+   }
+  },
+  {
+   "id": "ark-armory",
+   "faction": "arkandal",
+   "title": "무기고의 녹",
+   "text": "습한 봄비에 무기고의 창 절반이 녹슬었습니다.",
+   "art": [
+    "sword",
+    "shield"
+   ],
+   "weight": 6,
+   "choices": [
+    {
+     "label": "미스릴로 다시 벼린다",
+     "art": [
+      "pickaxe"
+     ],
+     "check": {
+      "stat": "finance"
+     },
+     "effects": {
+      "strat": -10,
+      "army": 0.3,
+      "order": 3
+     }
+    },
+    {
+     "label": "녹슨 창으로 버틴다",
+     "art": [
+      "soldier"
+     ],
+     "check": {
+      "stat": "order"
+     },
+     "effects": {
+      "order": -4
+     }
+    }
+   ],
+   "season": [
+    "spring",
+    "summer"
+   ]
+  },
+  {
+   "id": "ark-winter-camp",
+   "faction": "arkandal",
+   "title": "겨울 막사",
+   "text": "병사들이 얼어 죽지 않으려면 막사를 붙여 지어야 합니다. 붙여 지으면 병이 돕니다.",
+   "art": [
+    "tent",
+    "blizzard"
+   ],
+   "weight": 8,
+   "choices": [
+    {
+     "label": "막사를 붙인다",
+     "art": [
+      "tent"
+     ],
+     "check": {
+      "stat": "order"
+     },
+     "effects": {
+      "morale": 3,
+      "infection": 4
+     }
+    },
+    {
+     "label": "땔감을 늘린다",
+     "art": [
+      "fire"
+     ],
+     "check": {
+      "stat": "finance"
+     },
+     "effects": {
+      "silver": -6,
+      "food": -3,
+      "morale": 2
+     }
+    }
+   ],
+   "season": [
+    "winter"
+   ]
+  },
+  {
+   "id": "ark-veterans",
+   "faction": "arkandal",
+   "title": "노병들의 청원",
+   "text": "발푸르기스의 밤에 싸운 노병들이 연금을 요구하며 광장에 모였습니다.",
+   "art": [
+    "banner",
+    "soldier"
+   ],
+   "weight": 6,
+   "choices": [
+    {
+     "label": "연금 지급",
+     "art": [
+      "coin"
+     ],
+     "check": {
+      "stat": "finance"
+     },
+     "effects": {
+      "legit": 5,
+      "morale": 3,
+      "silver": -8
+     }
+    },
+    {
+     "label": "현역 복귀를 명한다",
+     "art": [
+      "sword"
+     ],
+     "check": {
+      "stat": "order"
+     },
+     "effects": {
+      "army": 0.4,
+      "morale": -5
+     }
+    }
+   ]
+  },
+  {
+   "id": "ark-blood-moon",
+   "faction": "arkandal",
+   "title": "붉은 달",
+   "text": "붉은 달이 뜬 밤, 묘지의 흙이 들썩였다는 보고가 잇따릅니다.",
+   "art": [
+    "moon",
+    "grave"
+   ],
+   "weight": 7,
+   "choices": [
+    {
+     "label": "밤샘 경계",
+     "art": [
+      "torch",
+      "soldier"
+     ],
+     "check": {
+      "stat": "order"
+     },
+     "effects": {
+      "infection": -4,
+      "order": -2
+     }
+    },
+    {
+     "label": "묘지에 소금을 뿌린다",
+     "art": [
+      "grain"
+     ],
+     "check": {
+      "stat": "finance"
+     },
+     "effects": {
+      "infection": -3,
+      "food": -4
+     }
+    }
+   ],
+   "when": {
+    "infection": {
+     "min": 30
+    }
+   }
+  },
+  {
+   "id": "ark-forge-fire",
+   "faction": "arkandal",
+   "title": "용광로의 불",
+   "text": "제련소의 용광로 하나가 꺼졌습니다. 다시 지피려면 석탄이 필요합니다.",
+   "art": [
+    "fire",
+    "pickaxe"
+   ],
+   "weight": 6,
+   "choices": [
+    {
+     "label": "석탄을 산다",
+     "art": [
+      "coin"
+     ],
+     "check": {
+      "stat": "finance"
+     },
+     "effects": {
+      "silver": -6,
+      "strat": 10
+     }
+    },
+    {
+     "label": "시체를 태워 불을 지핀다",
+     "art": [
+      "corpse",
+      "fire"
+     ],
+     "check": {
+      "stat": "order"
+     },
+     "effects": {
+      "strat": 12,
+      "infection": -4,
+      "wrath": 8
+     }
+    }
+   ]
+  },
+  {
+   "id": "ark-scouts",
+   "faction": "arkandal",
+   "title": "정찰병의 귀환",
+   "text": "폐허로 보낸 정찰병이 반쯤 미친 채 돌아와 라벤 학궁의 지도를 내밉니다.",
+   "art": [
+    "scroll",
+    "raven"
+   ],
+   "weight": 6,
+   "choices": [
+    {
+     "label": "지도를 학자에게",
+     "art": [
+      "book"
+     ],
+     "check": {
+      "stat": "legit"
+     },
+     "effects": {
+      "research": 6,
+      "neutral": -2
+     }
+    },
+    {
+     "label": "정찰병을 격리",
+     "art": [
+      "tent"
+     ],
+     "check": {
+      "stat": "order"
+     },
+     "effects": {
+      "infection": -2
+     }
+    }
+   ],
+   "when": {
+    "turn": {
+     "min": 4
+    }
+   }
+  },
+  {
+   "id": "ark-tax-revolt",
+   "faction": "arkandal",
+   "title": "징세 거부",
+   "text": "남부 농민들이 군세를 거부하며 곡식을 숨겼습니다.",
+   "art": [
+    "grain",
+    "chain"
+   ],
+   "weight": 7,
+   "choices": [
+    {
+     "label": "군대로 거둔다",
+     "art": [
+      "soldier"
+     ],
+     "check": {
+      "stat": "order"
+     },
+     "effects": {
+      "food": 10,
+      "morale": -8
+     },
+     "onFail": {
+      "morale": -6
+     }
+    },
+    {
+     "label": "세율을 낮춘다",
+     "art": [
+      "scroll"
+     ],
+     "check": {
+      "stat": "finance"
+     },
+     "effects": {
+      "morale": 5,
+      "silver": -6
+     }
+    }
+   ],
+   "season": [
+    "autumn"
+   ]
+  },
+  {
+   "id": "ark-wall-crack",
+   "faction": "arkandal",
+   "title": "갈라진 방벽",
+   "text": "완공된 방벽 한 구간에 금이 갔습니다. 밤새 구울이 그 틈을 긁었습니다.",
+   "art": [
+    "wall",
+    "ghoul"
+   ],
+   "weight": 8,
+   "choices": [
+    {
+     "label": "즉시 보수",
+     "art": [
+      "pickaxe"
+     ],
+     "check": {
+      "stat": "order"
+     },
+     "effects": {
+      "strat": -8,
+      "wall": 2
+     }
+    },
+    {
+     "label": "병력으로 막는다",
+     "art": [
+      "soldier",
+      "shield"
+     ],
+     "check": {
+      "stat": "order",
+      "mod": 5
+     },
+     "effects": {
+      "army": -0.3,
+      "infection": 2
+     }
+    }
+   ],
+   "when": {
+    "wall": {
+     "min": 20
+    }
+   }
+  },
+  {
+   "id": "ark-healer-nun",
+   "faction": "arkandal",
+   "title": "성녀 수녀회",
+   "text": "감염자를 맨손으로 돌보는 수녀들이 요새 의무실을 맡겠다고 합니다.",
+   "art": [
+    "potion",
+    "altar"
+   ],
+   "weight": 6,
+   "choices": [
+    {
+     "label": "의무실을 맡긴다",
+     "art": [
+      "tent"
+     ],
+     "check": {
+      "stat": "legit"
+     },
+     "effects": {
+      "infection": -5,
+      "legit": 4,
+      "pop": -0.2
+     }
+    },
+    {
+     "label": "군의관만 둔다",
+     "art": [
+      "shield"
+     ],
+     "check": {
+      "stat": "order"
+     },
+     "effects": {
+      "order": 2,
+      "infection": -2
+     }
+    }
+   ]
+  },
+  {
+   "id": "ark-bell-tower",
+   "faction": "arkandal",
+   "title": "종탑의 규칙",
+   "text": "구울을 보면 종을 치라는 명령 탓에 하루 종일 종소리가 그치지 않습니다.",
+   "art": [
+    "bell",
+    "fortress"
+   ],
+   "weight": 5,
+   "choices": [
+    {
+     "label": "종지기를 둔다",
+     "art": [
+      "bell"
+     ],
+     "check": {
+      "stat": "finance"
+     },
+     "effects": {
+      "silver": -3,
+      "order": 4
+     }
+    },
+    {
+     "label": "종을 내린다",
+     "art": [
+      "scroll"
+     ],
+     "check": {
+      "stat": "morale"
+     },
+     "effects": {
+      "morale": 3,
+      "infection": 2
+     }
+    }
+   ]
+  },
+  {
+   "id": "ark-raven-post",
+   "faction": "arkandal",
+   "title": "까마귀 우편",
+   "text": "봉쇄 탓에 사람 대신 까마귀가 편지를 나릅니다. 까마귀가 병을 옮긴다는 소문도 돕니다.",
+   "art": [
+    "raven",
+    "scroll"
+   ],
+   "weight": 5,
+   "choices": [
+    {
+     "label": "까마귀 우편 유지",
+     "art": [
+      "raven"
+     ],
+     "check": {
+      "stat": "finance"
+     },
+     "effects": {
+      "silver": 3,
+      "infection": 2
+     }
+    },
+    {
+     "label": "까마귀를 모두 쏜다",
+     "art": [
+      "sword"
+     ],
+     "check": {
+      "stat": "order"
+     },
+     "effects": {
+      "infection": -2,
+      "morale": -3
+     }
+    }
+   ]
+  },
+  {
+   "id": "ark-iron-will",
+   "faction": "arkandal",
+   "title": "철의 의지",
+   "text": "전운이 직접 방벽 위에서 밤을 지새우겠다고 합니다. 병사들이 왕을 보러 몰려듭니다.",
+   "art": [
+    "crown",
+    "wall"
+   ],
+   "weight": 5,
+   "choices": [
+    {
+     "label": "왕과 함께 지킨다",
+     "art": [
+      "banner"
+     ],
+     "check": {
+      "stat": "legit"
+     },
+     "effects": {
+      "order": 6,
+      "legit": 4,
+      "infection": 2
+     }
+    },
+    {
+     "label": "왕의 안전이 먼저",
+     "art": [
+      "shield"
+     ],
+     "check": {
+      "stat": "order"
+     },
+     "effects": {
+      "order": 2
+     }
+    }
+   ]
+  },
+  {
+   "id": "ark-famine-march",
+   "faction": "arkandal",
+   "title": "굶주린 행군",
+   "text": "식량이 바닥난 연대가 민가를 털기 시작했습니다.",
+   "art": [
+    "soldier",
+    "grain"
+   ],
+   "weight": 9,
+   "choices": [
+    {
+     "label": "약탈을 눈감는다",
+     "art": [
+      "grain"
+     ],
+     "check": {
+      "stat": "order"
+     },
+     "effects": {
+      "food": 6,
+      "morale": -10
+     }
+    },
+    {
+     "label": "연대를 해산",
+     "art": [
+      "scroll"
+     ],
+     "check": {
+      "stat": "legit"
+     },
+     "effects": {
+      "army": -0.5,
+      "legit": 3
+     }
+    }
+   ],
+   "when": {
+    "foodLow": true
+   }
+  },
+  {
+   "id": "ark-iron-crown",
+   "faction": "arkandal",
+   "title": "강철 왕관",
+   "text": "전운의 즉위 10주년입니다. 신하들은 성대한 의식을 원합니다.",
+   "art": [
+    "crown",
+    "altar"
+   ],
+   "weight": 6,
+   "choices": [
+    {
+     "label": "성대한 즉위 의식",
+     "art": [
+      "banner",
+      "bell"
+     ],
+     "check": {
+      "stat": "finance"
+     },
+     "effects": {
+      "legit": 8,
+      "morale": 4,
+      "silver": -10,
+      "infection": 3
+     }
+    },
+    {
+     "label": "방벽 위에서 간소하게",
+     "art": [
+      "wall"
+     ],
+     "check": {
+      "stat": "legit"
+     },
+     "effects": {
+      "legit": 4,
+      "wall": 2
+     }
+    }
+   ],
+   "when": {
+    "turn": {
+     "min": 20
+    }
+   }
+  },
+  {
+   "id": "iru-hub-quarantine",
+   "faction": "iruth",
+   "title": "벨로링크 허브의 검역",
+   "text": "대륙 교역로가 모이는 벨로링크 허브에 감염 의심 선단이 입항을 요구합니다.",
+   "art": [
+    "ship",
+    "scales"
+   ],
+   "weight": 10,
+   "choices": [
+    {
+     "label": "허브 폐쇄",
+     "art": [
+      "chain"
+     ],
+     "check": {
+      "stat": "finance"
+     },
+     "effects": {
+      "infection": -10,
+      "silver": -15
+     }
+    },
+    {
+     "label": "검역 수수료 인상",
+     "art": [
+      "coin"
+     ],
+     "check": {
+      "stat": "finance",
+      "mod": 5
+     },
+     "effects": {
+      "silver": 20,
+      "infection": 6
+     }
+    }
+   ]
+  },
+  {
+   "id": "iru-loan",
+   "faction": "iruth",
+   "title": "상인 연합의 대출 요구",
+   "text": "빈사 상태의 상인 연합이 공국 금고에서 긴급 대출을 요청합니다. 거절하면 시장이 멈춥니다.",
+   "art": [
+    "coin",
+    "scales"
+   ],
+   "weight": 8,
+   "choices": [
+    {
+     "label": "대출 승인",
+     "art": [
+      "coin"
+     ],
+     "check": {
+      "stat": "finance"
+     },
+     "effects": {
+      "finance": 8,
+      "morale": 3,
+      "silver": -20
+     },
+     "onFail": {
+      "finance": -6
+     }
+    },
+    {
+     "label": "거절",
+     "art": [
+      "shield"
+     ],
+     "check": {
+      "stat": "legit"
+     },
+     "effects": {
+      "legit": 4,
+      "finance": -6
+     }
+    }
+   ]
+  },
+  {
+   "id": "iru-styx-warning",
+   "faction": "iruth",
+   "title": "스틱스 수호체의 경고",
+   "text": "인공신 스틱스가 남쪽 운하에 '부패한 온기'가 흐른다고 알립니다. 운하는 교역량의 절반을 나릅니다.",
+   "art": [
+    "eye",
+    "crystal"
+   ],
+   "weight": 8,
+   "choices": [
+    {
+     "label": "빙철 격리벽 가동",
+     "art": [
+      "crystal",
+      "wall"
+     ],
+     "check": {
+      "stat": "order"
+     },
+     "effects": {
+      "infection": -8,
+      "strat": -6
+     }
+    },
+    {
+     "label": "경고를 흘려듣는다",
+     "art": [
+      "ship"
+     ],
+     "check": {
+      "stat": "finance"
+     },
+     "effects": {
+      "silver": 6,
+      "infection": 4
+     }
+    }
+   ]
+  },
+  {
+   "id": "iru-grain-ship",
+   "faction": "iruth",
+   "title": "곡물선 도착",
+   "text": "남부 곡창에서 곡물선 다섯 척이 들어왔습니다. 선장은 값을 두 배로 부릅니다.",
+   "art": [
+    "ship",
+    "grain"
+   ],
+   "weight": 9,
+   "choices": [
+    {
+     "label": "전량 매입",
+     "art": [
+      "grain"
+     ],
+     "check": {
+      "stat": "finance",
+      "mod": -5
+     },
+     "effects": {
+      "food": 25,
+      "silver": -18
+     }
+    },
+    {
+     "label": "절반만 매입",
+     "art": [
+      "coin"
+     ],
+     "check": {
+      "stat": "finance"
+     },
+     "effects": {
+      "food": 12,
+      "silver": -9
+     }
+    }
+   ]
+  },
+  {
+   "id": "iru-strange-meat",
+   "faction": "iruth",
+   "title": "정체 모를 고기",
+   "text": "빈민가 시장에 값싼 고기가 쏟아집니다. 어디서 났는지 묻는 사람은 없습니다.",
+   "art": [
+    "corpse",
+    "coin"
+   ],
+   "weight": 7,
+   "choices": [
+    {
+     "label": "시장 단속",
+     "art": [
+      "shield"
+     ],
+     "check": {
+      "stat": "order"
+     },
+     "effects": {
+      "infection": -4,
+      "morale": -4
+     },
+     "onFail": {
+      "infection": 6
+     }
+    },
+    {
+     "label": "눈감아 준다",
+     "art": [
+      "grain"
+     ],
+     "check": {
+      "stat": "morale"
+     },
+     "effects": {
+      "food": 8,
+      "infection": 7
+     }
+    }
+   ],
+   "when": {
+    "infection": {
+     "min": 25
+    }
+   }
+  },
+  {
+   "id": "iru-forgery",
+   "faction": "iruth",
+   "title": "위조 은화",
+   "text": "환전소마다 무게가 모자란 실링이 발견됩니다. 황금 저울의 신용이 흔들립니다.",
+   "art": [
+    "coin",
+    "scales"
+   ],
+   "weight": 7,
+   "choices": [
+    {
+     "label": "화폐 개주",
+     "art": [
+      "pickaxe",
+      "coin"
+     ],
+     "check": {
+      "stat": "finance"
+     },
+     "effects": {
+      "finance": 10,
+      "legit": 4,
+      "silver": -8
+     }
+    },
+    {
+     "label": "은폐한다",
+     "art": [
+      "chain"
+     ],
+     "check": {
+      "stat": "legit",
+      "mod": -5
+     },
+     "effects": {
+      "silver": 5,
+      "finance": -8
+     }
+    }
+   ]
+  },
+  {
+   "id": "iru-blizzard-port",
+   "faction": "iruth",
+   "title": "한랭 지대의 눈보라",
+   "text": "항구가 얼어붙기 직전입니다. 마지막 무역선을 받을지 겨울 내내 문을 닫을지 정해야 합니다.",
+   "art": [
+    "blizzard",
+    "ship"
+   ],
+   "weight": 9,
+   "choices": [
+    {
+     "label": "항구 봉쇄",
+     "art": [
+      "chain"
+     ],
+     "check": {
+      "stat": "order"
+     },
+     "effects": {
+      "infection": -5,
+      "silver": -6
+     }
+    },
+    {
+     "label": "무역 지속",
+     "art": [
+      "coin"
+     ],
+     "check": {
+      "stat": "finance"
+     },
+     "effects": {
+      "silver": 10,
+      "food": 5,
+      "infection": 3
+     }
+    }
+   ],
+   "season": [
+    "winter"
+   ]
+  },
+  {
+   "id": "iru-healers",
+   "faction": "iruth",
+   "title": "치료사 길드의 실험",
+   "text": "치료사 길드가 감염자에게 빙철 가루를 투여하는 실험 허가를 요청합니다.",
+   "art": [
+    "potion",
+    "crystal"
+   ],
+   "weight": 9,
+   "choices": [
+    {
+     "label": "자금을 대준다",
+     "art": [
+      "coin",
+      "book"
+     ],
+     "check": {
+      "stat": "finance"
+     },
+     "effects": {
+      "research": 9,
+      "silver": -10
+     },
+     "onFail": {
+      "infection": 5,
+      "wrath": 5
+     }
+    },
+    {
+     "label": "실험 금지",
+     "art": [
+      "shield"
+     ],
+     "check": {
+      "stat": "legit",
+      "mod": 5
+     },
+     "effects": {
+      "legit": 5,
+      "research": -2
+     }
+    }
+   ],
+   "when": {
+    "turn": {
+     "min": 3
+    }
+   }
+  },
+  {
+   "id": "iru-banquet",
+   "faction": "iruth",
+   "title": "대공의 연회",
+   "text": "대공은 동맹 상인들을 위한 연회를 예정대로 열고 싶어 합니다.",
+   "art": [
+    "crown",
+    "coin"
+   ],
+   "weight": 6,
+   "choices": [
+    {
+     "label": "연회 강행",
+     "art": [
+      "bell"
+     ],
+     "check": {
+      "stat": "finance"
+     },
+     "effects": {
+      "legit": 8,
+      "silver": -8,
+      "infection": 3,
+      "morale": -3
+     }
+    },
+    {
+     "label": "연회 취소",
+     "art": [
+      "scroll"
+     ],
+     "check": {
+      "stat": "legit",
+      "mod": -5
+     },
+     "effects": {
+      "silver": 4,
+      "legit": -4
+     }
+    }
+   ]
+  },
+  {
+   "id": "iru-dock-strike",
+   "faction": "iruth",
+   "title": "항구 노동자 파업",
+   "text": "부두 노동자들이 감염 위험을 이유로 하역을 거부합니다. 배들이 바다 위에서 썩어 갑니다.",
+   "art": [
+    "ship",
+    "chain"
+   ],
+   "weight": 8,
+   "choices": [
+    {
+     "label": "위험 수당 지급",
+     "art": [
+      "coin"
+     ],
+     "check": {
+      "stat": "finance"
+     },
+     "effects": {
+      "order": 8,
+      "silver": -10
+     }
+    },
+    {
+     "label": "경비대로 진압",
+     "art": [
+      "soldier"
+     ],
+     "check": {
+      "stat": "order",
+      "mod": -5
+     },
+     "effects": {
+      "order": 4,
+      "morale": -10,
+      "wrath": 2
+     },
+     "onFail": {
+      "order": -8
+     }
+    }
+   ],
+   "when": {
+    "infection": {
+     "min": 31
+    }
+   }
+  },
+  {
+   "id": "iru-styx-guardian",
+   "faction": "iruth",
+   "title": "스틱스 수호체의 각성",
+   "text": "스틱스 수호체가 스스로 움직여 운하의 구울을 얼려 버렸습니다. 의회는 통제권을 두고 다툽니다.",
+   "art": [
+    "crystal",
+    "eye"
+   ],
+   "weight": 6,
+   "choices": [
+    {
+     "label": "스틱스에게 맡긴다",
+     "art": [
+      "crystal"
+     ],
+     "check": {
+      "stat": "legit"
+     },
+     "effects": {
+      "infection": -8,
+      "legit": -3
+     }
+    },
+    {
+     "label": "의회 통제하에 둔다",
+     "art": [
+      "scales"
+     ],
+     "check": {
+      "stat": "order"
+     },
+     "effects": {
+      "infection": -4,
+      "order": 4
+     }
+    }
+   ],
+   "when": {
+    "turn": {
+     "min": 6
+    }
+   }
+  },
+  {
+   "id": "iru-ice-iron-vein",
+   "faction": "iruth",
+   "title": "새 빙철 광맥",
+   "text": "북쪽 빙하 아래에서 빙철 광맥이 발견되었습니다. 캐려면 사람을 얼음 속으로 보내야 합니다.",
+   "art": [
+    "crystal",
+    "pickaxe"
+   ],
+   "weight": 7,
+   "choices": [
+    {
+     "label": "광부를 보낸다",
+     "art": [
+      "pickaxe"
+     ],
+     "check": {
+      "stat": "order"
+     },
+     "effects": {
+      "strat": 15,
+      "pop": -0.3
+     }
+    },
+    {
+     "label": "용병 광부 고용",
+     "art": [
+      "coin"
+     ],
+     "check": {
+      "stat": "finance"
+     },
+     "effects": {
+      "strat": 10,
+      "silver": -8
+     }
+    }
+   ],
+   "season": [
+    "spring",
+    "summer"
+   ]
+  },
+  {
+   "id": "iru-insurance",
+   "faction": "iruth",
+   "title": "역병 보험",
+   "text": "벨로링크 은행가들이 '역병 보험'을 팔기 시작했습니다. 가난한 자는 가입할 수 없습니다.",
+   "art": [
+    "scroll",
+    "coin"
+   ],
+   "weight": 6,
+   "choices": [
+    {
+     "label": "공국이 보증한다",
+     "art": [
+      "scales"
+     ],
+     "check": {
+      "stat": "finance"
+     },
+     "effects": {
+      "morale": 6,
+      "silver": -8,
+      "finance": 3
+     }
+    },
+    {
+     "label": "시장에 맡긴다",
+     "art": [
+      "coin"
+     ],
+     "check": {
+      "stat": "finance"
+     },
+     "effects": {
+      "silver": 6,
+      "morale": -5
+     }
+    }
+   ]
+  },
+  {
+   "id": "iru-lab-fire",
+   "faction": "iruth",
+   "title": "연구소 화재",
+   "text": "치료 연구소에 불이 났습니다. 표본 상자 안의 감염 조직이 연기와 함께 흩어졌을 수 있습니다.",
+   "art": [
+    "fire",
+    "book"
+   ],
+   "weight": 6,
+   "choices": [
+    {
+     "label": "기록부터 구한다",
+     "art": [
+      "book"
+     ],
+     "check": {
+      "stat": "order"
+     },
+     "effects": {
+      "research": 4,
+      "infection": 4
+     }
+    },
+    {
+     "label": "표본까지 태운다",
+     "art": [
+      "fire"
+     ],
+     "check": {
+      "stat": "order"
+     },
+     "effects": {
+      "infection": -3,
+      "research": -4
+     }
+    }
+   ],
+   "when": {
+    "turn": {
+     "min": 8
+    }
+   }
+  },
+  {
+   "id": "iru-council-vote",
+   "faction": "iruth",
+   "title": "의장단 투표",
+   "text": "벨로링크 의장단이 연구 예산 두 배 증액안을 표결에 부칩니다.",
+   "art": [
+    "scales",
+    "scroll"
+   ],
+   "weight": 8,
+   "choices": [
+    {
+     "label": "증액안 지지",
+     "art": [
+      "book"
+     ],
+     "check": {
+      "stat": "legit"
+     },
+     "effects": {
+      "research": 8,
+      "silver": -12
+     }
+    },
+    {
+     "label": "무역 지원안 지지",
+     "art": [
+      "ship"
+     ],
+     "check": {
+      "stat": "legit"
+     },
+     "effects": {
+      "silver": 10,
+      "finance": 3
+     }
+    }
+   ]
+  },
+  {
+   "id": "iru-smuggler-boats",
+   "faction": "iruth",
+   "title": "밀수선",
+   "text": "검역을 피해 밤에 들어오는 밀수선이 늘었습니다. 그 배에는 약도, 병도 실려 있습니다.",
+   "art": [
+    "ship",
+    "moon"
+   ],
+   "weight": 8,
+   "choices": [
+    {
+     "label": "해안 순찰 강화",
+     "art": [
+      "soldier"
+     ],
+     "check": {
+      "stat": "order"
+     },
+     "effects": {
+      "infection": -5,
+      "silver": -4,
+      "army": -0.1
+     }
+    },
+    {
+     "label": "밀수에 세금을 매긴다",
+     "art": [
+      "coin"
+     ],
+     "check": {
+      "stat": "finance"
+     },
+     "effects": {
+      "silver": 8,
+      "infection": 5
+     }
+    }
+   ]
+  },
+  {
+   "id": "iru-ice-quarantine",
+   "faction": "iruth",
+   "title": "얼음 격리소",
+   "text": "빙하에 감염자를 얼려 보관하자는 의견이 나왔습니다. 언젠가 치료제가 나오면 깨우자는 것입니다.",
+   "art": [
+    "crystal",
+    "blizzard"
+   ],
+   "weight": 7,
+   "choices": [
+    {
+     "label": "얼음 격리소 건설",
+     "art": [
+      "crystal"
+     ],
+     "check": {
+      "stat": "finance"
+     },
+     "effects": {
+      "infection": -7,
+      "strat": -8,
+      "research": 3
+     }
+    },
+    {
+     "label": "반대한다",
+     "art": [
+      "scales"
+     ],
+     "check": {
+      "stat": "legit"
+     },
+     "effects": {
+      "legit": 2
+     }
+    }
+   ],
+   "season": [
+    "winter"
+   ]
+  },
+  {
+   "id": "iru-noble-flight",
+   "faction": "iruth",
+   "title": "귀족들의 피난",
+   "text": "부유한 가문들이 금고를 챙겨 남쪽 섬으로 떠나려 합니다.",
+   "art": [
+    "ship",
+    "crown"
+   ],
+   "weight": 7,
+   "choices": [
+    {
+     "label": "출국을 막는다",
+     "art": [
+      "chain"
+     ],
+     "check": {
+      "stat": "order"
+     },
+     "effects": {
+      "silver": 6,
+      "legit": -5,
+      "order": 3
+     }
+    },
+    {
+     "label": "보내 준다",
+     "art": [
+      "ship"
+     ],
+     "check": {
+      "stat": "legit"
+     },
+     "effects": {
+      "silver": -8,
+      "infection": -2,
+      "finance": -4
+     }
+    }
+   ],
+   "when": {
+    "infection": {
+     "min": 40
+    }
+   }
+  },
+  {
+   "id": "iru-grain-futures",
+   "faction": "iruth",
+   "title": "곡물 선물 거래",
+   "text": "상인들이 다음 해 곡물을 미리 사고팔기 시작했습니다. 값이 미친 듯이 오릅니다.",
+   "art": [
+    "grain",
+    "scales"
+   ],
+   "weight": 7,
+   "choices": [
+    {
+     "label": "가격 상한령",
+     "art": [
+      "scroll"
+     ],
+     "check": {
+      "stat": "order"
+     },
+     "effects": {
+      "food": 5,
+      "finance": -5,
+      "morale": 3
+     }
+    },
+    {
+     "label": "공국도 투자한다",
+     "art": [
+      "coin"
+     ],
+     "check": {
+      "stat": "finance"
+     },
+     "effects": {
+      "silver": 12,
+      "morale": -4
+     }
+    }
+   ],
+   "season": [
+    "summer",
+    "autumn"
+   ]
+  },
+  {
+   "id": "iru-hospital-ship",
+   "faction": "iruth",
+   "title": "병원선",
+   "text": "낡은 무역선을 병원선으로 개조하자는 계획입니다. 감염자를 바다 위에 띄워 두면 도시는 안전합니다.",
+   "art": [
+    "ship",
+    "potion"
+   ],
+   "weight": 8,
+   "choices": [
+    {
+     "label": "병원선 출항",
+     "art": [
+      "ship"
+     ],
+     "check": {
+      "stat": "finance"
+     },
+     "effects": {
+      "infection": -8,
+      "silver": -10
+     }
+    },
+    {
+     "label": "감염자를 섬에 버린다",
+     "art": [
+      "grave"
+     ],
+     "check": {
+      "stat": "order"
+     },
+     "effects": {
+      "infection": -10,
+      "wrath": 10,
+      "legit": -5
+     }
+    }
+   ],
+   "when": {
+    "infection": {
+     "min": 30
+    }
+   }
+  },
+  {
+   "id": "iru-ark-mithril",
+   "faction": "iruth",
+   "title": "아르칸달의 미스릴",
+   "text": "아르칸달이 빙철과 미스릴을 맞바꾸자고 제안합니다.",
+   "art": [
+    "treaty",
+    "crystal"
+   ],
+   "weight": 7,
+   "choices": [
+    {
+     "label": "교환한다",
+     "art": [
+      "treaty"
+     ],
+     "check": {
+      "stat": "legit"
+     },
+     "effects": {
+      "strat": -8,
+      "silver": 10,
+      "rel": 8
+     }
+    },
+    {
+     "label": "시세보다 싸게 사들인다",
+     "art": [
+      "coin"
+     ],
+     "check": {
+      "stat": "finance",
+      "mod": -5
+     },
+     "effects": {
+      "silver": 16,
+      "rel": -8
+     }
+    }
+   ]
+  },
+  {
+   "id": "iru-clockwork",
+   "faction": "iruth",
+   "title": "태엽 검역관",
+   "text": "스틱스의 사제들이 태엽 장치로 움직이는 검역관을 시험 제작했습니다.",
+   "art": [
+    "eye",
+    "shield"
+   ],
+   "weight": 6,
+   "choices": [
+    {
+     "label": "양산한다",
+     "art": [
+      "crystal"
+     ],
+     "check": {
+      "stat": "finance"
+     },
+     "effects": {
+      "infection": -6,
+      "silver": -10,
+      "strat": -4
+     }
+    },
+    {
+     "label": "시제품만 쓴다",
+     "art": [
+      "shield"
+     ],
+     "check": {
+      "stat": "order"
+     },
+     "effects": {
+      "infection": -3
+     }
+    }
+   ],
+   "when": {
+    "turn": {
+     "min": 12
+    }
+   }
+  },
+  {
+   "id": "iru-plague-doctor-guild",
+   "faction": "iruth",
+   "title": "부리 가면 조합",
+   "text": "부리 가면을 쓴 의사들이 조합을 만들어 진료비를 세 배로 올렸습니다.",
+   "art": [
+    "potion",
+    "coin"
+   ],
+   "weight": 6,
+   "choices": [
+    {
+     "label": "공공 의사로 고용",
+     "art": [
+      "coin"
+     ],
+     "check": {
+      "stat": "finance"
+     },
+     "effects": {
+      "infection": -6,
+      "silver": -8
+     }
+    },
+    {
+     "label": "조합을 해산",
+     "art": [
+      "chain"
+     ],
+     "check": {
+      "stat": "order"
+     },
+     "effects": {
+      "order": 3,
+      "infection": 3
+     }
+    }
+   ]
+  },
+  {
+   "id": "iru-stock-crash",
+   "faction": "iruth",
+   "title": "환전소 폭락",
+   "text": "아르칸달 국경 봉쇄 소식에 실링 가치가 하루 만에 반 토막 났습니다.",
+   "art": [
+    "coin",
+    "raven"
+   ],
+   "weight": 7,
+   "choices": [
+    {
+     "label": "금고를 풀어 방어",
+     "art": [
+      "scales"
+     ],
+     "check": {
+      "stat": "finance"
+     },
+     "effects": {
+      "finance": 8,
+      "silver": -15
+     }
+    },
+    {
+     "label": "폭락을 견딘다",
+     "art": [
+      "shield"
+     ],
+     "check": {
+      "stat": "order"
+     },
+     "effects": {
+      "finance": -8,
+      "silver": 4
+     }
+    }
+   ],
+   "when": {
+    "turn": {
+     "min": 5
+    }
+   }
+  },
+  {
+   "id": "iru-snow-festival",
+   "faction": "iruth",
+   "title": "눈의 축제",
+   "text": "아이루스 사람들은 첫눈이 오면 얼음 등불을 띄웁니다. 올해도 열어야 할까요.",
+   "art": [
+    "blizzard",
+    "bell"
+   ],
+   "weight": 7,
+   "choices": [
+    {
+     "label": "축제를 연다",
+     "art": [
+      "fire"
+     ],
+     "check": {
+      "stat": "morale"
+     },
+     "effects": {
+      "morale": 8,
+      "infection": 3,
+      "silver": -3
+     }
+    },
+    {
+     "label": "등불만 띄운다",
+     "art": [
+      "moon"
+     ],
+     "check": {
+      "stat": "legit"
+     },
+     "effects": {
+      "morale": 3,
+      "legit": 2
+     }
+    }
+   ],
+   "season": [
+    "winter"
+   ]
+  },
+  {
+   "id": "iru-research-leak",
+   "faction": "iruth",
+   "title": "연구 기록 유출",
+   "text": "치료 연구 기록 일부가 사라졌습니다. 부두교가 사 갔다는 소문입니다.",
+   "art": [
+    "book",
+    "eye"
+   ],
+   "weight": 7,
+   "choices": [
+    {
+     "label": "범인을 추적",
+     "art": [
+      "soldier"
+     ],
+     "check": {
+      "stat": "order"
+     },
+     "effects": {
+      "voodooPower": -6,
+      "order": 2
+     },
+     "onFail": {
+      "research": -4
+     }
+    },
+    {
+     "label": "기록을 다시 쓴다",
+     "art": [
+      "book"
+     ],
+     "check": {
+      "stat": "legit"
+     },
+     "effects": {
+      "research": -2,
+      "silver": -4
+     }
+    }
+   ],
+   "when": {
+    "voodooAi": true,
+    "turn": {
+     "min": 6
+    }
+   }
+  },
+  {
+   "id": "iru-whale-oil",
+   "faction": "iruth",
+   "title": "고래 기름 부족",
+   "text": "겨울 등불에 쓸 고래 기름이 바닥났습니다. 어두운 골목에서 사람이 사라집니다.",
+   "art": [
+    "fire",
+    "ship"
+   ],
+   "weight": 6,
+   "choices": [
+    {
+     "label": "기름을 수입",
+     "art": [
+      "coin",
+      "ship"
+     ],
+     "check": {
+      "stat": "finance"
+     },
+     "effects": {
+      "silver": -8,
+      "morale": 4
+     }
+    },
+    {
+     "label": "야간 통행 금지",
+     "art": [
+      "chain"
+     ],
+     "check": {
+      "stat": "order"
+     },
+     "effects": {
+      "order": 4,
+      "morale": -3
+     }
+    }
+   ],
+   "season": [
+    "autumn",
+    "winter"
+   ]
+  },
+  {
+   "id": "iru-guild-hall",
+   "faction": "iruth",
+   "title": "길드 회관의 감염자",
+   "text": "가장 큰 상인 길드의 회관에서 발병자가 나왔습니다. 회관에는 전 대륙의 거래 장부가 있습니다.",
+   "art": [
+    "scales",
+    "corpse"
+   ],
+   "weight": 7,
+   "choices": [
+    {
+     "label": "회관 봉쇄",
+     "art": [
+      "chain"
+     ],
+     "check": {
+      "stat": "order"
+     },
+     "effects": {
+      "infection": -6,
+      "finance": -5
+     }
+    },
+    {
+     "label": "장부를 빼내고 소각",
+     "art": [
+      "fire",
+      "book"
+     ],
+     "check": {
+      "stat": "finance"
+     },
+     "effects": {
+      "infection": -4,
+      "wrath": 4,
+      "silver": 4
+     }
+    }
+   ],
+   "when": {
+    "infection": {
+     "min": 35
+    }
+   }
+  },
+  {
+   "id": "iru-sea-wall",
+   "faction": "iruth",
+   "title": "바다 방파제",
+   "text": "폭풍으로 방파제가 무너져 하수가 거리로 넘쳤습니다.",
+   "art": [
+    "wall",
+    "ship"
+   ],
+   "weight": 6,
+   "choices": [
+    {
+     "label": "빙철로 재건",
+     "art": [
+      "crystal"
+     ],
+     "check": {
+      "stat": "finance"
+     },
+     "effects": {
+      "strat": -8,
+      "infection": -3
+     }
+    },
+    {
+     "label": "임시 둑을 쌓는다",
+     "art": [
+      "pickaxe"
+     ],
+     "check": {
+      "stat": "order"
+     },
+     "effects": {
+      "silver": -4,
+      "infection": 2
+     }
+    }
+   ],
+   "season": [
+    "autumn"
+   ]
+  },
+  {
+   "id": "iru-mercenary-offer",
+   "faction": "iruth",
+   "title": "용병단의 제안",
+   "text": "남부 용병단이 계약금만 주면 국경을 지켜 주겠다고 합니다.",
+   "art": [
+    "soldier",
+    "coin"
+   ],
+   "weight": 7,
+   "choices": [
+    {
+     "label": "고용한다",
+     "art": [
+      "coin"
+     ],
+     "check": {
+      "stat": "finance"
+     },
+     "effects": {
+      "army": 1,
+      "silver": -15
+     }
+    },
+    {
+     "label": "돌려보낸다",
+     "art": [
+      "shield"
+     ],
+     "check": {
+      "stat": "legit"
+     },
+     "effects": {
+      "legit": 2
+     }
+    }
+   ]
+  },
+  {
+   "id": "iru-scholar-exchange",
+   "faction": "iruth",
+   "title": "학자 교환",
+   "text": "라벤 폐허 생존 학자들이 아이루스 연구소에서 일하고 싶어 합니다. 그들 중 누가 감염자인지 알 수 없습니다.",
+   "art": [
+    "book",
+    "cart"
+   ],
+   "weight": 8,
+   "choices": [
+    {
+     "label": "검역 후 받아들인다",
+     "art": [
+      "potion"
+     ],
+     "check": {
+      "stat": "finance"
+     },
+     "effects": {
+      "research": 7,
+      "silver": -5,
+      "infection": 2
+     }
+    },
+    {
+     "label": "모두 받아들인다",
+     "art": [
+      "book"
+     ],
+     "check": {
+      "stat": "legit"
+     },
+     "effects": {
+      "research": 10,
+      "infection": 5
+     }
+    }
+   ],
+   "when": {
+    "turn": {
+     "min": 4
+    }
+   }
+  },
+  {
+   "id": "iru-salt-trade",
+   "faction": "iruth",
+   "title": "소금 무역",
+   "text": "고기를 절일 소금 값이 오르고 있습니다. 아이루스는 북해 염전을 갖고 있습니다.",
+   "art": [
+    "coin",
+    "grain"
+   ],
+   "weight": 7,
+   "choices": [
+    {
+     "label": "소금을 비싸게 판다",
+     "art": [
+      "coin"
+     ],
+     "check": {
+      "stat": "finance"
+     },
+     "effects": {
+      "silver": 12,
+      "rel": -3
+     }
+    },
+    {
+     "label": "비축해 식량을 절인다",
+     "art": [
+      "grain"
+     ],
+     "check": {
+      "stat": "order"
+     },
+     "effects": {
+      "food": 10
+     }
+    }
+   ]
+  },
+  {
+   "id": "iru-styx-cost",
+   "faction": "iruth",
+   "title": "스틱스의 대가",
+   "text": "스틱스 수호체를 유지하는 빙철 소모가 늘었습니다. 사제들은 수호체를 줄이자고 합니다.",
+   "art": [
+    "crystal",
+    "coin"
+   ],
+   "weight": 6,
+   "choices": [
+    {
+     "label": "빙철을 더 바친다",
+     "art": [
+      "crystal"
+     ],
+     "check": {
+      "stat": "finance"
+     },
+     "effects": {
+      "strat": -10,
+      "legit": 4,
+      "infection": -3
+     }
+    },
+    {
+     "label": "수호체를 줄인다",
+     "art": [
+      "eye"
+     ],
+     "check": {
+      "stat": "order"
+     },
+     "effects": {
+      "strat": 5,
+      "infection": 4
+     }
+    }
+   ],
+   "when": {
+    "turn": {
+     "min": 10
+    }
+   }
+  },
+  {
+   "id": "iru-ghoul-auction",
+   "faction": "iruth",
+   "title": "구울 경매",
+   "text": "누군가 쇠사슬에 묶인 구울을 '연구용'으로 경매에 부쳤습니다.",
+   "art": [
+    "ghoul",
+    "chain"
+   ],
+   "weight": 6,
+   "choices": [
+    {
+     "label": "공국이 사들인다",
+     "art": [
+      "book"
+     ],
+     "check": {
+      "stat": "finance"
+     },
+     "effects": {
+      "research": 6,
+      "silver": -8,
+      "infection": 2
+     }
+    },
+    {
+     "label": "경매꾼 체포",
+     "art": [
+      "soldier"
+     ],
+     "check": {
+      "stat": "order"
+     },
+     "effects": {
+      "order": 3,
+      "wrath": -1
+     }
+    }
+   ],
+   "when": {
+    "infection": {
+     "min": 30
+    }
+   }
+  },
+  {
+   "id": "iru-false-cure",
+   "faction": "iruth",
+   "title": "가짜 치료제",
+   "text": "'빙철 물약'이 치료제라며 비싸게 팔립니다. 먹은 사람 중 낫는 사람은 없습니다.",
+   "art": [
+    "potion",
+    "coin"
+   ],
+   "weight": 7,
+   "choices": [
+    {
+     "label": "판매 금지",
+     "art": [
+      "chain"
+     ],
+     "check": {
+      "stat": "order"
+     },
+     "effects": {
+      "morale": -3,
+      "order": 3
+     }
+    },
+    {
+     "label": "세금을 걷고 내버려 둔다",
+     "art": [
+      "coin"
+     ],
+     "check": {
+      "stat": "finance"
+     },
+     "effects": {
+      "silver": 8,
+      "infection": 3,
+      "legit": -4
+     }
+    }
+   ]
+  },
+  {
+   "id": "iru-cure-trial",
+   "faction": "iruth",
+   "title": "첫 임상 시험",
+   "text": "연구소가 처음으로 감염 초기 환자에게 시약을 투여하려 합니다.",
+   "art": [
+    "potion",
+    "book"
+   ],
+   "weight": 9,
+   "choices": [
+    {
+     "label": "시험 승인",
+     "art": [
+      "potion"
+     ],
+     "check": {
+      "stat": "legit"
+     },
+     "effects": {
+      "research": 12,
+      "silver": -10
+     },
+     "onFail": {
+      "pop": -0.3,
+      "wrath": 5
+     }
+    },
+    {
+     "label": "동물 실험부터",
+     "art": [
+      "rat"
+     ],
+     "check": {
+      "stat": "order"
+     },
+     "effects": {
+      "research": 5,
+      "silver": -4
+     }
+    }
+   ],
+   "when": {
+    "turn": {
+     "min": 15
+    }
+   }
+  },
+  {
+   "id": "iru-port-fire",
+   "faction": "iruth",
+   "title": "항구의 불",
+   "text": "감염된 화물선 하나를 불태우자 불길이 옆 배로 번졌습니다.",
+   "art": [
+    "fire",
+    "ship"
+   ],
+   "weight": 6,
+   "choices": [
+    {
+     "label": "불길을 잡는다",
+     "art": [
+      "soldier"
+     ],
+     "check": {
+      "stat": "order"
+     },
+     "effects": {
+      "silver": -6,
+      "morale": 2
+     }
+    },
+    {
+     "label": "모두 태운다",
+     "art": [
+      "fire"
+     ],
+     "check": {
+      "stat": "order"
+     },
+     "effects": {
+      "infection": -6,
+      "silver": -12,
+      "wrath": 3
+     }
+    }
+   ],
+   "when": {
+    "infection": {
+     "min": 40
+    }
+   }
+  },
+  {
+   "id": "iru-archduke-ill",
+   "faction": "iruth",
+   "title": "대공의 기침",
+   "text": "대공이 연회 뒤 기침을 시작했습니다. 의회는 숨기자는 쪽과 알리자는 쪽으로 나뉩니다.",
+   "art": [
+    "crown",
+    "potion"
+   ],
+   "weight": 6,
+   "choices": [
+    {
+     "label": "공표하고 격리",
+     "art": [
+      "tent"
+     ],
+     "check": {
+      "stat": "legit"
+     },
+     "effects": {
+      "legit": 4,
+      "order": -4,
+      "infection": -2
+     }
+    },
+    {
+     "label": "숨긴다",
+     "art": [
+      "chain"
+     ],
+     "check": {
+      "stat": "order"
+     },
+     "effects": {
+      "order": 3,
+      "legit": -6
+     },
+     "onFail": {
+      "legit": -8,
+      "infection": 4
+     }
+    }
+   ],
+   "when": {
+    "turn": {
+     "min": 12
+    },
+    "infection": {
+     "min": 40
+    }
+   }
+  },
+  {
+   "id": "iru-golden-scale",
+   "faction": "iruth",
+   "title": "황금 저울의 판결",
+   "text": "의회가 검역 수수료를 올려 연구비로 쓰자는 안을 냈습니다.",
+   "art": [
+    "scales",
+    "book"
+   ],
+   "weight": 7,
+   "choices": [
+    {
+     "label": "수수료 인상",
+     "art": [
+      "coin"
+     ],
+     "check": {
+      "stat": "finance"
+     },
+     "effects": {
+      "silver": 6,
+      "research": 4,
+      "rel": -3
+     }
+    },
+    {
+     "label": "무역을 지킨다",
+     "art": [
+      "ship"
+     ],
+     "check": {
+      "stat": "legit"
+     },
+     "effects": {
+      "silver": 8,
+      "rel": 3
+     }
+    }
+   ]
+  },
+  {
+   "id": "iru-frost-market",
+   "faction": "iruth",
+   "title": "서리 시장",
+   "text": "겨울 한복판에 열리는 서리 시장은 아이루스 최대의 대목입니다. 사람도, 병도 몰립니다.",
+   "art": [
+    "coin",
+    "blizzard"
+   ],
+   "weight": 7,
+   "choices": [
+    {
+     "label": "성대하게 연다",
+     "art": [
+      "coin",
+      "bell"
+     ],
+     "check": {
+      "stat": "finance"
+     },
+     "effects": {
+      "silver": 16,
+      "morale": 4,
+      "infection": 5
+     }
+    },
+    {
+     "label": "검역소를 두고 연다",
+     "art": [
+      "shield"
+     ],
+     "check": {
+      "stat": "order"
+     },
+     "effects": {
+      "silver": -2,
+      "infection": 2
+     }
+    }
+   ],
+   "season": [
+    "winter"
+   ]
+  },
+  {
+   "id": "voo-ritual-frenzy",
+   "faction": "voodoo",
+   "title": "의식 중 구울 폭주",
+   "text": "제어 의식 도중 구울 무리가 사슬을 끊었습니다. 신도들이 제단 뒤로 물러섭니다.",
+   "art": [
+    "altar",
+    "ghoul"
+   ],
+   "weight": 10,
+   "choices": [
+    {
+     "label": "제물을 바쳐 달랜다",
+     "art": [
+      "corpse"
+     ],
+     "check": {
+      "stat": "control"
+     },
+     "effects": {
+      "prey": -5,
+      "control": 10
+     },
+     "onFail": {
+      "army": -1,
+      "pop": -0.5
+     }
+    },
+    {
+     "label": "집전 사제를 교체한다",
+     "art": [
+      "sword"
+     ],
+     "check": {
+      "stat": "faith"
+     },
+     "effects": {
+      "control": 15,
+      "faith": -12
+     }
+    }
+   ]
+  },
+  {
+   "id": "voo-ajirang",
+   "faction": "voodoo",
+   "title": "아지랑 신교 잔당",
+   "text": "쫓기던 아지랑 신교 잔당이 교단의 문을 두드립니다. 받아들이면 이웃 왕국이 눈치챌 것입니다.",
+   "art": [
+    "altar",
+    "cart"
+   ],
+   "weight": 8,
+   "choices": [
+    {
+     "label": "받아들인다",
+     "art": [
+      "altar"
+     ],
+     "check": {
+      "stat": "faith"
+     },
+     "effects": {
+      "pop": 2,
+      "faith": 4,
+      "stealth": -5
+     }
+    },
+    {
+     "label": "시험에 들게 한다",
+     "art": [
+      "chain"
+     ],
+     "check": {
+      "stat": "control"
+     },
+     "effects": {
+      "pop": 1,
+      "prey": 3
+     }
+    }
+   ]
+  },
+  {
+   "id": "voo-raben-ruin",
+   "faction": "voodoo",
+   "title": "라벤 폐허 탐색",
+   "text": "무너진 마도 학궁의 서고에 손대지 않은 방이 남았다는 소식입니다. 그곳은 구울의 둥지이기도 합니다.",
+   "art": [
+    "book",
+    "ghoul"
+   ],
+   "weight": 8,
+   "choices": [
+    {
+     "label": "마도 유물 발굴",
+     "art": [
+      "crystal",
+      "book"
+     ],
+     "check": {
+      "stat": "control",
+      "mod": -5
+     },
+     "effects": {
+      "strat": 8,
+      "neutral": 4
+     },
+     "onFail": {
+      "army": -1
+     }
+    },
+    {
+     "label": "폐허에 제단을 세운다",
+     "art": [
+      "altar"
+     ],
+     "check": {
+      "stat": "faith"
+     },
+     "effects": {
+      "prey": 8,
+      "neutral": 6,
+      "faith": -3
+     }
+    }
+   ]
+  },
+  {
+   "id": "voo-envoy-visit",
+   "faction": "voodoo",
+   "title": "의심하는 사절",
+   "text": "한 왕국의 사절이 '통제된 구울'이 정말 있는지 보겠다며 찾아왔습니다.",
+   "art": [
+    "treaty",
+    "eye"
+   ],
+   "weight": 8,
+   "choices": [
+    {
+     "label": "구울을 시연한다",
+     "art": [
+      "ghoul",
+      "chain"
+     ],
+     "check": {
+      "stat": "control"
+     },
+     "effects": {
+      "relTo": 10,
+      "stealth": -6
+     },
+     "onFail": {
+      "stealth": -10
+     },
+     "target": "arkandal"
+    },
+    {
+     "label": "문을 닫고 숨는다",
+     "art": [
+      "wall"
+     ],
+     "check": {
+      "stat": "faith"
+     },
+     "effects": {
+      "stealth": 4,
+      "relTo": -5
+     },
+     "target": "arkandal"
+    }
+   ]
+  },
+  {
+   "id": "voo-hunger",
+   "faction": "voodoo",
+   "title": "신도들의 굶주림",
+   "text": "신도들은 굶는데 구울 우리에는 먹이가 쌓여 있습니다. 불만이 커집니다.",
+   "art": [
+    "grain",
+    "corpse"
+   ],
+   "weight": 8,
+   "choices": [
+    {
+     "label": "먹이를 나눈다",
+     "art": [
+      "grain"
+     ],
+     "check": {
+      "stat": "faith"
+     },
+     "effects": {
+      "food": 6,
+      "prey": -8,
+      "faith": -4
+     }
+    },
+    {
+     "label": "금식 의례를 연다",
+     "art": [
+      "altar"
+     ],
+     "check": {
+      "stat": "faith",
+      "mod": 5
+     },
+     "effects": {
+      "faith": 6,
+      "pop": -0.4
+     }
+    }
+   ]
+  },
+  {
+   "id": "voo-refusal",
+   "faction": "voodoo",
+   "title": "계약을 거부하는 자",
+   "text": "발병한 신도 하나가 끝까지 계약을 거부합니다. 다른 감염자들이 지켜봅니다.",
+   "art": [
+    "chain",
+    "altar"
+   ],
+   "weight": 8,
+   "choices": [
+    {
+     "label": "계약을 강행한다",
+     "art": [
+      "ghoul"
+     ],
+     "check": {
+      "stat": "control"
+     },
+     "effects": {
+      "army": 1,
+      "faith": -6,
+      "wrath": 6
+     }
+    },
+    {
+     "label": "편히 보내 준다",
+     "art": [
+      "grave"
+     ],
+     "check": {
+      "stat": "faith"
+     },
+     "effects": {
+      "faith": 5,
+      "prey": 4,
+      "offering": 4
+     }
+    }
+   ],
+   "when": {
+    "infection": {
+     "min": 20
+    }
+   }
+  },
+  {
+   "id": "voo-labor",
+   "faction": "voodoo",
+   "title": "구울 노역",
+   "text": "통제된 구울은 지치지 않습니다. 사제들은 그들을 어디에 쓸지 묻습니다.",
+   "art": [
+    "ghoul",
+    "pickaxe"
+   ],
+   "weight": 8,
+   "choices": [
+    {
+     "label": "농지 개간",
+     "art": [
+      "grain"
+     ],
+     "check": {
+      "stat": "control",
+      "mod": -5
+     },
+     "effects": {
+      "food": 12,
+      "control": -6
+     }
+    },
+    {
+     "label": "재를 채굴한다",
+     "art": [
+      "pickaxe"
+     ],
+     "check": {
+      "stat": "control"
+     },
+     "effects": {
+      "strat": 8,
+      "control": -3
+     }
+    }
+   ],
+   "season": [
+    "spring",
+    "summer"
+   ]
+  },
+  {
+   "id": "voo-prophet",
+   "faction": "voodoo",
+   "title": "늪지의 예언",
+   "text": "늪지의 성녀가 '죽은 자와 산 자가 한 식탁에 앉는 날'을 예언했습니다. 신도들이 그녀를 따릅니다.",
+   "art": [
+    "altar",
+    "moon"
+   ],
+   "weight": 6,
+   "choices": [
+    {
+     "label": "예언을 받든다",
+     "art": [
+      "altar"
+     ],
+     "check": {
+      "stat": "faith"
+     },
+     "effects": {
+      "faith": 8,
+      "control": -3
+     }
+    },
+    {
+     "label": "이단으로 선고한다",
+     "art": [
+      "sword"
+     ],
+     "check": {
+      "stat": "control"
+     },
+     "effects": {
+      "control": 6,
+      "faith": -8
+     }
+    }
+   ]
+  },
+  {
+   "id": "voo-paladins",
+   "faction": "voodoo",
+   "title": "성기사 정찰대",
+   "text": "아르칸달 성기사 정찰대가 교단 영지 경계를 넘었습니다. 돌아가면 토벌대가 올 것입니다.",
+   "art": [
+    "soldier",
+    "shield"
+   ],
+   "weight": 9,
+   "choices": [
+    {
+     "label": "구울로 막아선다",
+     "art": [
+      "ghoul"
+     ],
+     "check": {
+      "stat": "control"
+     },
+     "effects": {
+      "prey": 6,
+      "army": -0.5,
+      "stealth": -10
+     }
+    },
+    {
+     "label": "흔적을 지우고 숨는다",
+     "art": [
+      "wall"
+     ],
+     "check": {
+      "stat": "offering"
+     },
+     "effects": {
+      "stealth": 6,
+      "food": -5
+     },
+     "onFail": {
+      "stealth": -8
+     }
+    }
+   ],
+   "when": {
+    "gauge": {
+     "stealth": {
+      "max": 50
+     }
+    }
+   }
+  },
+  {
+   "id": "voo-offering-short",
+   "faction": "voodoo",
+   "title": "비어 가는 제단",
+   "text": "죽음의 계약을 유지할 제물이 바닥나고 있습니다.",
+   "art": [
+    "altar",
+    "grave"
+   ],
+   "weight": 9,
+   "choices": [
+    {
+     "label": "신도의 헌납을 받는다",
+     "art": [
+      "altar"
+     ],
+     "check": {
+      "stat": "faith"
+     },
+     "effects": {
+      "offering": 12,
+      "faith": -6,
+      "pop": -0.3
+     }
+    },
+    {
+     "label": "폐허의 유해를 거둔다",
+     "art": [
+      "grave",
+      "cart"
+     ],
+     "check": {
+      "stat": "control"
+     },
+     "effects": {
+      "offering": 8,
+      "stealth": -6
+     }
+    }
+   ],
+   "when": {
+    "gauge": {
+     "offering": {
+      "max": 45
+     }
+    }
+   }
+  },
+  {
+   "id": "voo-schism",
+   "faction": "voodoo",
+   "title": "교단의 분열",
+   "text": "온건파 사제들이 '사람을 해치지 않는 포교'를 주장하며 따로 모입니다.",
+   "art": [
+    "altar",
+    "scroll"
+   ],
+   "weight": 7,
+   "choices": [
+    {
+     "label": "온건파를 끌어안는다",
+     "art": [
+      "altar"
+     ],
+     "check": {
+      "stat": "faith"
+     },
+     "effects": {
+      "faith": 6,
+      "control": -4,
+      "stealth": 4
+     }
+    },
+    {
+     "label": "강경파로 통일한다",
+     "art": [
+      "sword"
+     ],
+     "check": {
+      "stat": "control"
+     },
+     "effects": {
+      "control": 8,
+      "faith": -6
+     }
+    }
+   ],
+   "when": {
+    "turn": {
+     "min": 8
+    }
+   }
+  },
+  {
+   "id": "voo-relic",
+   "faction": "voodoo",
+   "title": "그니스의 잔불",
+   "text": "소멸한 불의 신 그니스의 잔불이 담긴 항아리가 발견되었습니다. 구울을 더 거세게 만든다고 합니다.",
+   "art": [
+    "crystal",
+    "fire"
+   ],
+   "weight": 6,
+   "choices": [
+    {
+     "label": "의식에 쓴다",
+     "art": [
+      "altar",
+      "fire"
+     ],
+     "check": {
+      "stat": "control"
+     },
+     "effects": {
+      "army": 0.6,
+      "control": -5,
+      "wrath": 5
+     }
+    },
+    {
+     "label": "봉인한다",
+     "art": [
+      "chain"
+     ],
+     "check": {
+      "stat": "faith"
+     },
+     "effects": {
+      "faith": 4,
+      "research": 3
+     }
+    }
+   ],
+   "when": {
+    "turn": {
+     "min": 10
+    }
+   }
+  },
+  {
+   "id": "voo-martyr",
+   "faction": "voodoo",
+   "title": "순교자",
+   "text": "붙잡힌 사제가 광장에서 처형당하며 교리를 외쳤습니다. 구경꾼 일부가 교단을 찾습니다.",
+   "art": [
+    "altar",
+    "bell"
+   ],
+   "weight": 7,
+   "choices": [
+    {
+     "label": "순교를 기린다",
+     "art": [
+      "altar"
+     ],
+     "check": {
+      "stat": "faith"
+     },
+     "effects": {
+      "faith": 8,
+      "pop": 1,
+      "stealth": -6
+     }
+    },
+    {
+     "label": "조용히 넘어간다",
+     "art": [
+      "moon"
+     ],
+     "check": {
+      "stat": "offering"
+     },
+     "effects": {
+      "stealth": 3,
+      "faith": -3
+     }
+    }
+   ]
+  },
+  {
+   "id": "voo-feral-pack",
+   "faction": "voodoo",
+   "title": "통제를 벗어난 무리",
+   "text": "제어 의식을 받지 않은 구울 무리가 교단 영지 안에서 날뛰기 시작했습니다.",
+   "art": [
+    "ghoul",
+    "fire"
+   ],
+   "weight": 9,
+   "choices": [
+    {
+     "label": "다시 사슬에 묶는다",
+     "art": [
+      "chain"
+     ],
+     "check": {
+      "stat": "control"
+     },
+     "effects": {
+      "control": 6,
+      "army": 0.3,
+      "prey": -4
+     },
+     "onFail": {
+      "pop": -0.5
+     }
+    },
+    {
+     "label": "이웃 영지로 몰아낸다",
+     "art": [
+      "torch"
+     ],
+     "check": {
+      "stat": "control"
+     },
+     "effects": {
+      "neutral": 6,
+      "stealth": -6,
+      "army": -0.3
+     }
+    }
+   ],
+   "when": {
+    "gauge": {
+     "control": {
+      "max": 45
+     }
+    }
+   }
+  },
+  {
+   "id": "voo-blessing",
+   "faction": "voodoo",
+   "title": "은총의 밤",
+   "text": "대사제가 보름달 아래 집단 의식을 선포했습니다. 신앙이 뜨겁게 달아오릅니다.",
+   "art": [
+    "moon",
+    "altar"
+   ],
+   "weight": 6,
+   "choices": [
+    {
+     "label": "성대하게 연다",
+     "art": [
+      "bell",
+      "altar"
+     ],
+     "check": {
+      "stat": "faith"
+     },
+     "effects": {
+      "faith": 10,
+      "prey": -5,
+      "stealth": -4
+     }
+    },
+    {
+     "label": "은밀하게 연다",
+     "art": [
+      "moon"
+     ],
+     "check": {
+      "stat": "offering"
+     },
+     "effects": {
+      "faith": 5,
+      "stealth": 3
+     }
+    }
+   ]
+  },
+  {
+   "id": "voo-defector",
+   "faction": "voodoo",
+   "title": "배교자",
+   "text": "사제 하나가 교단의 비밀을 들고 아이루스로 달아나려 합니다.",
+   "art": [
+    "raven",
+    "scroll"
+   ],
+   "weight": 7,
+   "choices": [
+    {
+     "label": "추격해 막는다",
+     "art": [
+      "ghoul"
+     ],
+     "check": {
+      "stat": "control"
+     },
+     "effects": {
+      "stealth": 6,
+      "army": -0.2
+     },
+     "onFail": {
+      "stealth": -6
+     }
+    },
+    {
+     "label": "보내고 거짓을 흘린다",
+     "art": [
+      "scroll"
+     ],
+     "check": {
+      "stat": "faith"
+     },
+     "effects": {
+      "stealth": 2,
+      "research": -2
+     }
+    }
+   ],
+   "when": {
+    "turn": {
+     "min": 6
+    }
+   }
+  },
+  {
+   "id": "voo-twin-born",
+   "faction": "voodoo",
+   "title": "쌍둥이 계약",
+   "text": "같은 날 발병한 쌍둥이 중 하나만 계약이 성립했습니다. 신도들은 이를 신탁으로 여깁니다.",
+   "art": [
+    "altar",
+    "moon"
+   ],
+   "weight": 6,
+   "choices": [
+    {
+     "label": "신탁으로 선포한다",
+     "art": [
+      "altar"
+     ],
+     "check": {
+      "stat": "faith"
+     },
+     "effects": {
+      "faith": 7,
+      "control": -3
+     }
+    },
+    {
+     "label": "원인을 연구한다",
+     "art": [
+      "book"
+     ],
+     "check": {
+      "stat": "control"
+     },
+     "effects": {
+      "research": 5,
+      "control": 2
+     }
+    }
+   ]
+  },
+  {
+   "id": "voo-rot-harvest",
+   "faction": "voodoo",
+   "title": "역병의 수확",
+   "text": "교단 영지의 들판이 검게 시들었지만, 구울은 그 들판에서도 일합니다.",
+   "art": [
+    "grain",
+    "ghoul"
+   ],
+   "weight": 7,
+   "choices": [
+    {
+     "label": "구울에게 맡긴다",
+     "art": [
+      "ghoul"
+     ],
+     "check": {
+      "stat": "control"
+     },
+     "effects": {
+      "food": 8,
+      "control": -4
+     }
+    },
+    {
+     "label": "들판을 태운다",
+     "art": [
+      "fire"
+     ],
+     "check": {
+      "stat": "faith"
+     },
+     "effects": {
+      "prey": 4,
+      "neutral": 3,
+      "wrath": 3
+     }
+    }
+   ],
+   "season": [
+    "autumn"
+   ]
+  },
+  {
+   "id": "voo-inner-circle",
+   "faction": "voodoo",
+   "title": "내밀한 회의",
+   "text": "핵심 사제단이 다음 목표를 두고 의견이 갈립니다.",
+   "art": [
+    "altar",
+    "scroll"
+   ],
+   "weight": 7,
+   "choices": [
+    {
+     "label": "세력 확장을 택한다",
+     "art": [
+      "altar"
+     ],
+     "check": {
+      "stat": "faith"
+     },
+     "effects": {
+      "pop": 1.5,
+      "faith": 3,
+      "food": -4
+     }
+    },
+    {
+     "label": "은신을 택한다",
+     "art": [
+      "wall"
+     ],
+     "check": {
+      "stat": "offering"
+     },
+     "effects": {
+      "stealth": 8,
+      "control": 2
+     }
+    }
+   ]
+  },
+  {
+   "id": "voo-silver-tongue",
+   "faction": "voodoo",
+   "title": "은빛 혀의 포교자",
+   "text": "뛰어난 포교자가 이웃 마을을 통째로 개종시켰습니다. 너무 눈에 띕니다.",
+   "art": [
+    "altar",
+    "cart"
+   ],
+   "weight": 7,
+   "choices": [
+    {
+     "label": "개종을 받아들인다",
+     "art": [
+      "altar"
+     ],
+     "check": {
+      "stat": "faith"
+     },
+     "effects": {
+      "pop": 2,
+      "stealth": -8,
+      "faith": 4
+     }
+    },
+    {
+     "label": "속도를 늦춘다",
+     "art": [
+      "moon"
+     ],
+     "check": {
+      "stat": "offering"
+     },
+     "effects": {
+      "pop": 0.5,
+      "stealth": 2
+     }
+    }
+   ],
+   "when": {
+    "turn": {
+     "min": 5
+    }
+   }
+  },
+  {
+   "id": "voo-cold-faith",
+   "faction": "voodoo",
+   "title": "식어 가는 신앙",
+   "text": "오래 숨어 지낸 신도들이 교리에 회의를 품기 시작합니다.",
+   "art": [
+    "altar",
+    "moon"
+   ],
+   "weight": 7,
+   "choices": [
+    {
+     "label": "기적을 보여 준다",
+     "art": [
+      "ghoul",
+      "altar"
+     ],
+     "check": {
+      "stat": "control"
+     },
+     "effects": {
+      "faith": 8,
+      "prey": -4,
+      "control": -3
+     }
+    },
+    {
+     "label": "배교자를 솎아낸다",
+     "art": [
+      "chain"
+     ],
+     "check": {
+      "stat": "control"
+     },
+     "effects": {
+      "faith": 4,
+      "control": 3,
+      "pop": -0.3
+     }
+    }
+   ]
+  },
+  {
+   "id": "voo-twin-temple",
+   "faction": "voodoo",
+   "title": "자매 신전",
+   "text": "먼 늪지에 또 하나의 신전을 세우자는 제안이 들어왔습니다.",
+   "art": [
+    "altar",
+    "wall"
+   ],
+   "weight": 6,
+   "choices": [
+    {
+     "label": "신전을 세운다",
+     "art": [
+      "altar"
+     ],
+     "check": {
+      "stat": "faith"
+     },
+     "effects": {
+      "pop": 1,
+      "faith": 4,
+      "stealth": -4,
+      "strat": -6
+     }
+    },
+    {
+     "label": "순회 사제만 보낸다",
+     "art": [
+      "cart"
+     ],
+     "check": {
+      "stat": "offering"
+     },
+     "effects": {
+      "pop": 0.4,
+      "stealth": 2
+     }
+    }
+   ],
+   "when": {
+    "turn": {
+     "min": 12
+    }
+   }
+  },
+  {
+   "id": "voo-ash-market",
+   "faction": "voodoo",
+   "title": "재의 시장",
+   "text": "교단이 쌓아 둔 재를 탐내는 암상인이 찾아왔습니다.",
+   "art": [
+    "coin",
+    "pickaxe"
+   ],
+   "weight": 6,
+   "choices": [
+    {
+     "label": "재를 판다",
+     "art": [
+      "coin"
+     ],
+     "check": {
+      "stat": "offering"
+     },
+     "effects": {
+      "silver": 10,
+      "strat": -10,
+      "stealth": -4
+     }
+    },
+    {
+     "label": "의식용으로 남긴다",
+     "art": [
+      "altar"
+     ],
+     "check": {
+      "stat": "control"
+     },
+     "effects": {
+      "control": 4
+     }
+    }
+   ]
+  },
+  {
+   "id": "voo-tainted-well",
+   "faction": "voodoo",
+   "title": "교단 우물의 축복",
+   "text": "교단 영지 우물에도 '온기'가 스몄습니다. 신도들은 이를 축복이라 부릅니다.",
+   "art": [
+    "well",
+    "altar"
+   ],
+   "weight": 7,
+   "choices": [
+    {
+     "label": "축복으로 선포",
+     "art": [
+      "altar"
+     ],
+     "check": {
+      "stat": "faith"
+     },
+     "effects": {
+      "faith": 6,
+      "infection": 5
+     }
+    },
+    {
+     "label": "우물을 정화",
+     "art": [
+      "potion"
+     ],
+     "check": {
+      "stat": "control"
+     },
+     "effects": {
+      "infection": -5,
+      "faith": -3
+     }
+    }
+   ]
+  },
+  {
+   "id": "voo-ghoul-shepherd",
+   "faction": "voodoo",
+   "title": "구울 목자",
+   "text": "한 신도가 구울 떼를 양 떼처럼 모는 재주를 보입니다.",
+   "art": [
+    "ghoul",
+    "banner"
+   ],
+   "weight": 6,
+   "choices": [
+    {
+     "label": "목자로 세운다",
+     "art": [
+      "banner"
+     ],
+     "check": {
+      "stat": "control"
+     },
+     "effects": {
+      "control": 8,
+      "army": 0.4
+     }
+    },
+    {
+     "label": "재주를 의심한다",
+     "art": [
+      "eye"
+     ],
+     "check": {
+      "stat": "faith"
+     },
+     "effects": {
+      "control": 2,
+      "faith": 2
+     }
+    }
+   ]
+  },
+  {
+   "id": "voo-pilgrim-infiltrate",
+   "faction": "voodoo",
+   "title": "순례자로 위장",
+   "text": "신도들이 샤리아 순례자로 위장해 적지로 숨어들자고 합니다.",
+   "art": [
+    "cart",
+    "eye"
+   ],
+   "weight": 7,
+   "choices": [
+    {
+     "label": "깊숙이 침투시킨다",
+     "art": [
+      "eye"
+     ],
+     "check": {
+      "stat": "offering"
+     },
+     "effects": {
+      "neutral": 8,
+      "stealth": -6
+     },
+     "withSuccess": [
+      "stealth"
+     ]
+    },
+    {
+     "label": "변경에만 보낸다",
+     "art": [
+      "cart"
+     ],
+     "check": {
+      "stat": "control"
+     },
+     "effects": {
+      "neutral": 4,
+      "stealth": -2
+     }
+    }
+   ],
+   "when": {
+    "turn": {
+     "min": 5
+    }
+   }
+  },
+  {
+   "id": "voo-starved-ghouls",
+   "faction": "voodoo",
+   "title": "굶주린 무리",
+   "text": "먹이가 끊긴 구울 무리가 서로를 노리기 시작합니다.",
+   "art": [
+    "ghoul",
+    "grave"
+   ],
+   "weight": 9,
+   "choices": [
+    {
+     "label": "급히 먹이를 구한다",
+     "art": [
+      "grave"
+     ],
+     "check": {
+      "stat": "control"
+     },
+     "effects": {
+      "prey": 8,
+      "stealth": -5
+     }
+    },
+    {
+     "label": "무리를 줄인다",
+     "art": [
+      "sword"
+     ],
+     "check": {
+      "stat": "control"
+     },
+     "effects": {
+      "army": -0.8,
+      "control": 4
+     }
+    }
+   ],
+   "when": {
+    "gauge": {
+     "offering": {
+      "max": 35
+     }
+    }
+   }
+  },
+  {
+   "id": "voo-devoted-mother",
+   "faction": "voodoo",
+   "title": "헌신하는 어미",
+   "text": "한 신도가 병든 자식을 직접 제단에 바치겠다고 나섭니다.",
+   "art": [
+    "altar",
+    "grave"
+   ],
+   "weight": 6,
+   "choices": [
+    {
+     "label": "헌신을 받든다",
+     "art": [
+      "altar"
+     ],
+     "check": {
+      "stat": "faith"
+     },
+     "effects": {
+      "offering": 10,
+      "faith": 4,
+      "pop": -0.3,
+      "wrath": 3
+     }
+    },
+    {
+     "label": "아이를 돌려보낸다",
+     "art": [
+      "tent"
+     ],
+     "check": {
+      "stat": "faith",
+      "mod": -5
+     },
+     "effects": {
+      "faith": -4,
+      "offering": 2
+     }
+    }
+   ]
+  },
+  {
+   "id": "voo-rival-cult",
+   "faction": "voodoo",
+   "title": "경쟁하는 사교",
+   "text": "또 다른 사교가 구울을 멋대로 섬기며 교단의 이름을 더럽힙니다.",
+   "art": [
+    "altar",
+    "fire"
+   ],
+   "weight": 6,
+   "choices": [
+    {
+     "label": "흡수한다",
+     "art": [
+      "altar"
+     ],
+     "check": {
+      "stat": "faith"
+     },
+     "effects": {
+      "pop": 1.5,
+      "faith": 3,
+      "control": -3
+     }
+    },
+    {
+     "label": "짓밟는다",
+     "art": [
+      "sword"
+     ],
+     "check": {
+      "stat": "control"
+     },
+     "effects": {
+      "control": 6,
+      "stealth": -4
+     }
+    }
+   ]
+  },
+  {
+   "id": "voo-frost-ritual",
+   "faction": "voodoo",
+   "title": "서리의 의식",
+   "text": "혹한에는 구울의 움직임이 둔해집니다. 사제들은 겨울 의식을 늘리자고 합니다.",
+   "art": [
+    "blizzard",
+    "altar"
+   ],
+   "weight": 7,
+   "choices": [
+    {
+     "label": "겨울 대의식",
+     "art": [
+      "altar",
+      "fire"
+     ],
+     "check": {
+      "stat": "faith"
+     },
+     "effects": {
+      "control": 8,
+      "prey": -5,
+      "strat": -4
+     }
+    },
+    {
+     "label": "신도를 쉬게 한다",
+     "art": [
+      "tent"
+     ],
+     "check": {
+      "stat": "offering"
+     },
+     "effects": {
+      "faith": 4,
+      "offering": 3
+     }
+    }
+   ],
+   "season": [
+    "winter"
+   ]
+  },
+  {
+   "id": "voo-market-day",
+   "faction": "voodoo",
+   "title": "장날의 포교",
+   "text": "장이 서는 날, 신도들이 군중 속에서 몰래 교리를 퍼뜨립니다.",
+   "art": [
+    "coin",
+    "cart"
+   ],
+   "weight": 6,
+   "choices": [
+    {
+     "label": "대담하게 포교",
+     "art": [
+      "altar"
+     ],
+     "check": {
+      "stat": "faith"
+     },
+     "effects": {
+      "pop": 1.5,
+      "stealth": -6,
+      "faith": 3
+     }
+    },
+    {
+     "label": "은밀하게 포교",
+     "art": [
+      "moon"
+     ],
+     "check": {
+      "stat": "offering"
+     },
+     "effects": {
+      "pop": 0.6,
+      "stealth": -1
+     }
+    }
+   ],
+   "season": [
+    "spring",
+    "autumn"
+   ]
+  },
+  {
+   "id": "voo-sacred-ash",
+   "faction": "voodoo",
+   "title": "성스러운 재",
+   "text": "그니스의 잔불로 구운 재가 구울을 더 오래 통제하게 한다는 사실을 발견했습니다.",
+   "art": [
+    "crystal",
+    "pickaxe"
+   ],
+   "weight": 6,
+   "choices": [
+    {
+     "label": "재를 대량 생산",
+     "art": [
+      "pickaxe",
+      "fire"
+     ],
+     "check": {
+      "stat": "control"
+     },
+     "effects": {
+      "control": 6,
+      "strat": -6,
+      "wrath": 3
+     }
+    },
+    {
+     "label": "비전으로 봉인",
+     "art": [
+      "book"
+     ],
+     "check": {
+      "stat": "faith"
+     },
+     "effects": {
+      "research": 4,
+      "faith": 3
+     }
+    }
+   ],
+   "when": {
+    "turn": {
+     "min": 10
+    }
+   }
+  },
+  {
+   "id": "voo-hunter-captured",
+   "faction": "voodoo",
+   "title": "붙잡힌 사냥꾼",
+   "text": "교단을 쫓던 현상금 사냥꾼이 사로잡혔습니다.",
+   "art": [
+    "chain",
+    "soldier"
+   ],
+   "weight": 7,
+   "choices": [
+    {
+     "label": "개종시킨다",
+     "art": [
+      "altar"
+     ],
+     "check": {
+      "stat": "faith"
+     },
+     "effects": {
+      "stealth": 6,
+      "faith": 3
+     },
+     "onFail": {
+      "stealth": -4
+     }
+    },
+    {
+     "label": "구울로 만든다",
+     "art": [
+      "ghoul"
+     ],
+     "check": {
+      "stat": "control"
+     },
+     "effects": {
+      "army": 0.5,
+      "stealth": -4,
+      "wrath": 4
+     }
+    }
+   ]
+  },
+  {
+   "id": "voo-great-sermon",
+   "faction": "voodoo",
+   "title": "대설교",
+   "text": "대사제가 전 대륙을 향한 설교를 준비합니다. 위험하지만 신도가 쏟아질 것입니다.",
+   "art": [
+    "altar",
+    "bell"
+   ],
+   "weight": 7,
+   "choices": [
+    {
+     "label": "공개 설교를 강행",
+     "art": [
+      "bell"
+     ],
+     "check": {
+      "stat": "faith"
+     },
+     "effects": {
+      "pop": 2.5,
+      "faith": 6,
+      "stealth": -12
+     }
+    },
+    {
+     "label": "신도에게만 전한다",
+     "art": [
+      "moon"
+     ],
+     "check": {
+      "stat": "offering"
+     },
+     "effects": {
+      "pop": 0.8,
+      "faith": 3,
+      "stealth": -2
+     }
+    }
+   ],
+   "when": {
+    "turn": {
+     "min": 16
+    }
+   }
+  },
+  {
+   "id": "voo-plague-bell",
+   "faction": "voodoo",
+   "title": "역병의 종",
+   "text": "교단이 적지 성당의 종에 손을 댔습니다. 종이 울릴 때마다 공포가 번집니다.",
+   "art": [
+    "bell",
+    "eye"
+   ],
+   "weight": 6,
+   "choices": [
+    {
+     "label": "종을 오염시킨다",
+     "art": [
+      "bell"
+     ],
+     "check": {
+      "stat": "offering"
+     },
+     "effects": {
+      "neutral": 6,
+      "stealth": -6,
+      "wrath": 4
+     },
+     "withSuccess": [
+      "stealth"
+     ]
+    },
+    {
+     "label": "종을 떼어 온다",
+     "art": [
+      "cart"
+     ],
+     "check": {
+      "stat": "control"
+     },
+     "effects": {
+      "strat": 4,
+      "stealth": -4
+     }
+    }
+   ],
+   "when": {
+    "turn": {
+     "min": 8
+    }
+   }
+  },
+  {
+   "id": "voo-inner-doubt",
+   "faction": "voodoo",
+   "title": "대사제의 의심",
+   "text": "대사제조차 밤이면 자신이 옳은지 묻는다고 합니다.",
+   "art": [
+    "crown",
+    "moon"
+   ],
+   "weight": 6,
+   "choices": [
+    {
+     "label": "신념을 다진다",
+     "art": [
+      "altar"
+     ],
+     "check": {
+      "stat": "faith"
+     },
+     "effects": {
+      "faith": 6,
+      "control": 2
+     }
+    },
+    {
+     "label": "권력으로 누른다",
+     "art": [
+      "crown"
+     ],
+     "check": {
+      "stat": "control"
+     },
+     "effects": {
+      "control": 6,
+      "faith": -4
+     }
+    }
+   ]
+  },
+  {
+   "id": "voo-blood-pact",
+   "faction": "voodoo",
+   "title": "피의 서약",
+   "text": "핵심 신도들이 서로의 손목을 그어 교단에 목숨을 바치기로 합니다.",
+   "art": [
+    "altar",
+    "chain"
+   ],
+   "weight": 6,
+   "choices": [
+    {
+     "label": "서약을 받는다",
+     "art": [
+      "altar"
+     ],
+     "check": {
+      "stat": "faith"
+     },
+     "effects": {
+      "faith": 8,
+      "control": 4,
+      "pop": -0.4
+     }
+    },
+    {
+     "label": "과격함을 말린다",
+     "art": [
+      "scroll"
+     ],
+     "check": {
+      "stat": "control"
+     },
+     "effects": {
+      "control": 3,
+      "faith": -2
+     }
+    }
+   ]
+  },
+  {
+   "id": "voo-exodus",
+   "faction": "voodoo",
+   "title": "신도들의 이주",
+   "text": "토벌을 피해 신도 일부를 다른 영지로 옮겨야 할지 모릅니다.",
+   "art": [
+    "cart",
+    "wall"
+   ],
+   "weight": 9,
+   "choices": [
+    {
+     "label": "은밀히 이주",
+     "art": [
+      "cart",
+      "moon"
+     ],
+     "check": {
+      "stat": "offering"
+     },
+     "effects": {
+      "stealth": 10,
+      "food": -5,
+      "pop": -0.3
+     }
+    },
+    {
+     "label": "남아서 버틴다",
+     "art": [
+      "wall"
+     ],
+     "check": {
+      "stat": "control"
+     },
+     "effects": {
+      "control": 4,
+      "stealth": -2
+     }
+    }
+   ],
+   "when": {
+    "gauge": {
+     "stealth": {
+      "max": 40
+     }
+    }
+   }
+  },
+  {
+   "id": "voo-false-miracle",
+   "faction": "voodoo",
+   "title": "조작된 기적",
+   "text": "사제들이 구울을 이용해 '죽은 자가 걷는 기적'을 연출하려 합니다.",
+   "art": [
+    "altar",
+    "ghoul"
+   ],
+   "weight": 6,
+   "choices": [
+    {
+     "label": "기적을 연출",
+     "art": [
+      "bell"
+     ],
+     "check": {
+      "stat": "faith"
+     },
+     "effects": {
+      "pop": 2,
+      "faith": 6,
+      "stealth": -8,
+      "wrath": 3
+     }
+    },
+    {
+     "label": "들킬까 두려워 그만둔다",
+     "art": [
+      "moon"
+     ],
+     "check": {
+      "stat": "control"
+     },
+     "effects": {
+      "control": 3,
+      "stealth": 2
+     }
+    }
+   ]
+  },
+  {
+   "id": "voo-last-rite",
+   "faction": "voodoo",
+   "title": "마지막 계약",
+   "text": "대사제가 자신의 죽음마저 계약의 제물로 바치겠다고 선언합니다.",
+   "art": [
+    "crown",
+    "altar"
+   ],
+   "weight": 6,
+   "choices": [
+    {
+     "label": "선언을 받든다",
+     "art": [
+      "altar"
+     ],
+     "check": {
+      "stat": "faith"
+     },
+     "effects": {
+      "faith": 10,
+      "offering": 6,
+      "control": -3
+     }
+    },
+    {
+     "label": "후계를 세운다",
+     "art": [
+      "crown"
+     ],
+     "check": {
+      "stat": "control"
+     },
+     "effects": {
+      "control": 6,
+      "faith": -3
+     }
+    }
+   ],
+   "when": {
+    "turn": {
+     "min": 18
+    }
+   }
+  },
+  {
+   "id": "com-plague-doctor",
+   "faction": "common",
+   "title": "새 부리 가면의 의사",
+   "text": "떠돌이 역병 의사가 도시에 나타나 고용을 청합니다. 그의 처방은 비싸고 수상합니다.",
+   "art": [
+    "potion",
+    "raven"
+   ],
+   "weight": 8,
+   "choices": [
+    {
+     "label": "고용한다",
+     "art": [
+      "potion"
+     ],
+     "check": {
+      "stat": "finance"
+     },
+     "effects": {
+      "infection": -7,
+      "silver": -6
+     }
+    },
+    {
+     "label": "추방한다",
+     "art": [
+      "scroll"
+     ],
+     "check": {
+      "stat": "legit"
+     },
+     "effects": {
+      "legit": 3,
+      "infection": 2
+     }
+    }
+   ]
+  },
+  {
+   "id": "com-witch-hunt",
+   "faction": "common",
+   "title": "마녀사냥",
+   "text": "군중이 약초 노파를 감염의 원흉이라며 끌고 나왔습니다.",
+   "art": [
+    "torch",
+    "chain"
+   ],
+   "weight": 8,
+   "choices": [
+    {
+     "label": "군중을 막는다",
+     "art": [
+      "shield"
+     ],
+     "check": {
+      "stat": "order"
+     },
+     "effects": {
+      "legit": 4,
+      "order": -4,
+      "morale": -3
+     }
+    },
+    {
+     "label": "내버려 둔다",
+     "art": [
+      "torch"
+     ],
+     "check": {
+      "stat": "morale"
+     },
+     "effects": {
+      "morale": 5,
+      "wrath": 6,
+      "pop": -0.3
+     }
+    }
+   ],
+   "when": {
+    "infection": {
+     "min": 31
+    }
+   }
+  },
+  {
+   "id": "com-harvest",
+   "faction": "common",
+   "title": "뜻밖의 풍작",
+   "text": "구울을 피해 버려졌던 들판에서도 이삭이 여물었습니다.",
+   "art": [
+    "grain"
+   ],
+   "weight": 8,
+   "choices": [
+    {
+     "label": "전량 비축",
+     "art": [
+      "grain"
+     ],
+     "check": {
+      "stat": "order"
+     },
+     "effects": {
+      "food": 15
+     }
+    },
+    {
+     "label": "절반을 판다",
+     "art": [
+      "coin"
+     ],
+     "check": {
+      "stat": "finance"
+     },
+     "effects": {
+      "food": 5,
+      "silver": 10
+     }
+    }
+   ],
+   "season": [
+    "autumn"
+   ]
+  },
+  {
+   "id": "com-blight",
+   "faction": "common",
+   "title": "곡물 썩음병",
+   "text": "창고의 곡물에 검은 반점이 번집니다.",
+   "art": [
+    "grain",
+    "rat"
+   ],
+   "weight": 8,
+   "choices": [
+    {
+     "label": "배급제 시행",
+     "art": [
+      "scroll"
+     ],
+     "check": {
+      "stat": "order"
+     },
+     "effects": {
+      "order": 3,
+      "food": -5,
+      "morale": -3
+     }
+    },
+    {
+     "label": "시장에 맡긴다",
+     "art": [
+      "coin"
+     ],
+     "check": {
+      "stat": "finance"
+     },
+     "effects": {
+      "silver": 4,
+      "food": -12
+     }
+    }
+   ],
+   "season": [
+    "summer",
+    "autumn"
+   ]
+  },
+  {
+   "id": "com-pilgrims",
+   "faction": "common",
+   "title": "샤리아의 순례자",
+   "text": "평화의 여신 샤리아의 성소를 찾는 순례자 무리가 통행을 청합니다.",
+   "art": [
+    "altar",
+    "cart"
+   ],
+   "weight": 8,
+   "choices": [
+    {
+     "label": "성지를 개방",
+     "art": [
+      "bell"
+     ],
+     "check": {
+      "stat": "legit"
+     },
+     "effects": {
+      "legit": 6,
+      "wrath": -2,
+      "infection": 5
+     }
+    },
+    {
+     "label": "통행을 거부",
+     "art": [
+      "wall"
+     ],
+     "check": {
+      "stat": "order"
+     },
+     "effects": {
+      "legit": -4,
+      "wrath": 2
+     }
+    }
+   ],
+   "season": [
+    "spring"
+   ]
+  },
+  {
+   "id": "com-graverobbers",
+   "faction": "common",
+   "title": "묘지 도굴꾼",
+   "text": "새로 묻은 무덤이 밤마다 파헤쳐집니다. 유해가 어디로 가는지 아무도 모릅니다.",
+   "art": [
+    "grave",
+    "moon"
+   ],
+   "weight": 8,
+   "choices": [
+    {
+     "label": "도굴꾼을 처형",
+     "art": [
+      "sword"
+     ],
+     "check": {
+      "stat": "order"
+     },
+     "effects": {
+      "order": 5,
+      "morale": -2
+     }
+    },
+    {
+     "label": "묘지를 태운다",
+     "art": [
+      "fire",
+      "grave"
+     ],
+     "check": {
+      "stat": "finance"
+     },
+     "effects": {
+      "infection": -5,
+      "wrath": 4,
+      "legit": -3
+     }
+    }
+   ]
+  },
+  {
+   "id": "com-hidden-village",
+   "faction": "common",
+   "title": "감염자를 숨긴 마을",
+   "text": "한 마을이 가족 중 감염자를 지하실에 숨겨 왔다는 밀고가 들어왔습니다.",
+   "art": [
+    "fortress",
+    "chain"
+   ],
+   "weight": 8,
+   "choices": [
+    {
+     "label": "마을을 봉쇄",
+     "art": [
+      "wall"
+     ],
+     "check": {
+      "stat": "order"
+     },
+     "effects": {
+      "infection": -6,
+      "morale": -6
+     }
+    },
+    {
+     "label": "치료를 시도",
+     "art": [
+      "potion"
+     ],
+     "check": {
+      "stat": "finance"
+     },
+     "effects": {
+      "research": 4,
+      "silver": -5,
+      "infection": 3
+     }
+    }
+   ],
+   "when": {
+    "infection": {
+     "min": 20
+    }
+   }
+  },
+  {
+   "id": "com-scholar",
+   "faction": "common",
+   "title": "떠돌이 학자",
+   "text": "라벤 학궁 출신이라는 학자가 구울 증후군의 원인을 안다고 주장합니다.",
+   "art": [
+    "book",
+    "cart"
+   ],
+   "weight": 8,
+   "choices": [
+    {
+     "label": "후원한다",
+     "art": [
+      "book"
+     ],
+     "check": {
+      "stat": "finance"
+     },
+     "effects": {
+      "research": 6,
+      "silver": -5
+     }
+    },
+    {
+     "label": "첩자로 의심해 투옥",
+     "art": [
+      "chain"
+     ],
+     "check": {
+      "stat": "order"
+     },
+     "effects": {
+      "order": 3,
+      "research": -1
+     }
+    }
+   ]
+  },
+  {
+   "id": "com-zealot",
+   "faction": "common",
+   "title": "광신도의 설교",
+   "text": "광장의 설교자는 역병이 소멸한 불의 신 그니스의 복수라 외칩니다. 사람들이 모여듭니다.",
+   "art": [
+    "fire",
+    "bell"
+   ],
+   "weight": 8,
+   "choices": [
+    {
+     "label": "설교를 금한다",
+     "art": [
+      "chain"
+     ],
+     "check": {
+      "stat": "order"
+     },
+     "effects": {
+      "order": 4,
+      "morale": -5
+     }
+    },
+    {
+     "label": "설교를 이용한다",
+     "art": [
+      "banner"
+     ],
+     "check": {
+      "stat": "legit"
+     },
+     "effects": {
+      "legit": 6,
+      "morale": 3,
+      "wrath": 4
+     }
+    }
+   ],
+   "when": {
+    "infection": {
+     "min": 40
+    }
+   }
+  },
+  {
+   "id": "com-rats",
+   "faction": "common",
+   "title": "쥐떼",
+   "text": "하수구에서 쥐떼가 쏟아져 곡창으로 몰려듭니다.",
+   "art": [
+    "rat",
+    "grain"
+   ],
+   "weight": 8,
+   "choices": [
+    {
+     "label": "쥐잡이 포상금",
+     "art": [
+      "coin"
+     ],
+     "check": {
+      "stat": "finance"
+     },
+     "effects": {
+      "infection": -5,
+      "food": 2,
+      "silver": -4
+     }
+    },
+    {
+     "label": "곡창을 태운다",
+     "art": [
+      "fire"
+     ],
+     "check": {
+      "stat": "order"
+     },
+     "effects": {
+      "infection": -8,
+      "food": -10
+     }
+    }
+   ],
+   "season": [
+    "summer"
+   ]
+  },
+  {
+   "id": "com-deep-frost",
+   "faction": "common",
+   "title": "혹한",
+   "text": "강이 바닥까지 얼었습니다. 땔감 값이 하루에 세 번 오릅니다.",
+   "art": [
+    "blizzard",
+    "fire"
+   ],
+   "weight": 8,
+   "choices": [
+    {
+     "label": "연료 배급",
+     "art": [
+      "fire"
+     ],
+     "check": {
+      "stat": "finance"
+     },
+     "effects": {
+      "morale": 4,
+      "silver": -5
+     }
+    },
+    {
+     "label": "버틴다",
+     "art": [
+      "wall"
+     ],
+     "check": {
+      "stat": "order"
+     },
+     "effects": {
+      "infection": -2,
+      "pop": -0.8
+     }
+    }
+   ],
+   "season": [
+    "winter"
+   ]
+  },
+  {
+   "id": "com-festival",
+   "faction": "common",
+   "title": "축제를 원하는 사람들",
+   "text": "계절 축제를 열자는 청원이 올라옵니다. 사람들은 잠시라도 죽음을 잊고 싶어 합니다.",
+   "art": [
+    "bell",
+    "banner"
+   ],
+   "weight": 8,
+   "choices": [
+    {
+     "label": "축제를 허가",
+     "art": [
+      "bell"
+     ],
+     "check": {
+      "stat": "morale"
+     },
+     "effects": {
+      "morale": 8,
+      "infection": 4,
+      "silver": -3
+     }
+    },
+    {
+     "label": "집회를 금한다",
+     "art": [
+      "chain"
+     ],
+     "check": {
+      "stat": "order"
+     },
+     "effects": {
+      "order": 3,
+      "morale": -6
+     }
+    }
+   ],
+   "season": [
+    "spring",
+    "autumn"
+   ]
+  },
+  {
+   "id": "com-grave-signal",
+   "faction": "common",
+   "title": "구울 무덤의 신호",
+   "text": "구울이 처음 일어난 무덤들에서 희미한 붉은 빛이 샌다는 보고입니다.",
+   "art": [
+    "grave",
+    "moon"
+   ],
+   "weight": 8,
+   "choices": [
+    {
+     "label": "조사대 파견",
+     "art": [
+      "soldier",
+      "book"
+     ],
+     "check": {
+      "stat": "order"
+     },
+     "effects": {
+      "research": 7,
+      "army": -0.2
+     },
+     "onFail": {
+      "infection": 5
+     }
+    },
+    {
+     "label": "봉인한다",
+     "art": [
+      "wall"
+     ],
+     "check": {
+      "stat": "legit"
+     },
+     "effects": {
+      "infection": -3
+     }
+    }
+   ],
+   "when": {
+    "turn": {
+     "min": 14
+    }
+   }
+  },
+  {
+   "id": "com-lost-envoy",
+   "faction": "common",
+   "title": "실종된 사신",
+   "text": "이웃 세력에 보낸 사신단이 돌아오지 않습니다.",
+   "art": [
+    "raven",
+    "scroll"
+   ],
+   "weight": 8,
+   "choices": [
+    {
+     "label": "수색대 파견",
+     "art": [
+      "soldier"
+     ],
+     "check": {
+      "stat": "finance"
+     },
+     "effects": {
+      "rel": 8,
+      "silver": -4
+     }
+    },
+    {
+     "label": "침묵한다",
+     "art": [
+      "shield"
+     ],
+     "check": {
+      "stat": "order"
+     },
+     "effects": {
+      "order": 2,
+      "rel": -6
+     }
+    }
+   ]
+  },
+  {
+   "id": "com-false-prophet",
+   "faction": "common",
+   "title": "거짓 선지자",
+   "text": "자칭 선지자가 '물리면 신께 더 가까워진다'며 사람들을 홀립니다.",
+   "art": [
+    "altar",
+    "moon"
+   ],
+   "weight": 8,
+   "choices": [
+    {
+     "label": "체포한다",
+     "art": [
+      "chain"
+     ],
+     "check": {
+      "stat": "order"
+     },
+     "effects": {
+      "order": 4,
+      "infection": -3,
+      "voodooPower": -4
+     }
+    },
+    {
+     "label": "설교하게 둔다",
+     "art": [
+      "altar"
+     ],
+     "check": {
+      "stat": "morale"
+     },
+     "effects": {
+      "morale": 3,
+      "infection": 6
+     }
+    }
+   ],
+   "when": {
+    "voodooAi": true
+   }
+  },
+  {
+   "id": "com-quarantine-riot",
+   "faction": "common",
+   "title": "격리 구역 폭동",
+   "text": "격리된 사람들이 담을 넘어 거리로 쏟아졌습니다.",
+   "art": [
+    "chain",
+    "fire"
+   ],
+   "weight": 8,
+   "choices": [
+    {
+     "label": "무력 진압",
+     "art": [
+      "soldier"
+     ],
+     "check": {
+      "stat": "order"
+     },
+     "effects": {
+      "order": 5,
+      "infection": -4,
+      "morale": -8,
+      "wrath": 3
+     }
+    },
+    {
+     "label": "요구를 듣는다",
+     "art": [
+      "scroll"
+     ],
+     "check": {
+      "stat": "morale"
+     },
+     "effects": {
+      "morale": 4,
+      "infection": 5,
+      "food": -4
+     }
+    }
+   ],
+   "when": {
+    "infection": {
+     "min": 50
+    }
+   }
+  },
+  {
+   "id": "com-orphans",
+   "faction": "common",
+   "title": "역병 고아",
+   "text": "부모를 잃은 아이들이 성문 앞에 모였습니다.",
+   "art": [
+    "cart",
+    "grain"
+   ],
+   "weight": 8,
+   "choices": [
+    {
+     "label": "보호소를 연다",
+     "art": [
+      "tent"
+     ],
+     "check": {
+      "stat": "legit"
+     },
+     "effects": {
+      "morale": 5,
+      "legit": 4,
+      "food": -5
+     }
+    },
+    {
+     "label": "일손으로 쓴다",
+     "art": [
+      "pickaxe"
+     ],
+     "check": {
+      "stat": "order"
+     },
+     "effects": {
+      "pop": 0.5,
+      "morale": -4
+     }
+    }
+   ]
+  },
+  {
+   "id": "com-comet",
+   "faction": "common",
+   "title": "불길한 혜성",
+   "text": "밤하늘에 꼬리 긴 별이 나타났습니다. 종말의 징조라는 소문이 번집니다.",
+   "art": [
+    "moon"
+   ],
+   "weight": 8,
+   "choices": [
+    {
+     "label": "길조라 선포",
+     "art": [
+      "banner"
+     ],
+     "check": {
+      "stat": "legit"
+     },
+     "effects": {
+      "legit": 4,
+      "morale": 4
+     }
+    },
+    {
+     "label": "침묵을 지킨다",
+     "art": [
+      "scroll"
+     ],
+     "check": {
+      "stat": "order"
+     },
+     "effects": {
+      "order": 2,
+      "morale": -2
+     }
+    }
+   ]
+  },
+  {
+   "id": "com-mass-grave",
+   "faction": "common",
+   "title": "공동 묘지",
+   "text": "시신을 묻을 땅이 모자랍니다. 공동 구덩이를 팔지, 태울지 정해야 합니다.",
+   "art": [
+    "grave",
+    "corpse"
+   ],
+   "weight": 8,
+   "choices": [
+    {
+     "label": "땅에 묻는다",
+     "art": [
+      "grave"
+     ],
+     "check": {
+      "stat": "finance"
+     },
+     "effects": {
+      "infection": -3,
+      "silver": -4,
+      "wrath": -1
+     }
+    },
+    {
+     "label": "불로 처리한다",
+     "art": [
+      "fire"
+     ],
+     "check": {
+      "stat": "order"
+     },
+     "effects": {
+      "infection": -6,
+      "wrath": 4
+     }
+    }
+   ],
+   "when": {
+    "infection": {
+     "min": 40
+    }
+   }
+  },
+  {
+   "id": "com-saint-return",
+   "faction": "common",
+   "title": "성녀의 귀환",
+   "text": "순교했다던 샤리아의 성녀가 살아 돌아왔다는 소문이 대륙에 퍼집니다.",
+   "art": [
+    "altar",
+    "bell"
+   ],
+   "weight": 8,
+   "choices": [
+    {
+     "label": "성녀를 맞이한다",
+     "art": [
+      "bell"
+     ],
+     "check": {
+      "stat": "legit"
+     },
+     "effects": {
+      "legit": 6,
+      "wrath": -3,
+      "morale": 4
+     }
+    },
+    {
+     "label": "가짜로 규정한다",
+     "art": [
+      "scroll"
+     ],
+     "check": {
+      "stat": "order"
+     },
+     "effects": {
+      "order": 3,
+      "legit": -2
+     }
+    }
+   ],
+   "when": {
+    "turn": {
+     "min": 16
+    }
+   }
+  },
+  {
+   "id": "com-border-market",
+   "faction": "common",
+   "title": "국경 암시장",
+   "text": "봉쇄된 국경에 암시장이 섰습니다. 약과 식량, 그리고 병이 함께 거래됩니다.",
+   "art": [
+    "coin",
+    "cart"
+   ],
+   "weight": 8,
+   "choices": [
+    {
+     "label": "단속한다",
+     "art": [
+      "soldier"
+     ],
+     "check": {
+      "stat": "order"
+     },
+     "effects": {
+      "order": 3,
+      "infection": -3,
+      "silver": -3
+     }
+    },
+    {
+     "label": "세금을 걷는다",
+     "art": [
+      "coin"
+     ],
+     "check": {
+      "stat": "finance"
+     },
+     "effects": {
+      "silver": 8,
+      "infection": 4
+     }
+    }
+   ]
+  },
+  {
+   "id": "com-frozen-river",
+   "faction": "common",
+   "title": "얼어붙은 강",
+   "text": "국경을 가르던 강이 얼어 누구나 건널 수 있게 되었습니다.",
+   "art": [
+    "blizzard",
+    "wall"
+   ],
+   "weight": 8,
+   "choices": [
+    {
+     "label": "얼음을 깬다",
+     "art": [
+      "pickaxe"
+     ],
+     "check": {
+      "stat": "order"
+     },
+     "effects": {
+      "infection": -3,
+      "silver": -4
+     }
+    },
+    {
+     "label": "초소를 세운다",
+     "art": [
+      "soldier"
+     ],
+     "check": {
+      "stat": "order"
+     },
+     "effects": {
+      "army": -0.2,
+      "infection": -2
+     }
+    }
+   ],
+   "season": [
+    "winter"
+   ]
+  },
+  {
+   "id": "com-plague-song",
+   "faction": "common",
+   "title": "역병 노래",
+   "text": "아이들이 역병을 세는 노래를 부르며 거리를 돕니다. 어른들은 소름 끼쳐 합니다.",
+   "art": [
+    "bell"
+   ],
+   "weight": 6,
+   "choices": [
+    {
+     "label": "노래를 금한다",
+     "art": [
+      "chain"
+     ],
+     "check": {
+      "stat": "order"
+     },
+     "effects": {
+      "order": 2,
+      "morale": -3
+     }
+    },
+    {
+     "label": "내버려 둔다",
+     "art": [
+      "moon"
+     ],
+     "check": {
+      "stat": "morale"
+     },
+     "effects": {
+      "morale": 2
+     }
+    }
+   ]
+  },
+  {
+   "id": "com-relic-trade",
+   "faction": "common",
+   "title": "성유물 거래",
+   "text": "떠돌이 상인이 '병을 막아 준다'는 성유물을 팝니다.",
+   "art": [
+    "coin",
+    "altar"
+   ],
+   "weight": 8,
+   "choices": [
+    {
+     "label": "사들여 성당에 둔다",
+     "art": [
+      "altar"
+     ],
+     "check": {
+      "stat": "legit"
+     },
+     "effects": {
+      "legit": 4,
+      "morale": 3,
+      "silver": -6
+     }
+    },
+    {
+     "label": "사기로 규정",
+     "art": [
+      "scroll"
+     ],
+     "check": {
+      "stat": "order"
+     },
+     "effects": {
+      "order": 3,
+      "legit": -2
+     }
+    }
+   ]
+  },
+  {
+   "id": "com-dawn-raid",
+   "faction": "common",
+   "title": "새벽의 습격",
+   "text": "구울 떼가 외곽 마을을 덮쳤습니다. 날이 밝자 아무도 남지 않았습니다.",
+   "art": [
+    "ghoul",
+    "fire"
+   ],
+   "weight": 8,
+   "choices": [
+    {
+     "label": "생존자를 수색",
+     "art": [
+      "soldier"
+     ],
+     "check": {
+      "stat": "order"
+     },
+     "effects": {
+      "morale": 3,
+      "infection": 3,
+      "army": -0.2
+     }
+    },
+    {
+     "label": "마을을 포기",
+     "art": [
+      "grave"
+     ],
+     "check": {
+      "stat": "order"
+     },
+     "effects": {
+      "pop": -0.5,
+      "infection": -4,
+      "morale": -5
+     }
+    }
+   ],
+   "when": {
+    "infection": {
+     "min": 45
+    }
+   }
+  },
+  {
+   "id": "com-salt-circle",
+   "faction": "common",
+   "title": "소금의 원",
+   "text": "민간에서 집 둘레에 소금을 뿌리면 구울이 못 넘는다는 믿음이 퍼집니다.",
+   "art": [
+    "grain"
+   ],
+   "weight": 6,
+   "choices": [
+    {
+     "label": "소금을 배급",
+     "art": [
+      "grain"
+     ],
+     "check": {
+      "stat": "finance"
+     },
+     "effects": {
+      "morale": 5,
+      "silver": -5
+     }
+    },
+    {
+     "label": "미신이라 금한다",
+     "art": [
+      "scroll"
+     ],
+     "check": {
+      "stat": "order"
+     },
+     "effects": {
+      "order": 2,
+      "morale": -4
+     }
+    }
+   ]
+  },
+  {
+   "id": "com-two-headed",
+   "faction": "common",
+   "title": "두 머리 송아지",
+   "text": "가축이 기형으로 태어나기 시작했습니다. 땅이 병들었다는 징조로 읽힙니다.",
+   "art": [
+    "rat",
+    "grain"
+   ],
+   "weight": 6,
+   "choices": [
+    {
+     "label": "가축을 전부 검사",
+     "art": [
+      "potion"
+     ],
+     "check": {
+      "stat": "order"
+     },
+     "effects": {
+      "infection": -3,
+      "food": -4
+     }
+    },
+    {
+     "label": "불태워 묻는다",
+     "art": [
+      "fire"
+     ],
+     "check": {
+      "stat": "legit"
+     },
+     "effects": {
+      "infection": -2,
+      "wrath": 2
+     }
+    }
+   ]
+  },
+  {
+   "id": "com-ferryman",
+   "faction": "common",
+   "title": "뱃사공의 값",
+   "text": "강 건너 피난하려는 사람들에게 뱃사공이 전 재산을 요구합니다.",
+   "art": [
+    "ship",
+    "coin"
+   ],
+   "weight": 8,
+   "choices": [
+    {
+     "label": "뱃삯을 공정하게",
+     "art": [
+      "scales"
+     ],
+     "check": {
+      "stat": "legit"
+     },
+     "effects": {
+      "legit": 4,
+      "morale": 3,
+      "silver": -5
+     }
+    },
+    {
+     "label": "강을 통제한다",
+     "art": [
+      "chain"
+     ],
+     "check": {
+      "stat": "order"
+     },
+     "effects": {
+      "order": 4,
+      "morale": -4
+     }
+    }
+   ]
+  },
+  {
+   "id": "com-night-watch",
+   "faction": "common",
+   "title": "야경대",
+   "text": "밤마다 구울을 지키는 자경단이 생겨 때로 산 사람까지 해칩니다.",
+   "art": [
+    "torch",
+    "soldier"
+   ],
+   "weight": 8,
+   "choices": [
+    {
+     "label": "정식 야경대로 편성",
+     "art": [
+      "shield"
+     ],
+     "check": {
+      "stat": "order"
+     },
+     "effects": {
+      "order": 5,
+      "silver": -4,
+      "infection": -2
+     }
+    },
+    {
+     "label": "해산시킨다",
+     "art": [
+      "scroll"
+     ],
+     "check": {
+      "stat": "legit"
+     },
+     "effects": {
+      "legit": 3,
+      "order": -3
+     }
+    }
+   ]
+  },
+  {
+   "id": "com-healing-spring",
+   "faction": "common",
+   "title": "치유의 샘",
+   "text": "숲속 샘물이 병을 낫게 한다는 소문에 병자들이 몰려듭니다.",
+   "art": [
+    "potion",
+    "grain"
+   ],
+   "weight": 6,
+   "choices": [
+    {
+     "label": "샘을 통제·관리",
+     "art": [
+      "shield"
+     ],
+     "check": {
+      "stat": "finance"
+     },
+     "effects": {
+      "morale": 4,
+      "infection": -2,
+      "silver": -4
+     }
+    },
+    {
+     "label": "샘을 막는다",
+     "art": [
+      "wall"
+     ],
+     "check": {
+      "stat": "order"
+     },
+     "effects": {
+      "infection": -4,
+      "morale": -5
+     }
+    }
+   ]
+  },
+  {
+   "id": "com-crow-omen",
+   "faction": "common",
+   "title": "까마귀 떼",
+   "text": "성벽 위에 까마귀가 새카맣게 앉았습니다. 사람들은 죽음을 센다고 말합니다.",
+   "art": [
+    "raven"
+   ],
+   "weight": 6,
+   "choices": [
+    {
+     "label": "까마귀를 쫓는다",
+     "art": [
+      "soldier"
+     ],
+     "check": {
+      "stat": "order"
+     },
+     "effects": {
+      "morale": 2,
+      "silver": -2
+     }
+    },
+    {
+     "label": "징조를 해석한다",
+     "art": [
+      "book"
+     ],
+     "check": {
+      "stat": "legit"
+     },
+     "effects": {
+      "research": 3,
+      "morale": -2
+     }
+    }
+   ]
+  },
+  {
+   "id": "com-last-rites",
+   "faction": "common",
+   "title": "마지막 의례",
+   "text": "성직자가 모자라 죽은 자를 제대로 보내지 못합니다.",
+   "art": [
+    "altar",
+    "grave"
+   ],
+   "weight": 6,
+   "choices": [
+    {
+     "label": "평신도에게 권한을",
+     "art": [
+      "altar"
+     ],
+     "check": {
+      "stat": "legit"
+     },
+     "effects": {
+      "legit": 4,
+      "wrath": -2
+     }
+    },
+    {
+     "label": "합동 의례로 대신",
+     "art": [
+      "bell"
+     ],
+     "check": {
+      "stat": "order"
+     },
+     "effects": {
+      "order": 2,
+      "morale": 2
+     }
+    }
+   ]
+  },
+  {
+   "id": "com-rumor-cure",
+   "faction": "common",
+   "title": "치료제 소문",
+   "text": "어느 세력이 치료제를 거의 완성했다는 소문이 대륙에 돕니다.",
+   "art": [
+    "potion",
+    "scroll"
+   ],
+   "weight": 8,
+   "choices": [
+    {
+     "label": "연구에 박차를 가한다",
+     "art": [
+      "book"
+     ],
+     "check": {
+      "stat": "legit"
+     },
+     "effects": {
+      "research": 5,
+      "silver": -5
+     }
+    },
+    {
+     "label": "소문을 단속한다",
+     "art": [
+      "chain"
+     ],
+     "check": {
+      "stat": "order"
+     },
+     "effects": {
+      "order": 3,
+      "morale": -2
+     }
+    }
+   ],
+   "when": {
+    "turn": {
+     "min": 18
+    }
+   }
+  },
+  {
+   "id": "com-winter-wolves",
+   "faction": "common",
+   "title": "겨울 늑대",
+   "text": "굶주린 늑대가 구울과 함께 마을을 어슬렁거립니다.",
+   "art": [
+    "ghoul",
+    "blizzard"
+   ],
+   "weight": 6,
+   "choices": [
+    {
+     "label": "사냥대를 보낸다",
+     "art": [
+      "soldier"
+     ],
+     "check": {
+      "stat": "order"
+     },
+     "effects": {
+      "army": -0.1,
+      "food": 3,
+      "infection": -2
+     }
+    },
+    {
+     "label": "가축을 들인다",
+     "art": [
+      "grain"
+     ],
+     "check": {
+      "stat": "order"
+     },
+     "effects": {
+      "food": -3,
+      "morale": 2
+     }
+    }
+   ],
+   "season": [
+    "winter"
+   ]
+  },
+  {
+   "id": "com-false-flag",
+   "faction": "common",
+   "title": "거짓 깃발",
+   "text": "누군가 이웃 세력의 깃발을 든 채 우물을 더럽혔습니다. 범인은 오리무중입니다.",
+   "art": [
+    "banner",
+    "well"
+   ],
+   "weight": 8,
+   "choices": [
+    {
+     "label": "진상을 조사",
+     "art": [
+      "book"
+     ],
+     "check": {
+      "stat": "order"
+     },
+     "effects": {
+      "rel": 4,
+      "order": -2
+     }
+    },
+    {
+     "label": "이웃을 규탄",
+     "art": [
+      "banner"
+     ],
+     "check": {
+      "stat": "legit"
+     },
+     "effects": {
+      "legit": 4,
+      "rel": -8,
+      "wrath": 2
+     }
+    }
+   ],
+   "when": {
+    "voodooAi": true
+   }
+  },
+  {
+   "id": "com-spring-thaw",
+   "faction": "common",
+   "title": "봄 해빙",
+   "text": "쌓인 눈이 녹으며 겨우내 쌓인 시신이 드러났습니다.",
+   "art": [
+    "grave",
+    "grain"
+   ],
+   "weight": 8,
+   "choices": [
+    {
+     "label": "신속히 매장",
+     "art": [
+      "grave"
+     ],
+     "check": {
+      "stat": "order"
+     },
+     "effects": {
+      "infection": -5,
+      "silver": -4
+     }
+    },
+    {
+     "label": "강물에 떠내려 보낸다",
+     "art": [
+      "ship"
+     ],
+     "check": {
+      "stat": "finance"
+     },
+     "effects": {
+      "infection": -3,
+      "wrath": 3,
+      "rel": -3
+     }
+    }
+   ],
+   "season": [
+    "spring"
+   ]
+  },
+  {
+   "id": "com-beggar-king",
+   "faction": "common",
+   "title": "거지 왕",
+   "text": "빈민가를 다스리는 '거지 왕'이 뒷골목의 질서를 대가로 자치를 요구합니다.",
+   "art": [
+    "chain",
+    "coin"
+   ],
+   "weight": 6,
+   "choices": [
+    {
+     "label": "자치를 인정",
+     "art": [
+      "scroll"
+     ],
+     "check": {
+      "stat": "legit"
+     },
+     "effects": {
+      "order": 4,
+      "legit": -3,
+      "infection": -2
+     }
+    },
+    {
+     "label": "소탕한다",
+     "art": [
+      "soldier"
+     ],
+     "check": {
+      "stat": "order"
+     },
+     "effects": {
+      "order": 5,
+      "morale": -5
+     }
+    }
+   ]
+  },
+  {
+   "id": "com-eclipse",
+   "faction": "common",
+   "title": "일식",
+   "text": "한낮에 해가 사라졌습니다. 구울이 대낮에도 움직였다는 보고가 잇따릅니다.",
+   "art": [
+    "moon",
+    "fire"
+   ],
+   "weight": 6,
+   "choices": [
+    {
+     "label": "등불을 밝히고 모인다",
+     "art": [
+      "fire",
+      "bell"
+     ],
+     "check": {
+      "stat": "morale"
+     },
+     "effects": {
+      "morale": 4,
+      "infection": 2
+     }
+    },
+    {
+     "label": "통행을 금한다",
+     "art": [
+      "chain"
+     ],
+     "check": {
+      "stat": "order"
+     },
+     "effects": {
+      "order": 3,
+      "infection": -3,
+      "morale": -3
+     }
+    }
+   ]
+  },
+  {
+   "id": "com-grain-dole",
+   "faction": "common",
+   "title": "곡식 배급의 날",
+   "text": "굶주린 사람들이 곡식 배급을 기다리며 광장에 줄을 섰습니다.",
+   "art": [
+    "grain",
+    "cart"
+   ],
+   "weight": 8,
+   "choices": [
+    {
+     "label": "넉넉히 푼다",
+     "art": [
+      "grain"
+     ],
+     "check": {
+      "stat": "morale"
+     },
+     "effects": {
+      "morale": 6,
+      "food": -8
+     }
+    },
+    {
+     "label": "아껴서 나눈다",
+     "art": [
+      "scales"
+     ],
+     "check": {
+      "stat": "order"
+     },
+     "effects": {
+      "morale": 2,
+      "order": 2,
+      "food": -3
+     }
+    }
+   ],
+   "when": {
+    "foodLow": true
+   }
+  },
+  {
+   "id": "com-mercy-killing",
+   "faction": "common",
+   "title": "자비의 손길",
+   "text": "회복 불가능한 발병자들을 두고 가족들이 결단을 호소합니다.",
+   "art": [
+    "potion",
+    "grave"
+   ],
+   "weight": 8,
+   "choices": [
+    {
+     "label": "편히 보내 준다",
+     "art": [
+      "grave"
+     ],
+     "check": {
+      "stat": "legit"
+     },
+     "effects": {
+      "infection": -5,
+      "morale": -4,
+      "wrath": 2
+     }
+    },
+    {
+     "label": "끝까지 돌본다",
+     "art": [
+      "tent"
+     ],
+     "check": {
+      "stat": "morale"
+     },
+     "effects": {
+      "morale": 4,
+      "infection": 4,
+      "food": -3
+     }
+    }
+   ],
+   "when": {
+    "infection": {
+     "min": 50
+    }
+   }
+  },
+  {
+   "id": "com-traveling-troupe",
+   "faction": "common",
+   "title": "유랑 극단",
+   "text": "유랑 극단이 '구울 왕'을 조롱하는 연극을 올리겠다고 합니다.",
+   "art": [
+    "bell",
+    "banner"
+   ],
+   "weight": 6,
+   "choices": [
+    {
+     "label": "공연을 허락",
+     "art": [
+      "bell"
+     ],
+     "check": {
+      "stat": "morale"
+     },
+     "effects": {
+      "morale": 6,
+      "infection": 2,
+      "voodooPower": -2
+     }
+    },
+    {
+     "label": "불경하다 금한다",
+     "art": [
+      "chain"
+     ],
+     "check": {
+      "stat": "legit"
+     },
+     "effects": {
+      "legit": 2,
+      "morale": -3
+     }
+    }
+   ]
+  }
+ ],
+ "situational": [
+  {
+   "id": "sit-famine",
+   "faction": "common",
+   "title": "굶주린 군중",
+   "text": "곡창이 비어 갑니다. 성문 앞에 빈 자루를 든 사람들이 몰려듭니다.",
+   "art": [
+    "grain",
+    "chain"
+   ],
+   "weight": 20,
+   "choices": [
+    {
+     "label": "강제 징발",
+     "art": [
+      "soldier"
+     ],
+     "check": {
+      "stat": "order"
+     },
+     "effects": {
+      "food": 10,
+      "morale": -10
+     },
+     "onFail": {
+      "order": -8
+     }
+    },
+    {
+     "label": "금고를 열어 구휼",
+     "art": [
+      "coin",
+      "grain"
+     ],
+     "check": {
+      "stat": "finance"
+     },
+     "effects": {
+      "food": 8,
+      "morale": 4,
+      "silver": -10
+     }
+    }
+   ],
+   "when": {
+    "foodLow": true
+   }
+  },
+  {
+   "id": "sit-fallen-quarter",
+   "faction": "common",
+   "title": "함락된 시가지",
+   "text": "한 구역이 통째로 구울에게 넘어갔습니다. 살아남은 자들이 지붕 위에서 구조를 기다립니다.",
+   "art": [
+    "ghoul",
+    "fire"
+   ],
+   "weight": 15,
+   "choices": [
+    {
+     "label": "구역째 소각",
+     "art": [
+      "torch",
+      "fire"
+     ],
+     "check": {
+      "stat": "order"
+     },
+     "effects": {
+      "infection": -12,
+      "pop": -1,
+      "wrath": 8
+     }
+    },
+    {
+     "label": "질서 있게 후퇴",
+     "art": [
+      "soldier"
+     ],
+     "check": {
+      "stat": "order",
+      "mod": 5
+     },
+     "effects": {
+      "pop": -2,
+      "morale": -8
+     }
+    }
+   ],
+   "when": {
+    "infection": {
+     "min": 61
+    }
+   }
+  },
+  {
+   "id": "sit-border-clash",
+   "faction": "common",
+   "title": "국경 충돌",
+   "text": "사이가 틀어진 이웃 세력의 병사들이 국경 초소를 습격했습니다.",
+   "art": [
+    "sword",
+    "banner"
+   ],
+   "weight": 12,
+   "choices": [
+    {
+     "label": "반격한다",
+     "art": [
+      "soldier"
+     ],
+     "check": {
+      "stat": "order"
+     },
+     "effects": {
+      "army": -0.3,
+      "order": 4,
+      "rel": -5
+     },
+     "onFail": {
+      "army": -0.6
+     }
+    },
+    {
+     "label": "배상하고 무마",
+     "art": [
+      "coin"
+     ],
+     "check": {
+      "stat": "finance"
+     },
+     "effects": {
+      "rel": 8,
+      "silver": -8
+     }
+    }
+   ],
+   "when": {
+    "relLow": true
+   }
+  },
+  {
+   "id": "sit-omen",
+   "faction": "common",
+   "title": "여신의 징조",
+   "text": "샤리아의 성상이 피눈물을 흘렸다는 소문이 퍼집니다. 진노가 가까워지고 있습니다.",
+   "art": [
+    "altar",
+    "eye"
+   ],
+   "weight": 14,
+   "choices": [
+    {
+     "label": "속죄의 행렬",
+     "art": [
+      "bell"
+     ],
+     "check": {
+      "stat": "legit"
+     },
+     "effects": {
+      "wrath": -6,
+      "silver": -8
+     }
+    },
+    {
+     "label": "징조를 부정",
+     "art": [
+      "scroll"
+     ],
+     "check": {
+      "stat": "order"
+     },
+     "effects": {
+      "order": 3,
+      "wrath": 4
+     }
+    }
+   ],
+   "when": {
+    "wrath": {
+     "min": 55
+    }
+   }
+  },
+  {
+   "id": "sit-calm",
+   "faction": "common",
+   "title": "잠잠한 계절",
+   "text": "이번 계절엔 새 발병 보고가 드뭅니다. 사람들이 조심스레 문을 엽니다.",
+   "art": [
+    "grain",
+    "bell"
+   ],
+   "weight": 6,
+   "choices": [
+    {
+     "label": "경계를 늦추지 않는다",
+     "art": [
+      "shield"
+     ],
+     "check": {
+      "stat": "order"
+     },
+     "effects": {
+      "order": 3,
+      "infection": -2
+     }
+    },
+    {
+     "label": "시장을 다시 연다",
+     "art": [
+      "coin"
+     ],
+     "check": {
+      "stat": "finance"
+     },
+     "effects": {
+      "silver": 8,
+      "morale": 4,
+      "infection": 3
+     }
+    }
+   ],
+   "when": {
+    "infection": {
+     "max": 30
+    }
+   }
+  },
+  {
+   "id": "sit-ci-rising",
+   "faction": "common",
+   "title": "번지는 소문",
+   "text": "대륙 곳곳에서 같은 시각에 종이 울렸다고 합니다. 구울 부두교의 세력이 커지고 있습니다.",
+   "art": [
+    "bell",
+    "eye"
+   ],
+   "weight": 14,
+   "choices": [
+    {
+     "label": "부두교 소굴을 친다",
+     "art": [
+      "torch"
+     ],
+     "check": {
+      "stat": "order"
+     },
+     "effects": {
+      "voodooPower": -10,
+      "army": -0.3,
+      "wrath": 4
+     },
+     "onFail": {
+      "stealth": 0
+     }
+    },
+    {
+     "label": "국경을 걸어 잠근다",
+     "art": [
+      "wall"
+     ],
+     "check": {
+      "stat": "order"
+     },
+     "effects": {
+      "infection": -4,
+      "rel": -4
+     }
+    }
+   ],
+   "when": {
+    "ci": {
+     "min": 60
+    },
+    "voodooAi": true
+   }
+  },
+  {
+   "id": "sit-pact-offer",
+   "faction": "common",
+   "title": "구울 공인 제안",
+   "text": "복면을 쓴 사절이 '구울과의 공존'을 제안하는 밀서를 두고 사라졌습니다.",
+   "art": [
+    "treaty",
+    "eye"
+   ],
+   "weight": 10,
+   "choices": [
+    {
+     "label": "밀서를 불태운다",
+     "art": [
+      "fire"
+     ],
+     "check": {
+      "stat": "legit"
+     },
+     "effects": {
+      "legit": 4,
+      "voodooPower": -4,
+      "wrath": 2
+     }
+    },
+    {
+     "label": "몰래 협상한다",
+     "art": [
+      "scroll"
+     ],
+     "check": {
+      "stat": "finance"
+     },
+     "effects": {
+      "silver": 10,
+      "voodooPower": 6,
+      "legit": -6
+     }
+    }
+   ],
+   "when": {
+    "ci": {
+     "min": 50
+    },
+    "voodooAi": true
+   }
+  }
+ ],
+ "collapse": [
+  {
+   "id": "col-gate",
+   "faction": "common",
+   "title": "무너진 성문",
+   "text": "구울 무리가 성문을 밀어붙여 경첩이 비명을 지릅니다.",
+   "art": [
+    "wall",
+    "ghoul"
+   ],
+   "weight": 8,
+   "choices": [
+    {
+     "label": "최후의 방어선",
+     "art": [
+      "soldier",
+      "shield"
+     ],
+     "check": {
+      "stat": "order"
+     },
+     "effects": {
+      "army": -0.5,
+      "infection": -6
+     },
+     "onFail": {
+      "pop": -3
+     }
+    },
+    {
+     "label": "성문을 포기한다",
+     "art": [
+      "wall"
+     ],
+     "check": {
+      "stat": "order",
+      "mod": 5
+     },
+     "effects": {
+      "pop": -3,
+      "infection": 3
+     }
+    }
+   ],
+   "kind": "붕괴"
+  },
+  {
+   "id": "col-riot",
+   "faction": "common",
+   "title": "수도 폭동",
+   "text": "살아남은 사람들이 창고와 성소를 약탈합니다.",
+   "art": [
+    "fire",
+    "chain"
+   ],
+   "weight": 8,
+   "choices": [
+    {
+     "label": "계엄령",
+     "art": [
+      "soldier"
+     ],
+     "check": {
+      "stat": "order"
+     },
+     "effects": {
+      "order": 6,
+      "morale": -10,
+      "wrath": 3
+     }
+    },
+    {
+     "label": "군중과 협상",
+     "art": [
+      "scroll"
+     ],
+     "check": {
+      "stat": "morale"
+     },
+     "effects": {
+      "morale": 4,
+      "food": -8,
+      "order": -6
+     }
+    }
+   ],
+   "kind": "붕괴"
+  },
+  {
+   "id": "col-procession",
+   "faction": "common",
+   "title": "산 자의 행렬",
+   "text": "감염자들이 스스로 무리를 지어 도시 밖으로 걸어 나갑니다. 그 뒤를 구울이 따릅니다.",
+   "art": [
+    "cart",
+    "ghoul"
+   ],
+   "weight": 8,
+   "choices": [
+    {
+     "label": "행렬을 막는다",
+     "art": [
+      "soldier"
+     ],
+     "check": {
+      "stat": "order",
+      "mod": -5
+     },
+     "effects": {
+      "infection": -4,
+      "morale": -6
+     }
+    },
+    {
+     "label": "보내 준다",
+     "art": [
+      "grave"
+     ],
+     "check": {
+      "stat": "legit"
+     },
+     "effects": {
+      "pop": -2,
+      "infection": -8,
+      "wrath": 2
+     }
+    }
+   ],
+   "kind": "붕괴"
+  }
+ ],
+ "fixed": {
+  "10": {
+   "id": "fixed-10",
+   "faction": "common",
+   "title": "첫 방역 회의",
+   "text": "세 세력의 사절이 라벤 폐허 경계의 천막에 모였습니다. 서로를 감염원으로 의심하면서도, 누구도 먼저 자리를 뜨지 않습니다.",
+   "art": [
+    "treaty",
+    "tent"
+   ],
+   "choices": [
+    {
+     "label": "연구 자료를 공유",
+     "art": [
+      "book"
+     ],
+     "check": {
+      "stat": "legit"
+     },
+     "effects": {
+      "research": 8,
+      "rel": 10
+     }
+    },
+    {
+     "label": "국경 봉쇄를 선언",
+     "art": [
+      "wall"
+     ],
+     "check": {
+      "stat": "order"
+     },
+     "effects": {
+      "infection": -6,
+      "rel": -10
+     }
+    },
+    {
+     "label": "상대를 감염원으로 지목",
+     "art": [
+      "banner"
+     ],
+     "check": {
+      "stat": "legit",
+      "mod": -5
+     },
+     "effects": {
+      "legit": 6,
+      "rel": -15
+     }
+    }
+   ]
+  },
+  "20": {
+   "id": "fixed-20",
+   "faction": "common",
+   "title": "발병 근원의 단서",
+   "text": "752년 첫 발병지의 흙에서 그니스의 잔불이 스민 흔적이 나왔습니다. 망령 군세의 잔재와 엉겨 있었습니다.",
+   "art": [
+    "crystal",
+    "book"
+   ],
+   "choices": [
+    {
+     "label": "대륙에 공개",
+     "art": [
+      "scroll"
+     ],
+     "check": {
+      "stat": "legit"
+     },
+     "effects": {
+      "research": 15,
+      "rel": 6,
+      "morale": -6
+     }
+    },
+    {
+     "label": "비밀로 유지",
+     "art": [
+      "chain"
+     ],
+     "check": {
+      "stat": "order"
+     },
+     "effects": {
+      "research": 8,
+      "order": 3,
+      "legit": -4
+     }
+    }
+   ]
+  },
+  "30": {
+   "id": "fixed-30",
+   "faction": "common",
+   "title": "여신의 침묵이 깨지다",
+   "text": "10년 만에 샤리아의 목소리가 모든 성소에 울립니다. 그녀는 무고한 피를 셈하고 있습니다.",
+   "art": [
+    "altar",
+    "bell"
+   ],
+   "choices": [
+    {
+     "label": "속죄의 제의",
+     "art": [
+      "altar"
+     ],
+     "check": {
+      "stat": "legit"
+     },
+     "effects": {
+      "wrath": -10,
+      "silver": -10
+     }
+    },
+    {
+     "label": "신탁을 정치에 이용",
+     "art": [
+      "banner"
+     ],
+     "check": {
+      "stat": "legit",
+      "mod": -5
+     },
+     "effects": {
+      "legit": 10,
+      "wrath": 8
+     }
+    }
+   ]
+  },
+  "40": {
+   "id": "fixed-40",
+   "faction": "common",
+   "title": "종장",
+   "text": "여신력 768년의 마지막 겨울. 연대기의 마지막 장을 쓸 시간입니다.",
+   "art": [
+    "scroll",
+    "crown"
+   ],
+   "choices": [
+    {
+     "label": "최후의 방역",
+     "art": [
+      "shield"
+     ],
+     "check": {
+      "stat": "order"
+     },
+     "effects": {
+      "infection": -10
+     }
+    },
+    {
+     "label": "살아남은 자들을 기록",
+     "art": [
+      "book"
+     ],
+     "check": {
+      "stat": "legit"
+     },
+     "effects": {
+      "legit": 8,
+      "morale": 5
+     }
+    }
+   ]
+  }
+ },
+ "actions": [
+  {
+   "id": "quarantine",
+   "name": "방역",
+   "desc": "감염도를 낮춥니다",
+   "factions": [
+    "arkandal",
+    "iruth"
+   ],
+   "card": {
+    "id": "quarantine",
+    "faction": "common",
+    "title": "방역",
+    "text": "어떤 방식으로 전염을 막을지 정합니다.",
+    "art": [
+     "shield",
+     "potion"
+    ],
+    "choices": [
+     {
+      "label": "격리 병동",
+      "art": [
+       "tent"
+      ],
+      "check": {
+       "stat": "order"
+      },
+      "effects": {
+       "infection": -7,
+       "silver": -3
+      }
+     },
+     {
+      "label": "봉쇄와 소각",
+      "art": [
+       "torch",
+       "fire"
+      ],
+      "check": {
+       "stat": "order",
+       "mod": 5
+      },
+      "effects": {
+       "infection": -13,
+       "wrath": 5,
+       "morale": -4
+      }
+     }
+    ]
+   }
+  },
+  {
+   "id": "quarantine_iru",
+   "name": "빙철 격리",
+   "desc": "빙철 격리벽으로 감염을 막습니다",
+   "factions": [
+    "iruth"
+   ],
+   "card": {
+    "id": "quarantine_iru",
+    "faction": "common",
+    "title": "빙철 격리벽",
+    "text": "스틱스의 빙철로 감염 구역을 얼려 봉쇄합니다.",
+    "art": [
+     "crystal",
+     "wall"
+    ],
+    "choices": [
+     {
+      "label": "격리벽 가동",
+      "art": [
+       "crystal"
+      ],
+      "check": {
+       "stat": "order",
+       "mod": 5
+      },
+      "effects": {
+       "infection": -10,
+       "strat": -5
+      }
+     },
+     {
+      "label": "해안만 봉쇄",
+      "art": [
+       "chain"
+      ],
+      "check": {
+       "stat": "finance"
+      },
+      "effects": {
+       "infection": -6,
+       "silver": -4
+      }
+     }
+    ]
+   }
+  },
+  {
+   "id": "conscript",
+   "name": "징집",
+   "desc": "병력을 늘립니다",
+   "factions": [
+    "arkandal",
+    "iruth"
+   ],
+   "card": {
+    "id": "conscript",
+    "faction": "common",
+    "title": "징집",
+    "text": "병력을 늘립니다.",
+    "art": [
+     "soldier",
+     "banner"
+    ],
+    "choices": [
+     {
+      "label": "의무병 징집",
+      "art": [
+       "soldier"
+      ],
+      "check": {
+       "stat": "order"
+      },
+      "effects": {
+       "army": 0.7,
+       "pop": -0.6,
+       "morale": -3
+      }
+     },
+     {
+      "label": "용병 고용",
+      "art": [
+       "coin"
+      ],
+      "check": {
+       "stat": "finance"
+      },
+      "effects": {
+       "army": 0.5,
+       "silver": -10
+      }
+     }
+    ]
+   }
+  },
+  {
+   "id": "trade",
+   "name": "무역",
+   "desc": "실링과 식량을 교환합니다",
+   "factions": [
+    "arkandal",
+    "iruth"
+   ],
+   "card": {
+    "id": "trade",
+    "faction": "common",
+    "title": "무역",
+    "text": "교역로를 엽니다. 배가 드나들면 병도 드나듭니다.",
+    "art": [
+     "ship",
+     "coin"
+    ],
+    "choices": [
+     {
+      "label": "곡물 수입",
+      "art": [
+       "grain",
+       "cart"
+      ],
+      "check": {
+       "stat": "finance"
+      },
+      "effects": {
+       "food": 14,
+       "silver": -10
+      }
+     },
+     {
+      "label": "전략 자원 수출",
+      "art": [
+       "crystal",
+       "coin"
+      ],
+      "check": {
+       "stat": "finance"
+      },
+      "effects": {
+       "silver": 14,
+       "strat": -8
+      }
+     }
+    ]
+   }
+  },
+  {
+   "id": "research",
+   "name": "연구",
+   "desc": "공유 치료 연구를 진척시킵니다",
+   "factions": [
+    "arkandal",
+    "iruth"
+   ],
+   "card": {
+    "id": "research",
+    "faction": "common",
+    "title": "연구",
+    "text": "구울 증후군의 원인과 치료법을 파고듭니다.",
+    "art": [
+     "book",
+     "potion"
+    ],
+    "choices": [
+     {
+      "label": "치료 연구 후원",
+      "art": [
+       "book"
+      ],
+      "check": {
+       "stat": "finance"
+      },
+      "effects": {
+       "research": 4,
+       "silver": -5
+      }
+     },
+     {
+      "label": "감염 조직 연구",
+      "art": [
+       "potion"
+      ],
+      "check": {
+       "stat": "order",
+       "mod": -5
+      },
+      "effects": {
+       "research": 6,
+       "wrath": 5,
+       "legit": -3
+      }
+     }
+    ]
+   }
+  },
+  {
+   "id": "diplomacy",
+   "name": "외교",
+   "desc": "타 세력과 관계를 개선합니다",
+   "factions": [
+    "arkandal",
+    "iruth"
+   ],
+   "card": {
+    "id": "diplomacy",
+    "faction": "common",
+    "title": "외교",
+    "text": "어느 세력과 협상할지 정합니다. 관계 80에 이르면 동맹이 맺어집니다.",
+    "art": [
+     "treaty",
+     "scroll"
+    ],
+    "choices": [
+     {
+      "label": "아르칸달과 협상",
+      "art": [
+       "banner"
+      ],
+      "check": {
+       "stat": "legit",
+       "mod": -10
+      },
+      "effects": {
+       "relTo": 12,
+       "silver": -3,
+       "legit": 2
+      },
+      "target": "arkandal"
+     },
+     {
+      "label": "아이루스와 협상",
+      "art": [
+       "ship"
+      ],
+      "check": {
+       "stat": "legit"
+      },
+      "effects": {
+       "relTo": 12,
+       "silver": -3,
+       "legit": 2
+      },
+      "target": "iruth"
+     }
+    ]
+   }
+  },
+  {
+   "id": "ritual",
+   "name": "의식",
+   "desc": "여신의 진노를 달랩니다",
+   "factions": [
+    "arkandal",
+    "iruth"
+   ],
+   "card": {
+    "id": "ritual",
+    "faction": "common",
+    "title": "의식",
+    "text": "샤리아의 성소에서 의식을 올립니다.",
+    "art": [
+     "altar",
+     "bell"
+    ],
+    "choices": [
+     {
+      "label": "성소 참배",
+      "art": [
+       "altar"
+      ],
+      "check": {
+       "stat": "legit"
+      },
+      "effects": {
+       "wrath": -5,
+       "legit": 4,
+       "silver": -4
+      }
+     },
+     {
+      "label": "군주의 연설",
+      "art": [
+       "crown",
+       "banner"
+      ],
+      "check": {
+       "stat": "morale"
+      },
+      "effects": {
+       "morale": 6,
+       "order": 2
+      }
+     }
+    ]
+   }
+  },
+  {
+   "id": "wall",
+   "name": "축성",
+   "desc": "철벽의 방벽망을 쌓습니다",
+   "factions": [
+    "arkandal"
+   ],
+   "card": {
+    "id": "wall",
+    "faction": "common",
+    "title": "축성",
+    "text": "방벽이 높아질수록 감염 확산이 줄어듭니다.",
+    "art": [
+     "wall",
+     "pickaxe"
+    ],
+    "choices": [
+     {
+      "label": "미스릴 방벽",
+      "art": [
+       "crystal",
+       "wall"
+      ],
+      "check": {
+       "stat": "order"
+      },
+      "effects": {
+       "wall": 7,
+       "strat": -12,
+       "silver": -2
+      }
+     },
+     {
+      "label": "노역 축성",
+      "art": [
+       "pickaxe"
+      ],
+      "check": {
+       "stat": "order",
+       "mod": -5
+      },
+      "effects": {
+       "wall": 5,
+       "morale": -5,
+       "pop": -0.3
+      }
+     }
+    ]
+   }
+  },
+  {
+   "id": "spread_envoy",
+   "name": "역병 사절",
+   "desc": "대상 세력에 역병을 퍼뜨립니다",
+   "factions": [
+    "voodoo"
+   ],
+   "card": {
+    "id": "spread_envoy",
+    "faction": "voodoo",
+    "title": "왕궁에 보낸 역병 사절",
+    "text": "사절단을 꾸며 대상 세력의 궁정에 보냅니다. 선물 속에 무엇을 숨길지 정합니다.",
+    "art": [
+     "treaty",
+     "raven"
+    ],
+    "choices": [
+     {
+      "label": "감염체를 선물에 숨긴다",
+      "art": [
+       "scroll"
+      ],
+      "check": {
+       "stat": "faith"
+      },
+      "effects": {
+       "target": 12,
+       "stealth": -4
+      },
+      "withSuccess": [
+       "stealth"
+      ]
+     },
+     {
+      "label": "우물에 손을 댄다",
+      "art": [
+       "well"
+      ],
+      "check": {
+       "stat": "control"
+      },
+      "effects": {
+       "target": 18,
+       "stealth": -12,
+       "wrath": 8
+      },
+      "withSuccess": [
+       "stealth"
+      ]
+     }
+    ]
+   }
+  },
+  {
+   "id": "spread_smuggle",
+   "name": "감염체 밀수",
+   "desc": "교역로로 감염을 흘려보냅니다",
+   "factions": [
+    "voodoo"
+   ],
+   "card": {
+    "id": "spread_smuggle",
+    "faction": "voodoo",
+    "title": "교역로의 밀수",
+    "text": "대상 세력으로 가는 상단에 교단의 '화물'을 섞어 보냅니다.",
+    "art": [
+     "cart",
+     "ship"
+    ],
+    "choices": [
+     {
+      "label": "곡물 자루에 섞는다",
+      "art": [
+       "grain"
+      ],
+      "check": {
+       "stat": "offering"
+      },
+      "effects": {
+       "target": 10,
+       "stealth": -3,
+       "silver": 4
+      },
+      "withSuccess": [
+       "stealth"
+      ]
+     },
+     {
+      "label": "가축 떼에 풀어 놓는다",
+      "art": [
+       "rat"
+      ],
+      "check": {
+       "stat": "control"
+      },
+      "effects": {
+       "target": 14,
+       "stealth": -6
+      },
+      "withSuccess": [
+       "stealth"
+      ]
+     }
+    ]
+   }
+  },
+  {
+   "id": "spread_ritual",
+   "name": "대규모 의식",
+   "desc": "구울 군세를 불러 모읍니다",
+   "factions": [
+    "voodoo"
+   ],
+   "card": {
+    "id": "spread_ritual",
+    "faction": "voodoo",
+    "title": "구울 군세 소환",
+    "text": "재와 먹이를 모두 쏟아부어 대규모 의식을 엽니다. 통제가 관건입니다.",
+    "art": [
+     "altar",
+     "ghoul"
+    ],
+    "choices": [
+     {
+      "label": "군세를 일으킨다",
+      "art": [
+       "ghoul",
+       "fire"
+      ],
+      "check": {
+       "stat": "control"
+      },
+      "effects": {
+       "army": 2,
+       "prey": -8,
+       "strat": -10,
+       "control": -6
+      },
+      "onFail": {
+       "army": -1,
+       "pop": -0.5
+      }
+     },
+     {
+      "label": "절제해서 부른다",
+      "art": [
+       "altar"
+      ],
+      "check": {
+       "stat": "faith"
+      },
+      "effects": {
+       "army": 0.8,
+       "prey": -4,
+       "strat": -4
+      }
+     }
+    ]
+   }
+  },
+  {
+   "id": "spread_liberate",
+   "name": "구울 해방",
+   "desc": "감염자를 구울로 전환합니다",
+   "factions": [
+    "voodoo"
+   ],
+   "card": {
+    "id": "spread_liberate",
+    "faction": "voodoo",
+    "title": "구울 해방",
+    "text": "대상 세력 국경의 감염자들을 '해방'해 무리로 받아들입니다.",
+    "art": [
+     "chain",
+     "ghoul"
+    ],
+    "choices": [
+     {
+      "label": "국경을 넘어 데려온다",
+      "art": [
+       "ghoul"
+      ],
+      "check": {
+       "stat": "control"
+      },
+      "effects": {
+       "army": 1,
+       "target": 8,
+       "stealth": -4
+      },
+      "withSuccess": [
+       "stealth"
+      ]
+     },
+     {
+      "label": "중립지에서 거둔다",
+      "art": [
+       "grave"
+      ],
+      "check": {
+       "stat": "control"
+      },
+      "effects": {
+       "army": 0.6,
+       "neutral": 10,
+       "prey": 4
+      },
+      "withSuccess": [
+       "stealth"
+      ]
+     }
+    ]
+   }
+  },
+  {
+   "id": "spread_desecrate",
+   "name": "성소 오염",
+   "desc": "여신의 성소를 더럽혀 적의 질서를 흔듭니다",
+   "factions": [
+    "voodoo"
+   ],
+   "card": {
+    "id": "spread_desecrate",
+    "faction": "voodoo",
+    "title": "성소 오염",
+    "text": "대상 세력의 샤리아 성소를 더럽힙니다. 여신이 지켜보고 있습니다.",
+    "art": [
+     "altar",
+     "eye"
+    ],
+    "choices": [
+     {
+      "label": "밤에 몰래 더럽힌다",
+      "art": [
+       "moon",
+       "altar"
+      ],
+      "check": {
+       "stat": "offering"
+      },
+      "effects": {
+       "target": 8,
+       "relTo": -10,
+       "wrath": 10,
+       "stealth": -3
+      },
+      "withSuccess": [
+       "stealth"
+      ],
+      "target": "arkandal"
+     },
+     {
+      "label": "공개적으로 모독한다",
+      "art": [
+       "fire",
+       "altar"
+      ],
+      "check": {
+       "stat": "faith"
+      },
+      "effects": {
+       "target": 6,
+       "wrath": 15,
+       "faith": 6,
+       "stealth": -9
+      },
+      "withSuccess": [
+       "stealth"
+      ]
+     }
+    ]
+   },
+   "when": {
+    "turn": {
+     "min": 6
+    }
+   }
+  },
+  {
+   "id": "conceal",
+   "name": "은신",
+   "desc": "교단의 흔적을 지웁니다",
+   "factions": [
+    "voodoo"
+   ],
+   "card": {
+    "id": "conceal",
+    "faction": "voodoo",
+    "title": "흔적 지우기",
+    "text": "토벌을 피하려 교단의 자취를 지웁니다.",
+    "art": [
+     "wall",
+     "moon"
+    ],
+    "choices": [
+     {
+      "label": "제단을 옮긴다",
+      "art": [
+       "cart"
+      ],
+      "check": {
+       "stat": "offering"
+      },
+      "effects": {
+       "stealth": 14,
+       "food": -4
+      }
+     },
+     {
+      "label": "배교자를 입막음한다",
+      "art": [
+       "chain"
+      ],
+      "check": {
+       "stat": "control"
+      },
+      "effects": {
+       "stealth": 11,
+       "faith": -3,
+       "wrath": 2
+      }
+     }
+    ]
+   }
+  }
+ ]
+}

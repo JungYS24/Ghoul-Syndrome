@@ -1,0 +1,61 @@
+.dice-stage{position:relative;display:grid;grid-template-columns:minmax(0,1fr);gap:14px;min-width:0;padding:18px 8px 20px;overflow:hidden}
+.dice-tray{display:flex;flex-wrap:wrap;justify-content:center;gap:10px 14px;padding:30px 6px 14px;min-height:200px;align-content:end;
+  border-radius:6px;background:radial-gradient(ellipse at 50% 118%,#2c2419 0%,#17130f 72%);border:1px solid #3b3229;cursor:pointer}
+.dice-tray:focus-visible{outline:2px solid #cfa752;outline-offset:3px}
+/* .die-slot = 세로 바운스(무게), .die-tumbler = 회전 + 착지 찌그러짐, ::after = 바닥 그림자 */
+.die-slot{position:relative;width:min(26vw,92px);aspect-ratio:1;max-width:100%}
+.die-tumbler{width:100%;height:100%;filter:drop-shadow(0 4px 3px rgba(0,0,0,.5));transform-origin:50% 90%;will-change:transform}
+@media (min-width:560px){ .dice-tray{flex-wrap:nowrap} .die-slot{width:min(17%,96px)} }
+.die-slot::after{content:"";position:absolute;left:14%;right:14%;bottom:-12px;height:11px;border-radius:50%;
+  background:radial-gradient(ellipse at 50% 50%,rgba(0,0,0,.6),transparent 72%);z-index:-1;will-change:transform,opacity}
+
+/* 대기: 가볍게 숨 쉬듯 */
+.die-slot.is-ready .die-tumbler{animation:idle-bob 2.6s ease-in-out infinite;animation-delay:calc(var(--i) * -0.4s)}
+@keyframes idle-bob{0%,100%{transform:translateY(0) rotate(-4deg)}50%{transform:translateY(-5px) rotate(4deg)}}
+
+/* 굴리는 중: 바운스(슬롯) + 빠른 회전·찌그러짐(텀블러) + 그림자 반응 */
+.die-slot.is-rolling{animation:die-bounce .46s cubic-bezier(.33,0,.4,1) infinite;animation-delay:calc(var(--i) * -0.11s)}
+.die-slot.is-rolling .die-tumbler{animation:die-spin .46s cubic-bezier(.4,0,.6,1) infinite;animation-delay:calc(var(--i) * -0.11s)}
+.die-slot.is-rolling::after{animation:die-shadow .46s cubic-bezier(.33,0,.4,1) infinite;animation-delay:calc(var(--i) * -0.11s)}
+@keyframes die-bounce{
+  0%{transform:translateY(0)}
+  50%{transform:translateY(-78px)}
+  100%{transform:translateY(0)}
+}
+@keyframes die-spin{
+  0%  {transform:rotate(0deg) scale(1.04,.9)}     /* 바닥 접촉: 눌림 */
+  18% {transform:rotate(140deg) scale(.92,1.1)}   /* 튀어오름: 늘어남 */
+  50% {transform:rotate(calc(var(--spin) * .55)) scale(1)}
+  82% {transform:rotate(calc(var(--spin) * .85)) scale(.94,1.08)}
+  100%{transform:rotate(var(--spin)) scale(1.04,.9)}
+}
+@keyframes die-shadow{
+  0%,100%{transform:scaleX(1);opacity:.6}
+  50%{transform:scaleX(.5);opacity:.22}
+}
+
+/* 착지: 통통 튀다 멎음 */
+.die-slot.is-landed .die-tumbler{animation:die-settle .5s cubic-bezier(.3,1.4,.5,1) both}
+.die-slot.is-landed::after{animation:die-shadow-settle .5s ease-out both}
+@keyframes die-settle{
+  0%  {transform:translateY(-46px) rotate(calc(var(--spin) / 10)) scale(.9,1.08)}
+  40% {transform:translateY(0) rotate(0deg) scale(1.12,.86)}      /* 쿵, 눌림 */
+  60% {transform:translateY(-14px) scale(.96,1.06)}                /* 작게 반동 */
+  80% {transform:translateY(0) scale(1.05,.95)}
+  100%{transform:translateY(0) rotate(0deg) scale(1)}
+}
+@keyframes die-shadow-settle{0%{transform:scaleX(.6);opacity:.3}40%{transform:scaleX(1.12);opacity:.65}100%{transform:scaleX(1);opacity:.6}}
+
+.fx-flash{position:absolute;inset:0;pointer-events:none;background:radial-gradient(circle at 50% 30%,rgba(255,226,140,.55),transparent 65%);animation:flash .9s ease-out both;z-index:2}
+@keyframes flash{0%{opacity:0}15%{opacity:1}100%{opacity:0}}
+.fx-red{position:absolute;inset:0;pointer-events:none;background:rgba(180,40,25,.35);animation:redblink .75s steps(1) 2 both;z-index:2}
+@keyframes redblink{0%{opacity:1}50%{opacity:0}}
+.fx-shake{animation:shake .5s cubic-bezier(.36,.07,.19,.97) both}
+@keyframes shake{10%,90%{transform:translateX(-2px)}20%,80%{transform:translateX(4px)}30%,50%,70%{transform:translateX(-7px)}40%,60%{transform:translateX(7px)}}
+.fx-particles{position:absolute;left:50%;top:90px;width:0;height:0;pointer-events:none;z-index:3}
+.fx-particles span{position:absolute;border-radius:1px;transform:rotate(45deg);animation:burst 1s cubic-bezier(.15,.7,.3,1) both}
+@keyframes burst{0%{translate:0 0;opacity:1}100%{translate:var(--dx) var(--dy);opacity:0}}
+.dice-stage.reduced *{animation:none!important}
+.dice-stage.reduced{animation:fadein .25s ease both}
+@keyframes fadein{from{opacity:0}to{opacity:1}}
+@media (prefers-reduced-motion:reduce){ .dice-stage *{animation:none!important;transition:none!important} }
