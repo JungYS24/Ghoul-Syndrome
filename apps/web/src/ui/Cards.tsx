@@ -9,11 +9,11 @@ import { HEADER_IDS, headerUrl } from "../art/headers";
 function HeaderArt({ card, faction }: { card: Card; faction: GameState["faction"] }) {
   if (HEADER_IDS.has(card.id)) {
     return (
-      <img src={headerUrl(card.id)} alt="" loading="lazy" width={96} height={96}
-        className="w-24 h-24 rounded-[3px] border border-line2 object-cover self-center justify-self-start shadow-[0_6px_16px_-8px_#000]" />
+      <img src={headerUrl(card.id)} alt="" loading="lazy" width={512} height={512}
+        className="w-full h-[clamp(190px,48vw,360px)] rounded-[4px] border border-line2 object-cover object-center shadow-[0_10px_28px_-12px_#000]" />
     );
   }
-  return card.art ? <div className="h-20 -mt-1 self-center justify-self-start w-28 opacity-95"><Illus keys={card.art} faction={faction} accent /></div> : null;
+  return card.art ? <div className="w-full h-[clamp(150px,34vw,230px)] grid place-items-center opacity-95"><Illus keys={card.art} faction={faction} accent /></div> : null;
 }
 
 // 효과 미리보기 칩

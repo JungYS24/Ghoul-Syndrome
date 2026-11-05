@@ -1,18 +1,24 @@
 {
-  "_comment": "등급 경계 (5d20 합 + 보정 = 최종값 기준). min 이상이면 해당 등급. 위에서부터 검사합니다.",
+  "_comment": "등급 경계 (5d20 합 + 보정 = 최종값 기준). min 이상이면 해당 등급. 위에서부터 검사합니다. 15단계 세부 명칭을 5개 색 계열(대성공=crit/great, 성공=success, 애매한 성공=partial, 실패=fail, 대실패=fumble/after)로 묶습니다.",
   "grades": [
-    { "min": 73, "name": "경이로운 대성공", "tone": "crit" },
-    { "min": 68, "name": "대성공", "tone": "great" },
-    { "min": 61, "name": "확실한 성공", "tone": "success" },
-    { "min": 52, "name": "성공", "tone": "success" },
-    { "min": 49, "name": "반쪽 성공", "tone": "partial" },
-    { "min": 43, "name": "실패", "tone": "fail" },
-    { "min": 40, "name": "뼈아픈 실패", "tone": "fail" },
-    { "min": 30, "name": "대실패", "tone": "fumble" },
+    { "min": 95, "name": "경이로운 대성공", "tone": "crit" },
+    { "min": 89, "name": "대성공", "tone": "great" },
+    { "min": 83, "name": "엄청난 성공", "tone": "great" },
+    { "min": 75, "name": "확실한 성공", "tone": "success" },
+    { "min": 70, "name": "성공", "tone": "success" },
+    { "min": 60, "name": "미온적인 성공", "tone": "success" },
+    { "min": 50, "name": "그래도 성공", "tone": "success" },
+    { "min": 45, "name": "애매한 성공", "tone": "partial" },
+    { "min": 40, "name": "반쪽자리 성공", "tone": "partial" },
+    { "min": 32, "name": "아쉬운 실패", "tone": "fail" },
+    { "min": 25, "name": "실패", "tone": "fail" },
+    { "min": 18, "name": "뼈아픈 실패", "tone": "fail" },
+    { "min": 12, "name": "대실패", "tone": "fumble" },
+    { "min": 5, "name": "처참한 대실패", "tone": "fumble" },
     { "min": 1, "name": "후유증을 남긴 대실패", "tone": "after" }
   ],
   "multAnchors": [[1, 0.30], [38, 0.63], [39, 0.70], [55, 0.95], [66, 1.11], [82, 1.35], [88, 1.45], [96, 1.50], [98, 1.57], [99, 1.60], [100, 1.60]],
   "onFailBelow": 40,
-  "aftermathAtOrBelow": 29,
-  "successAtLeast": 49
+  "aftermathAtOrBelow": 17,
+  "successAtLeast": 40
 }

@@ -123,7 +123,8 @@ export function DiceRoller({ roll, autoRoll, onDone, children, title }: Props) {
         <div className="font-ui text-[13px] text-muted h-5 mt-1">
           {(phase === "counting" || phase === "done") && <>합 <b className="text-ink">{roll.sum}</b> {sign(roll.modifier)} (보정) = <b className="text-ink">{roll.final}</b></>}
         </div>
-        <div className="font-display text-[30px] leading-tight h-10 transition-opacity duration-300" style={{ color, opacity: showFinal ? 1 : 0 }}>{roll.gradeName}</div>
+        <div className="font-display text-[34px] font-bold leading-tight h-11 transition-opacity duration-300"
+          style={{ color, opacity: showFinal ? 1 : 0, textShadow: showFinal ? `0 1px 3px #000, 0 0 22px ${color}55` : "none" }}>{roll.gradeName}</div>
         {roll.mult !== undefined && <div className="font-ui text-[12px] text-muted h-4" style={{ opacity: showFinal ? 1 : 0 }}>효과 배율 ×{roll.mult.toFixed(2)}</div>}
       </div>
 
