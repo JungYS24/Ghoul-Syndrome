@@ -7,5 +7,6 @@ export * from "./game";
 export * from "./preview";
 export * from "./decrees";
 export * from "./chains";
+export * from "./news";
 export { computeNdKCounts } from "./distribution";
 export { COUNTS_5D20, CDF_5D20, TOTAL_5D20 } from "./generated/cdf5d20";

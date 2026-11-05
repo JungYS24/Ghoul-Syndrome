@@ -119,7 +119,7 @@ export function Game({ s }: { s: GameState }) {
               <div className="eyebrow">{yearOf(s.turn)}년 {SEASON_KO[seasonOf(s.turn)]} · 종료 결산</div>
               <h2 className="font-display text-[26px]">계절 결산</h2>
               <ul className="m-0 pl-[18px] grid gap-1 text-[14px] text-[#d9cdb6]">{s.endReport.map((l, i) => <li key={i}>{l}</li>)}</ul>
-              {s.aiReport.length > 0 && <div className="grid gap-1 text-[13px] text-muted border-t border-line pt-2.5"><span className="eyebrow">대륙 동향</span>{s.aiReport.map((l, i) => <div key={i}>· {l}</div>)}</div>}
+              {s.aiReport.length > 0 && <div className="grid gap-1 text-[13px] text-muted border-t border-line pt-2.5"><span className="eyebrow">소식</span>{s.aiReport.map((l, i) => <div key={i}>· {l}</div>)}</div>}
               {last && <div className="text-[15px] border-l-2 border-gold-dim pl-3 text-ink"><span className="eyebrow">연대기</span><br />{last.year}년 {last.season} — {last.text}</div>}
               <div className="flex gap-2 flex-wrap"><button className="btn-gold" onClick={advance}>{s.ended ? "결말 보기" : `${yearOf(s.turn + 1)}년 ${SEASON_KO[seasonOf(s.turn + 1)]}으로`}</button></div>
             </section>

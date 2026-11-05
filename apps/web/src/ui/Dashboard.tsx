@@ -5,6 +5,7 @@ import {
 import { useGame } from "../store/store";
 import { ImpactMark } from "./Impact";
 import { DecreeIcons } from "./Decrees";
+import { ContinentMap } from "./ContinentMap";
 
 function Gauge({ label, v, hostile, k }: { label: string; v: number; hostile?: boolean; k?: EffectKey | EffectKey[] }) {
   const danger = hostile ? v >= 70 : v <= 20;
@@ -83,6 +84,7 @@ export function Dashboard({ s }: { s: GameState }) {
       </div>
       {/* 타 세력 */}
       <div className="grid gap-2"><h3 className="eyebrow flex items-center gap-1">대륙 정세 <ImpactMark k={["rel", "neutral", "voodooPower", "target"]} /></h3>
+        <ContinentMap s={s} />
         <div className="font-ui text-[12px] text-muted grid gap-1">
           {(["arkandal", "iruth", "neutral"] as RegionId[]).filter((r) => r !== s.faction).map((r) => (
             <div key={r} className="flex justify-between gap-2"><span>{REGION_NAME[r]} · 감염도 {s.infection[r]}</span>

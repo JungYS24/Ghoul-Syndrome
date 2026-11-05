@@ -3,6 +3,7 @@ import { FACTIONS, GAUGE_LABEL, NEUTRAL_START, REGION_NAME, SEASON_KO, VOODOO_MA
 import { createRng, type Rng } from "./rng";
 import { settleDecrees } from "./decrees";
 import { chainTailIds, scheduleChain, takeDueChain } from "./chains";
+import { newsLines, type AiFacts } from "./news";
 import {
   abilityModifier, baseSpread, continentalInfection, foodUse, popLoss, preyUse, production, r1, seasonMod, stateModifier,
 } from "./rules";
@@ -355,9 +356,9 @@ function finishCheck(s: GameState) {
 
 // ───────── AI 세력 ─────────
 function runAi(s: GameState, rng: Rng): string[] {
-  const rep: string[] = [];
   const season = seasonOf(s.turn);
   const V = s.faction === "voodoo";
+  const inf0 = { ...s.infection }, wall0 = s.wall, research0 = s.research;
   for (const f of otherFactions(s.faction)) {
     if (f === "voodoo") continue;
     const inf = s.infection[f];
@@ -376,6 +377,11 @@ function runAi(s: GameState, rng: Rng): string[] {
   // 중립지(라벤 폐허 포함)
   const n = s.infection.neutral;
   setRegion(s, "neutral", baseSpread("neutral", n) + seasonMod("neutral", season) - (1 + rng.next() * 2.5));
+  const facts: AiFacts = {
+    turn: s.turn, player: s.faction, inf: s.infection,
+    aiDelta: { arkandal: s.infection.arkandal - inf0.arkandal, iruth: s.infection.iruth - inf0.iruth, neutral: s.infection.neutral - inf0.neutral },
+    wallDelta: s.wall - wall0, wall: s.wall, researchDelta: r1(s.research - research0), research: s.research,
+  };
   // AI 부두교의 압박
   if (!V) {
     s.voodooPower = clamp(s.voodooPower + 1, 0, 100);
@@ -384,14 +390,12 @@ function runAi(s: GameState, rng: Rng): string[] {
       const roll = rng.next();
       const other = otherFactions(s.faction).find((f) => f !== "voodoo")!;
       const tgt: RegionId = roll < 0.5 ? s.faction : roll < 0.75 ? other : "neutral";
-      setRegion(s, tgt, p);
-      rep.push(`구울 부두교가 ${REGION_NAME[tgt]}에 역병을 퍼뜨렸습니다 (감염도 +${p})`);
+      const d = setRegion(s, tgt, p);
+      facts.plague = { region: tgt, amount: d };
     }
-  } else {
-    if (s.wall > 0) rep.push(`아르칸달 방벽 진척 ${Math.floor(s.wall)}`);
-    rep.push(`아이루스 치료 연구 ${Math.floor(s.research)}`);
   }
-  return rep;
+  facts.inf = { ...s.infection };
+  return newsLines(facts);
 }
 
 // ───────── 종료 결산 ─────────
