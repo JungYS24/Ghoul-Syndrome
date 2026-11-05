@@ -18,6 +18,16 @@ const FIRST_STOP = 1200, STOP_GAP = 250, FACE_MS = 60, COUNT_MS = 550;
 export const TONE_COLOR: Record<DiceRollView["tone"], string> = {
   crit: "#ecc977", great: "#cfa752", success: "#8fb6c6", partial: "#c8b48a", fail: "#d98a74", fumble: "#c4553c", after: "#e0402b",
 };
+// 판정 결과가 어떻게 되었는지 2문장 설명 (등급 계열별)
+export const TONE_DESC: Record<DiceRollView["tone"], string> = {
+  crit: "모든 것이 상상 이상으로 맞아떨어졌습니다. 이 성과는 오래도록 전설처럼 회자될 것입니다.",
+  great: "일은 바라던 것 이상으로 풀렸습니다. 당신의 결단이 분명한 승리로 돌아왔습니다.",
+  success: "계획한 대로 일이 이루어졌습니다. 큰 차질 없이 목적한 바를 얻어냈습니다.",
+  partial: "절반의 성과에 그쳤습니다. 얻은 것이 있으나 그만큼의 대가도 치렀습니다.",
+  fail: "일이 뜻대로 되지 않았습니다. 적지 않은 손실을 감수해야 했습니다.",
+  fumble: "상황은 걷잡을 수 없이 어긋났습니다. 피해가 사방으로 번졌습니다.",
+  after: "최악의 결과가 닥쳤습니다. 이 실패의 여파가 다음 계절까지 짙은 그림자를 드리웁니다.",
+};
 const reducedMotion = () => typeof window !== "undefined" && window.matchMedia?.("(prefers-reduced-motion: reduce)").matches;
 
 interface Props {
@@ -120,6 +130,7 @@ export function DiceRoller({ roll, autoRoll, onDone, children, title }: Props) {
         <div className="font-display text-[34px] font-bold leading-tight h-11 transition-opacity duration-300"
           style={{ color, opacity: showFinal ? 1 : 0, textShadow: showFinal ? `0 1px 3px #000, 0 0 22px ${color}55` : "none" }}>{roll.gradeName}</div>
         {roll.mult !== undefined && <div className="font-ui text-[12px] text-muted h-4" style={{ opacity: showFinal ? 1 : 0 }}>효과 배율 ×{roll.mult.toFixed(2)}</div>}
+        {showFinal && <p className="font-body text-[14px] leading-snug text-[#d9cdb6] max-w-[34ch] mx-auto mt-2 mb-0 transition-opacity duration-300">{TONE_DESC[roll.tone]}</p>}
       </div>
 
       {/* 주사위 판 */}
