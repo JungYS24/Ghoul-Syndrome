@@ -1,10 +1,11 @@
 import { useState } from "react";
-import { FACTIONS, REGION_NAME, SEASON_KO, actionsFor, seasonOf, yearOf, type GameState, type RegionId } from "@guul/engine";
+import { FACTIONS, GAUGE_LABEL, REGION_NAME, SEASON_KO, actionsFor, seasonOf, yearOf, type GameState, type RegionId } from "@guul/engine";
 import { content, useGame } from "../store/store";
 import { Dashboard } from "./Dashboard";
 import { CardView } from "./Cards";
 import { Illus } from "../art/Art";
 import { ChronicleSheet, RulesSheet } from "./Sheets";
+import { ImpactMark } from "./Impact";
 
 const CREST: Record<string, string[]> = { arkandal: ["fortress", "shield"], iruth: ["ship", "scales"], voodoo: ["altar", "eye"] };
 
@@ -22,11 +23,11 @@ function QuickStrip({ s }: { s: GameState }) {
   const F = FACTIONS[s.faction];
   const inf = s.infection[s.faction];
   return (
-    <div className="flex flex-wrap gap-1.5 font-ui text-[12px] lg:hidden">
-      <span className={`bg-panel border rounded-[2px] px-2 py-0.5 tabular-nums ${inf >= 61 ? "text-blood border-[#5a3328]" : "border-line"}`}>감염도 {inf}</span>
-      {F.gauges.map((k) => <span key={k} className={`bg-panel border rounded-[2px] px-2 py-0.5 tabular-nums ${s.gauges[k] <= 20 ? "text-blood border-[#5a3328]" : "border-line"}`}>{["민심", "질서", "재정", "정통성", "신앙", "제어", "제물", "은닉"][["morale", "order", "finance", "legit", "faith", "control", "offering", "stealth"].indexOf(k)]} {s.gauges[k]}</span>)}
-      <span className="bg-panel border border-line rounded-[2px] px-2 py-0.5 tabular-nums">식량 {Math.round(s.res.food)}</span>
-      <span className="bg-panel border border-line rounded-[2px] px-2 py-0.5 tabular-nums">진노 {s.wrath}</span>
+    <div className="relative z-10 flex flex-wrap gap-1.5 font-ui text-[12px] lg:hidden">
+      <span className={`inline-flex items-center gap-1 bg-panel border rounded-[2px] px-2 py-0.5 tabular-nums ${inf >= 61 ? "text-blood border-[#5a3328]" : "border-line"}`}>감염도 {inf}<ImpactMark k="infection" /></span>
+      {F.gauges.map((k) => <span key={k} className={`inline-flex items-center gap-1 bg-panel border rounded-[2px] px-2 py-0.5 tabular-nums ${s.gauges[k] <= 20 ? "text-blood border-[#5a3328]" : "border-line"}`}>{GAUGE_LABEL[k]} {s.gauges[k]}<ImpactMark k={k} /></span>)}
+      <span className="inline-flex items-center gap-1 bg-panel border border-line rounded-[2px] px-2 py-0.5 tabular-nums">식량 {Math.round(s.res.food)}<ImpactMark k="food" /></span>
+      <span className="inline-flex items-center gap-1 bg-panel border border-line rounded-[2px] px-2 py-0.5 tabular-nums">진노 {s.wrath}<ImpactMark k="wrath" /></span>
     </div>
   );
 }
@@ -80,7 +81,7 @@ export function Game({ s }: { s: GameState }) {
           )}
 
           {s.phase === "event" && s.events[s.eventIdx] && (
-            <CardView s={s} card={s.events[s.eventIdx]!} onPick={chooseEvent} />
+            <CardView key={`${s.turn}-${s.eventIdx}`} s={s} card={s.events[s.eventIdx]!} onPick={chooseEvent} />
           )}
 
           {s.phase === "action" && !openAction && (
@@ -104,7 +105,7 @@ export function Game({ s }: { s: GameState }) {
 
           {s.phase === "action" && openAction && (() => {
             const act = actionsFor(s, content).find((a) => a.id === openAction) ?? content.actions.find((a) => a.id === openAction)!;
-            return <CardView s={s} card={{ ...act.card, kind: `행동 · ${act.name}` }} onPick={(i) => chooseAction(act.id, i)}>
+            return <CardView key={act.id} s={s} card={{ ...act.card, kind: `행동 · ${act.name}` }} onPick={(i) => chooseAction(act.id, i)}>
               <div className="flex gap-2 flex-wrap"><button className="btn" onClick={closeActionCard}>다른 행동 고르기</button></div>
             </CardView>;
           })()}

@@ -9,7 +9,7 @@
     "build:single": "vite build --config vite.single.config.ts",
     "preview": "vite preview",
     "typecheck": "tsc -p tsconfig.json",
-    "test": "echo \"(web) no unit tests\""
+    "test": "vitest run"
   },
   "dependencies": {
     "@guul/engine": "workspace:*",
