@@ -42,6 +42,16 @@ export interface Choice {
   target?: FactionId;
   /** 성공할수록 커지는 대가(부두교 은닉 등) — 부호와 상관없이 ×배율 */
   withSuccess?: EffectKey[];
+  /** 연쇄 사건: afterTurns 턴 뒤 cardId 카드를 예약 */
+  followUp?: FollowUp;
+}
+export interface FollowUp { cardId: string; afterTurns: number }
+/** 연쇄로 나온 카드가 이전 판정 등급에 따라 바뀌는 갈래 */
+export interface CardBranch {
+  prevTones: Tone[];
+  title?: string;
+  text?: string;
+  choices?: Choice[];
 }
 export interface Card {
   id: string;
@@ -54,6 +64,8 @@ export interface Card {
   text: string;
   art?: string[];
   choices: Choice[];
+  /** 연쇄 사건으로 나올 때만 쓰는 갈래 (위에서부터 첫 일치) */
+  branches?: CardBranch[];
 }
 export interface ActionDef {
   id: string;
@@ -63,7 +75,8 @@ export interface ActionDef {
   when?: When;
   card: Card;
 }
-export interface Grade { min: number; name: string; tone: "crit" | "great" | "success" | "partial" | "fail" | "fumble" | "after" }
+export type Tone = "crit" | "great" | "success" | "partial" | "fail" | "fumble" | "after";
+export interface Grade { min: number; name: string; tone: Tone }
 
 export type UpkeepKey = "silver" | "strat" | "food" | "prey";
 /**
@@ -91,6 +104,8 @@ export interface Decree {
   repealText?: string;
 }
 export interface ActiveDecree { id: string; since: number }
+/** 예약된 연쇄 사건 */
+export interface PendingChain { cardId: string; due: number; from: string; fromTitle: string; label: string; tone: Tone }
 
 export interface GameContent {
   cards: Card[];
@@ -154,6 +169,10 @@ export interface GameState {
   decrees: ActiveDecree[];
   /** 한 번이라도 공포한 법령 id (후기용) */
   decreeHistory: string[];
+  /** 예약된 연쇄 사건 */
+  chains: PendingChain[];
+  /** 이미 예약한 연쇄 키 "머리>꼬리" — 한 판에 같은 연쇄는 한 번만 */
+  chainsDone: string[];
   ended: Ending | null;
 }
 export type PresetId = "balance" | "farm" | "trade" | "mine";

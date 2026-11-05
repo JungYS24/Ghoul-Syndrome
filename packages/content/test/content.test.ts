@@ -35,6 +35,22 @@ function autoplay(f: FactionId, seed: number): GameState {
   return s;
 }
 
+describe("연쇄 사건 데이터", () => {
+  const all = [...content.cards, ...content.situational, ...content.collapse, ...Object.values(content.fixed)];
+  const links = all.flatMap((c) => c.choices.filter((ch) => ch.followUp).map((ch) => ({ from: c, to: all.find((x) => x.id === ch.followUp!.cardId) })));
+  it("12쌍 이상 연결되고, 후속 카드가 존재하며 같은 세력", () => {
+    expect(new Set(links.map((l) => l.from.id + ">" + l.to?.id)).size).toBeGreaterThanOrEqual(12);
+    for (const l of links) { expect(l.to, l.from.id).toBeDefined(); expect(l.to!.faction).toBe(l.from.faction); }
+  });
+  it("후속 카드마다 이전 등급별 갈래가 있다", () => {
+    for (const l of links) {
+      const b = l.to!.branches ?? [];
+      expect(b.length, l.to!.id).toBeGreaterThan(0);
+      expect(b.some((x) => x.prevTones.includes("fumble")), l.to!.id).toBe(true);
+    }
+  });
+});
+
 describe("법령 데이터", () => {
   it("세력마다 4~6개, id 유일", () => {
     for (const f of ["arkandal", "iruth", "voodoo"]) {

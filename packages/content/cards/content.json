@@ -100,6 +100,10 @@
      "effects": {
       "silver": 4,
       "order": -6
+     },
+     "followUp": {
+      "cardId": "ark-deserters",
+      "afterTurns": 2
      }
     }
    ]
@@ -180,6 +184,10 @@
      "onFail": {
       "army": -1,
       "morale": -8
+     },
+     "followUp": {
+      "cardId": "ark-iron-will",
+      "afterTurns": 2
      }
     },
     {
@@ -242,6 +250,10 @@
      "effects": {
       "strat": -15,
       "morale": -6
+     },
+     "followUp": {
+      "cardId": "ark-armory",
+      "afterTurns": 2
      }
     }
    ]
@@ -488,6 +500,10 @@
       "wall": 7,
       "morale": -8,
       "pop": -0.5
+     },
+     "followUp": {
+      "cardId": "ark-wall-crack",
+      "afterTurns": 3
      }
     }
    ],
@@ -582,6 +598,94 @@
       "infection": 4,
       "order": -4
      }
+    }
+   ],
+   "branches": [
+    {
+     "prevTones": [
+      "fail",
+      "fumble",
+      "after"
+     ],
+     "text": "묵인했던 위조 명부의 대가입니다. 명부에만 있던 병사들은 애초에 없었고, 남은 자들마저 무기를 버리고 사라졌습니다. 일부는 물린 상처가 있었습니다.",
+     "choices": [
+      {
+       "label": "추격해 처형",
+       "art": [
+        "sword"
+       ],
+       "check": {
+        "stat": "order",
+        "mod": -5
+       },
+       "effects": {
+        "order": 5,
+        "army": -0.4,
+        "wrath": 5,
+        "infection": -2
+       },
+       "onFail": {
+        "order": -6
+       }
+      },
+      {
+       "label": "위조한 귀족에게 책임을 묻는다",
+       "art": [
+        "scroll",
+        "crown"
+       ],
+       "check": {
+        "stat": "legit"
+       },
+       "effects": {
+        "legit": -4,
+        "order": 4,
+        "silver": 6,
+        "army": -0.2
+       }
+      }
+     ]
+    },
+    {
+     "prevTones": [
+      "crit",
+      "great"
+     ],
+     "text": "묵인해 준 귀족들이 빚을 갚겠다며 사병을 내놓았습니다. 탈영병의 행방도 그들이 압니다.",
+     "choices": [
+      {
+       "label": "귀족 사병과 함께 추격",
+       "art": [
+        "sword",
+        "banner"
+       ],
+       "check": {
+        "stat": "order",
+        "mod": 5
+       },
+       "effects": {
+        "order": 6,
+        "army": 0.2,
+        "infection": -3,
+        "legit": 2
+       }
+      },
+      {
+       "label": "사면령 반포",
+       "art": [
+        "scroll"
+       ],
+       "check": {
+        "stat": "legit"
+       },
+       "effects": {
+        "army": 0.3,
+        "legit": 3,
+        "infection": 4,
+        "order": -4
+       }
+      }
+     ]
     }
    ]
   },
@@ -729,6 +833,10 @@
       "army": 0.8,
       "morale": -10,
       "wrath": 4
+     },
+     "followUp": {
+      "cardId": "ark-gate-panic",
+      "afterTurns": 2
      }
     },
     {
@@ -971,6 +1079,46 @@
       "morale": -4,
       "wrath": 2
      }
+    }
+   ],
+   "branches": [
+    {
+     "prevTones": [
+      "fail",
+      "fumble",
+      "after"
+     ],
+     "text": "거짓 경보에 소년병들이 성문을 열고 달아났습니다. 짓밟힌 시민들 사이에 그들의 시신도 섞여 있습니다.",
+     "choices": [
+      {
+       "label": "소년병 부대를 해산",
+       "art": [
+        "banner"
+       ],
+       "check": {
+        "stat": "legit"
+       },
+       "effects": {
+        "army": -0.4,
+        "morale": 3,
+        "legit": -3
+       }
+      },
+      {
+       "label": "본보기로 처벌",
+       "art": [
+        "chain"
+       ],
+       "check": {
+        "stat": "order"
+       },
+       "effects": {
+        "order": 5,
+        "morale": -7,
+        "wrath": 4
+       }
+      }
+     ]
     }
    ]
   },
@@ -1232,6 +1380,47 @@
    "season": [
     "spring",
     "summer"
+   ],
+   "branches": [
+    {
+     "prevTones": [
+      "fail",
+      "fumble",
+      "after"
+     ],
+     "text": "봉인한 갱도 탓에 미스릴이 끊겼고, 무기고의 창은 녹슨 채 쌓여 갑니다.",
+     "choices": [
+      {
+       "label": "귀족의 은식기를 녹인다",
+       "art": [
+        "coin",
+        "fire"
+       ],
+       "check": {
+        "stat": "finance"
+       },
+       "effects": {
+        "silver": -8,
+        "legit": -3,
+        "army": 0.2
+       }
+      },
+      {
+       "label": "녹슨 창으로 버틴다",
+       "art": [
+        "soldier"
+       ],
+       "check": {
+        "stat": "order",
+        "mod": -5
+       },
+       "effects": {
+        "order": -6,
+        "infection": 2
+       }
+      }
+     ]
+    }
    ]
   },
   {
@@ -1535,7 +1724,88 @@
     "wall": {
      "min": 20
     }
-   }
+   },
+   "branches": [
+    {
+     "prevTones": [
+      "fail",
+      "fumble",
+      "after"
+     ],
+     "text": "노역으로 서둘러 올린 구간이 무너지기 시작했습니다. 금 간 틈으로 구울의 팔이 들어옵니다.",
+     "choices": [
+      {
+       "label": "무너진 구간을 다시 쌓는다",
+       "art": [
+        "pickaxe",
+        "wall"
+       ],
+       "check": {
+        "stat": "order",
+        "mod": -5
+       },
+       "effects": {
+        "strat": -12,
+        "wall": 1,
+        "morale": -3
+       }
+      },
+      {
+       "label": "구간을 버리고 물러선다",
+       "art": [
+        "soldier"
+       ],
+       "check": {
+        "stat": "order"
+       },
+       "effects": {
+        "wall": -4,
+        "infection": 3,
+        "order": -3
+       }
+      }
+     ]
+    },
+    {
+     "prevTones": [
+      "crit",
+      "great"
+     ],
+     "text": "노역대가 쌓은 구간은 생각보다 단단했습니다. 금은 한 군데뿐이고, 노역대가 스스로 보수하겠다고 나섭니다.",
+     "choices": [
+      {
+       "label": "노역대에 맡겨 보수",
+       "art": [
+        "pickaxe"
+       ],
+       "check": {
+        "stat": "order",
+        "mod": 5
+       },
+       "effects": {
+        "strat": -4,
+        "wall": 3,
+        "morale": -1
+       }
+      },
+      {
+       "label": "병력으로 막는다",
+       "art": [
+        "soldier",
+        "shield"
+       ],
+       "check": {
+        "stat": "order",
+        "mod": 5
+       },
+       "effects": {
+        "army": -0.3,
+        "infection": 2
+       }
+      }
+     ]
+    }
+   ]
   },
   {
    "id": "ark-healer-nun",
@@ -1691,6 +1961,89 @@
      "effects": {
       "order": 2
      }
+    }
+   ],
+   "branches": [
+    {
+     "prevTones": [
+      "fail",
+      "fumble",
+      "after"
+     ],
+     "text": "출정에서 돌아온 전운의 팔에 물린 자국이 있다는 소문이 돕니다. 왕은 그래도 방벽 위에 서겠다고 합니다.",
+     "choices": [
+      {
+       "label": "왕을 방벽에 세워 소문을 누른다",
+       "art": [
+        "banner",
+        "crown"
+       ],
+       "check": {
+        "stat": "legit",
+        "mod": -5
+       },
+       "effects": {
+        "legit": 5,
+        "order": 3,
+        "infection": 3
+       },
+       "onFail": {
+        "legit": -8
+       }
+      },
+      {
+       "label": "왕을 격리하고 섭정을 세운다",
+       "art": [
+        "tent"
+       ],
+       "check": {
+        "stat": "order"
+       },
+       "effects": {
+        "legit": -8,
+        "order": 4,
+        "infection": -2
+       }
+      }
+     ]
+    },
+    {
+     "prevTones": [
+      "crit",
+      "great"
+     ],
+     "text": "출정의 승전보가 퍼졌습니다. 병사들이 왕의 이름을 외치며 방벽으로 몰려듭니다.",
+     "choices": [
+      {
+       "label": "왕과 함께 지킨다",
+       "art": [
+        "banner"
+       ],
+       "check": {
+        "stat": "legit",
+        "mod": 5
+       },
+       "effects": {
+        "order": 8,
+        "legit": 6,
+        "morale": 3,
+        "infection": 1
+       }
+      },
+      {
+       "label": "왕의 안전이 먼저",
+       "art": [
+        "shield"
+       ],
+       "check": {
+        "stat": "order"
+       },
+       "effects": {
+        "order": 2,
+        "legit": 2
+       }
+      }
+     ]
     }
    ]
   },
@@ -1849,6 +2202,10 @@
      },
      "onFail": {
       "finance": -6
+     },
+     "followUp": {
+      "cardId": "iru-stock-crash",
+      "afterTurns": 3
      }
     },
     {
@@ -1984,6 +2341,10 @@
      "effects": {
       "food": 8,
       "infection": 7
+     },
+     "followUp": {
+      "cardId": "iru-ghoul-auction",
+      "afterTurns": 2
      }
     }
    ],
@@ -2105,6 +2466,10 @@
      "onFail": {
       "infection": 5,
       "wrath": 5
+     },
+     "followUp": {
+      "cardId": "iru-cure-trial",
+      "afterTurns": 3
      }
     },
     {
@@ -2152,6 +2517,10 @@
       "silver": -8,
       "infection": 3,
       "morale": -3
+     },
+     "followUp": {
+      "cardId": "iru-archduke-ill",
+      "afterTurns": 2
      }
     },
     {
@@ -2241,6 +2610,10 @@
      "effects": {
       "infection": -8,
       "legit": -3
+     },
+     "followUp": {
+      "cardId": "iru-styx-cost",
+      "afterTurns": 2
      }
     },
     {
@@ -2812,7 +3185,48 @@
     "turn": {
      "min": 5
     }
-   }
+   },
+   "branches": [
+    {
+     "prevTones": [
+      "fail",
+      "fumble",
+      "after"
+     ],
+     "text": "승인한 대출이 부실 채권으로 돌아왔습니다. 상인 연합이 먼저 무너지며 환전소가 폭락합니다.",
+     "choices": [
+      {
+       "label": "금고를 풀어 방어",
+       "art": [
+        "scales"
+       ],
+       "check": {
+        "stat": "finance",
+        "mod": -5
+       },
+       "effects": {
+        "finance": 6,
+        "silver": -22
+       }
+      },
+      {
+       "label": "상인 연합을 파산시킨다",
+       "art": [
+        "chain",
+        "coin"
+       ],
+       "check": {
+        "stat": "order"
+       },
+       "effects": {
+        "finance": -10,
+        "legit": -4,
+        "silver": 6
+       }
+      }
+     ]
+    }
+   ]
   },
   {
    "id": "iru-snow-festival",
@@ -3201,7 +3615,50 @@
     "turn": {
      "min": 10
     }
-   }
+   },
+   "branches": [
+    {
+     "prevTones": [
+      "fail",
+      "fumble",
+      "after"
+     ],
+     "text": "스틱스에게 맡긴 수호체가 스스로 빙철 창고를 열어 쓰기 시작했습니다. 의회는 통제권을 잃었습니다.",
+     "choices": [
+      {
+       "label": "원하는 만큼 바친다",
+       "art": [
+        "crystal"
+       ],
+       "check": {
+        "stat": "finance",
+        "mod": -5
+       },
+       "effects": {
+        "strat": -15,
+        "legit": 2,
+        "infection": -3
+       }
+      },
+      {
+       "label": "수호체를 강제로 끈다",
+       "art": [
+        "eye",
+        "chain"
+       ],
+       "check": {
+        "stat": "order",
+        "mod": -5
+       },
+       "effects": {
+        "legit": -6,
+        "infection": 6,
+        "strat": 6
+       }
+      }
+     ]
+    }
+   ]
   },
   {
    "id": "iru-ghoul-auction",
@@ -3246,7 +3703,50 @@
     "infection": {
      "min": 30
     }
-   }
+   },
+   "branches": [
+    {
+     "prevTones": [
+      "fail",
+      "fumble",
+      "after"
+     ],
+     "text": "눈감아 준 고기 장수들이 이제 대놓고 구울을 경매에 부칩니다. 몇 마리는 쇠사슬이 헐겁습니다.",
+     "choices": [
+      {
+       "label": "공국이 전부 사들인다",
+       "art": [
+        "book",
+        "coin"
+       ],
+       "check": {
+        "stat": "finance",
+        "mod": -5
+       },
+       "effects": {
+        "research": 6,
+        "silver": -12,
+        "infection": 3
+       }
+      },
+      {
+       "label": "시장을 불태운다",
+       "art": [
+        "fire"
+       ],
+       "check": {
+        "stat": "order"
+       },
+       "effects": {
+        "infection": -3,
+        "silver": -4,
+        "morale": -5,
+        "wrath": 3
+       }
+      }
+     ]
+    }
+   ]
   },
   {
    "id": "iru-false-cure",
@@ -3334,7 +3834,92 @@
     "turn": {
      "min": 15
     }
-   }
+   },
+   "branches": [
+    {
+     "prevTones": [
+      "fail",
+      "fumble",
+      "after"
+     ],
+     "text": "치료사 길드의 실험이 실패했다는 소문 속에서도, 그들은 사람에게 시약을 쓰겠다고 고집합니다.",
+     "choices": [
+      {
+       "label": "시험 승인",
+       "art": [
+        "potion"
+       ],
+       "check": {
+        "stat": "legit",
+        "mod": -5
+       },
+       "effects": {
+        "research": 8,
+        "silver": -10
+       },
+       "onFail": {
+        "pop": -0.5,
+        "wrath": 7,
+        "legit": -4
+       }
+      },
+      {
+       "label": "길드를 해산",
+       "art": [
+        "chain"
+       ],
+       "check": {
+        "stat": "order"
+       },
+       "effects": {
+        "research": -2,
+        "legit": 3,
+        "silver": 4
+       }
+      }
+     ]
+    },
+    {
+     "prevTones": [
+      "crit",
+      "great"
+     ],
+     "text": "길드의 동물 실험이 성공했습니다. 첫 사람 시험에 지원자가 줄을 섭니다.",
+     "choices": [
+      {
+       "label": "시험 승인",
+       "art": [
+        "potion"
+       ],
+       "check": {
+        "stat": "legit",
+        "mod": 5
+       },
+       "effects": {
+        "research": 14,
+        "silver": -8
+       },
+       "onFail": {
+        "pop": -0.2,
+        "wrath": 3
+       }
+      },
+      {
+       "label": "동물 실험 확대",
+       "art": [
+        "rat"
+       ],
+       "check": {
+        "stat": "order"
+       },
+       "effects": {
+        "research": 7,
+        "silver": -4
+       }
+      }
+     ]
+    }
+   ]
   },
   {
    "id": "iru-port-fire",
@@ -3431,7 +4016,52 @@
     "infection": {
      "min": 40
     }
-   }
+   },
+   "branches": [
+    {
+     "prevTones": [
+      "fail",
+      "fumble",
+      "after"
+     ],
+     "text": "강행한 연회 자리에서 대공이 쓰러졌습니다. 손님 중 셋은 이미 열이 납니다.",
+     "choices": [
+      {
+       "label": "공표하고 격리",
+       "art": [
+        "tent"
+       ],
+       "check": {
+        "stat": "legit",
+        "mod": -5
+       },
+       "effects": {
+        "legit": 2,
+        "order": -6,
+        "infection": -1
+       }
+      },
+      {
+       "label": "숨긴다",
+       "art": [
+        "chain"
+       ],
+       "check": {
+        "stat": "order",
+        "mod": -5
+       },
+       "effects": {
+        "order": 2,
+        "legit": -8
+       },
+       "onFail": {
+        "legit": -10,
+        "infection": 6
+       }
+      }
+     ]
+    }
+   ]
   },
   {
    "id": "iru-golden-scale",
@@ -3688,6 +4318,91 @@
      },
      "target": "arkandal"
     }
+   ],
+   "branches": [
+    {
+     "prevTones": [
+      "fail",
+      "fumble",
+      "after"
+     ],
+     "text": "흘린 거짓이 들통났습니다. 사절은 배교자의 증언을 손에 들고 찾아왔습니다.",
+     "choices": [
+      {
+       "label": "구울을 시연한다",
+       "art": [
+        "ghoul",
+        "chain"
+       ],
+       "check": {
+        "stat": "control",
+        "mod": -5
+       },
+       "effects": {
+        "relTo": 5,
+        "stealth": -10
+       },
+       "onFail": {
+        "stealth": -14
+       },
+       "target": "arkandal"
+      },
+      {
+       "label": "사절을 구울로 만든다",
+       "art": [
+        "ghoul"
+       ],
+       "check": {
+        "stat": "control"
+       },
+       "effects": {
+        "stealth": -6,
+        "relTo": -15,
+        "army": 0.2,
+        "wrath": 3
+       },
+       "target": "arkandal"
+      }
+     ]
+    },
+    {
+     "prevTones": [
+      "crit",
+      "great"
+     ],
+     "text": "흘린 거짓을 믿은 사절이 '평화로운 교단'을 확인하러 왔습니다.",
+     "choices": [
+      {
+       "label": "신도들의 일상을 보여 준다",
+       "art": [
+        "altar"
+       ],
+       "check": {
+        "stat": "faith",
+        "mod": 5
+       },
+       "effects": {
+        "relTo": 12,
+        "stealth": -2
+       },
+       "target": "arkandal"
+      },
+      {
+       "label": "문을 닫고 숨는다",
+       "art": [
+        "wall"
+       ],
+       "check": {
+        "stat": "faith"
+       },
+       "effects": {
+        "stealth": 4,
+        "relTo": -3
+       },
+       "target": "arkandal"
+      }
+     ]
+    }
    ]
   },
   {
@@ -3908,7 +4623,48 @@
       "max": 50
      }
     }
-   }
+   },
+   "branches": [
+    {
+     "prevTones": [
+      "fail",
+      "fumble",
+      "after"
+     ],
+     "text": "이웃 영지로 몰아낸 무리가 마을 하나를 삼켰습니다. 성기사 정찰대가 그 흔적을 따라 교단 영지까지 들어왔습니다.",
+     "choices": [
+      {
+       "label": "구울로 막아선다",
+       "art": [
+        "ghoul"
+       ],
+       "check": {
+        "stat": "control",
+        "mod": -5
+       },
+       "effects": {
+        "prey": 6,
+        "army": -0.8,
+        "stealth": -14
+       }
+      },
+      {
+       "label": "신도 하나를 범인으로 내준다",
+       "art": [
+        "chain"
+       ],
+       "check": {
+        "stat": "faith"
+       },
+       "effects": {
+        "stealth": 4,
+        "faith": -6,
+        "pop": -0.3
+       }
+      }
+     ]
+    }
+   ]
   },
   {
    "id": "voo-offering-short",
@@ -3994,6 +4750,10 @@
      "effects": {
       "control": 8,
       "faith": -6
+     },
+     "followUp": {
+      "cardId": "voo-blood-pact",
+      "afterTurns": 2
      }
     }
    ],
@@ -4129,6 +4889,10 @@
       "neutral": 6,
       "stealth": -6,
       "army": -0.3
+     },
+     "followUp": {
+      "cardId": "voo-paladins",
+      "afterTurns": 2
      }
     }
    ],
@@ -4219,6 +4983,10 @@
      "effects": {
       "stealth": 2,
       "research": -2
+     },
+     "followUp": {
+      "cardId": "voo-envoy-visit",
+      "afterTurns": 2
      }
     }
    ],
@@ -5083,6 +5851,50 @@
       "faith": -4
      }
     }
+   ],
+   "branches": [
+    {
+     "prevTones": [
+      "fail",
+      "fumble",
+      "after"
+     ],
+     "text": "조작된 기적의 장치가 신도들 눈앞에서 드러났습니다. 대사제는 밤새 제단 앞에 앉아 있었습니다.",
+     "choices": [
+      {
+       "label": "진짜 기적을 구한다",
+       "art": [
+        "altar",
+        "moon"
+       ],
+       "check": {
+        "stat": "faith",
+        "mod": -5
+       },
+       "effects": {
+        "faith": 4,
+        "offering": -6
+       },
+       "onFail": {
+        "faith": -6
+       }
+      },
+      {
+       "label": "장치를 만든 자를 처형",
+       "art": [
+        "chain"
+       ],
+       "check": {
+        "stat": "control"
+       },
+       "effects": {
+        "control": 6,
+        "faith": -6,
+        "stealth": -3
+       }
+      }
+     ]
+    }
    ]
   },
   {
@@ -5122,6 +5934,86 @@
       "control": 3,
       "faith": -2
      }
+    }
+   ],
+   "branches": [
+    {
+     "prevTones": [
+      "fail",
+      "fumble",
+      "after"
+     ],
+     "text": "강경파가 서약을 핑계로 온건파 신도들의 손목을 강제로 긋고 있습니다. 비명이 마을 밖까지 들립니다.",
+     "choices": [
+      {
+       "label": "서약을 받는다",
+       "art": [
+        "altar"
+       ],
+       "check": {
+        "stat": "faith",
+        "mod": -5
+       },
+       "effects": {
+        "faith": 6,
+        "control": 2,
+        "pop": -0.8,
+        "stealth": -4
+       }
+      },
+      {
+       "label": "강경파 수장을 제물로",
+       "art": [
+        "altar",
+        "chain"
+       ],
+       "check": {
+        "stat": "control"
+       },
+       "effects": {
+        "faith": -4,
+        "control": 6,
+        "pop": -0.2
+       }
+      }
+     ]
+    },
+    {
+     "prevTones": [
+      "crit",
+      "great"
+     ],
+     "text": "강경파로 하나 된 교단이 흔들림 없이 스스로 피를 바칩니다.",
+     "choices": [
+      {
+       "label": "서약을 받는다",
+       "art": [
+        "altar"
+       ],
+       "check": {
+        "stat": "faith",
+        "mod": 5
+       },
+       "effects": {
+        "faith": 10,
+        "control": 5,
+        "pop": -0.3
+       }
+      },
+      {
+       "label": "과격함을 말린다",
+       "art": [
+        "scroll"
+       ],
+       "check": {
+        "stat": "control"
+       },
+       "effects": {
+        "control": 4,
+        "faith": -1
+       }
+      }
+     ]
     }
    ]
   },
@@ -5197,6 +6089,10 @@
       "faith": 6,
       "stealth": -8,
       "wrath": 3
+     },
+     "followUp": {
+      "cardId": "voo-inner-doubt",
+      "afterTurns": 3
      }
     },
     {
@@ -5548,6 +6444,10 @@
       "research": 4,
       "silver": -5,
       "infection": 3
+     },
+     "followUp": {
+      "cardId": "com-quarantine-riot",
+      "afterTurns": 2
      }
     }
    ],
@@ -5579,6 +6479,10 @@
      "effects": {
       "research": 6,
       "silver": -5
+     },
+     "followUp": {
+      "cardId": "com-rumor-cure",
+      "afterTurns": 3
      }
     },
     {
@@ -5639,7 +6543,50 @@
     "infection": {
      "min": 40
     }
-   }
+   },
+   "branches": [
+    {
+     "prevTones": [
+      "fail",
+      "fumble",
+      "after"
+     ],
+     "text": "그대로 둔 거짓 선지자의 제자들이 광장을 차지했습니다. 역병은 그니스의 복수라는 외침이 성벽까지 울립니다.",
+     "choices": [
+      {
+       "label": "설교를 금한다",
+       "art": [
+        "chain"
+       ],
+       "check": {
+        "stat": "order",
+        "mod": -5
+       },
+       "effects": {
+        "order": 3,
+        "morale": -7
+       },
+       "onFail": {
+        "order": -5
+       }
+      },
+      {
+       "label": "설교를 이용한다",
+       "art": [
+        "banner"
+       ],
+       "check": {
+        "stat": "legit"
+       },
+       "effects": {
+        "legit": 4,
+        "morale": 2,
+        "wrath": 6
+       }
+      }
+     ]
+    }
+   ]
   },
   {
    "id": "com-rats",
@@ -5892,6 +6839,10 @@
      "effects": {
       "morale": 3,
       "infection": 6
+     },
+     "followUp": {
+      "cardId": "com-zealot",
+      "afterTurns": 2
      }
     }
    ],
@@ -5944,7 +6895,49 @@
     "infection": {
      "min": 50
     }
-   }
+   },
+   "branches": [
+    {
+     "prevTones": [
+      "fail",
+      "fumble",
+      "after"
+     ],
+     "text": "치료를 시도한 마을에서 감염이 번졌습니다. 격리된 사람들이 담을 넘어 거리로 쏟아집니다.",
+     "choices": [
+      {
+       "label": "무력 진압",
+       "art": [
+        "soldier"
+       ],
+       "check": {
+        "stat": "order",
+        "mod": -5
+       },
+       "effects": {
+        "order": 4,
+        "infection": -3,
+        "morale": -10,
+        "wrath": 4
+       }
+      },
+      {
+       "label": "요구를 듣는다",
+       "art": [
+        "scroll"
+       ],
+       "check": {
+        "stat": "morale"
+       },
+       "effects": {
+        "morale": 3,
+        "infection": 7,
+        "food": -6
+       }
+      }
+     ]
+    }
+   ]
   },
   {
    "id": "com-orphans",
@@ -6635,7 +7628,83 @@
     "turn": {
      "min": 18
     }
-   }
+   },
+   "branches": [
+    {
+     "prevTones": [
+      "fail",
+      "fumble",
+      "after"
+     ],
+     "text": "후원한 학자가 연구 기록을 들고 사라졌습니다. 그가 가짜 치료제를 팔고 다닌다는 소문입니다.",
+     "choices": [
+      {
+       "label": "학자를 수배한다",
+       "art": [
+        "scroll"
+       ],
+       "check": {
+        "stat": "order"
+       },
+       "effects": {
+        "order": 3,
+        "silver": -4,
+        "research": 2
+       }
+      },
+      {
+       "label": "소문을 단속한다",
+       "art": [
+        "chain"
+       ],
+       "check": {
+        "stat": "order",
+        "mod": -5
+       },
+       "effects": {
+        "order": 2,
+        "morale": -4
+       }
+      }
+     ]
+    },
+    {
+     "prevTones": [
+      "crit",
+      "great"
+     ],
+     "text": "후원한 학자가 치료제의 실마리를 들고 돌아왔습니다. 소문의 진원지는 바로 그였습니다.",
+     "choices": [
+      {
+       "label": "연구에 박차를 가한다",
+       "art": [
+        "book"
+       ],
+       "check": {
+        "stat": "legit",
+        "mod": 5
+       },
+       "effects": {
+        "research": 8,
+        "silver": -5
+       }
+      },
+      {
+       "label": "실마리를 이웃과 나눈다",
+       "art": [
+        "treaty"
+       ],
+       "check": {
+        "stat": "legit"
+       },
+       "effects": {
+        "research": 4,
+        "rel": 5
+       }
+      }
+     ]
+    }
+   ]
   },
   {
    "id": "com-winter-wolves",

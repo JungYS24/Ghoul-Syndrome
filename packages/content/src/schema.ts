@@ -24,6 +24,14 @@ const choice = z.object({
   setFlags: z.array(z.string()).optional(),
   target: factionId.optional(),
   withSuccess: z.array(effectKey).optional(),
+  followUp: z.object({ cardId: z.string().min(1), afterTurns: z.number().int().min(1) }).strict().optional(),
+}).strict();
+const tone = z.enum(["crit", "great", "success", "partial", "fail", "fumble", "after"]);
+const branch = z.object({
+  prevTones: z.array(tone).min(1),
+  title: z.string().min(1).optional(),
+  text: z.string().optional(),
+  choices: z.array(choice).min(1).optional(),
 }).strict();
 export const cardSchema = z.object({
   id: z.string().min(1),
@@ -36,6 +44,7 @@ export const cardSchema = z.object({
   text: z.string(),
   art: z.array(z.string()).optional(),
   choices: z.array(choice).min(1),
+  branches: z.array(branch).optional(),
 }).strict();
 export const actionSchema = z.object({
   id: z.string().min(1),

@@ -2,6 +2,7 @@ import { AFTERMATH_AT_OR_BELOW, ON_FAIL_BELOW, chanceAtLeast, clamp, judge, roll
 import { FACTIONS, GAUGE_LABEL, NEUTRAL_START, REGION_NAME, SEASON_KO, VOODOO_MAP, infStage, otherFactions, seasonOf, yearOf } from "./factions";
 import { createRng, type Rng } from "./rng";
 import { settleDecrees } from "./decrees";
+import { chainTailIds, scheduleChain, takeDueChain } from "./chains";
 import {
   abilityModifier, baseSpread, continentalInfection, foodUse, popLoss, preyUse, production, r1, seasonMod, stateModifier,
 } from "./rules";
@@ -31,7 +32,7 @@ export function newGame(faction: FactionId, seed: number): GameState {
     rel, pacts: [], target: faction === "voodoo" ? "arkandal" : "neutral",
     flags: [], ap: 2, preset: "balance", queue: [], recent: {}, events: [], eventIdx: 0,
     startReport: [], endReport: [], aiReport: [], turnLog: [], chronicle: [], maxInfection: infection[faction], tempInf: 0, ended: null,
-    decrees: [], decreeHistory: [],
+    decrees: [], decreeHistory: [], chains: [], chainsDone: [],
   };
 }
 /** 이전 버전 저장을 현재 형태로 맞춥니다(빠진 필드는 기본값). 입력은 바꾸지 않습니다. */
@@ -39,6 +40,8 @@ export function migrateState(raw: unknown): GameState {
   const s = clone(raw) as GameState & Record<string, unknown>;
   s.decrees ??= [];
   s.decreeHistory ??= [];
+  s.chains ??= [];
+  s.chainsDone ??= [];
   s.version = 3;
   return s;
 }
@@ -165,6 +168,7 @@ export function resolveChoice(state: GameState, card: Card, choice: Choice, rng:
   const aftermath = j.final <= AFTERMATH_AT_OR_BELOW;
   if (aftermath) s.queue.push({ type: "aftermath" });
   for (const f of choice.setFlags ?? []) if (!s.flags.includes(f)) s.flags.push(f);
+  scheduleChain(s, card, choice, j.grade.tone);
   s.turnLog.push({ title: card.title, label: choice.label, grade: j.grade.name, tone: j.grade.tone, final: j.final });
   s.rng = rng.state;
   return {
@@ -190,8 +194,10 @@ export function condOk(s: GameState, w?: When): boolean {
 function pick(s: GameState, pool: Card[], rng: Rng): Card | null {
   const season = seasonOf(s.turn);
   const fits = (c: Card) => (!c.season || c.season.includes(season)) && condOk(s, c.when);
-  let list = pool.filter((c) => fits(c) && !(s.recent[c.id] !== undefined && s.turn - s.recent[c.id]! < 8));
-  if (!list.length) list = pool.filter(fits);
+  const tails = chainTailIds(s);
+  const base = pool.filter((c) => !tails.has(c.id));
+  let list = base.filter((c) => fits(c) && !(s.recent[c.id] !== undefined && s.turn - s.recent[c.id]! < 8));
+  if (!list.length) list = base.filter(fits);
   if (!list.length) return null;
   const tot = list.reduce((a, c) => a + (c.weight ?? 5), 0);
   let r = rng.next() * tot;
@@ -231,11 +237,14 @@ function drawEventsInto(s: GameState, content: GameContent, rng: Rng) {
   const com = pick(s, common, rng); if (com) cards.push({ ...com, kind: "공통 사건" });
   let third: Card | null = null;
   const fixed = content.fixed[String(s.turn)];
+  const chain = takeDueChain(s, content);
   if (fixed) third = { ...fixed, kind: "고정 사건" };
+  else if (chain) third = chain;
   else if (s.queue.length) third = dequeue(s);
   else { const sit = pick(s, content.situational, rng); if (sit) third = { ...sit, kind: "상황 반응" }; }
   if (!third) { const c2 = pick(s, common, rng); if (c2) third = { ...c2, kind: "공통 사건" }; }
   if (third) cards.push(third);
+  if (fixed && chain) cards.push(chain);
   if (s.faction !== "voodoo" && s.infection[s.faction] >= 91 && content.collapse.length) {
     cards.push({ ...content.collapse[Math.floor(rng.next() * content.collapse.length)]!, kind: "붕괴" });
   }
