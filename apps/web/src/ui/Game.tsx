@@ -6,6 +6,7 @@ import { CardView } from "./Cards";
 import { Illus } from "../art/Art";
 import { ChronicleSheet, RulesSheet } from "./Sheets";
 import { ImpactMark } from "./Impact";
+import { Onboarding } from "./Onboarding";
 
 const CREST: Record<string, string[]> = { arkandal: ["fortress", "shield"], iruth: ["ship", "scales"], voodoo: ["altar", "eye"] };
 
@@ -69,6 +70,7 @@ export function Game({ s }: { s: GameState }) {
         <Dashboard s={s} />
         <main className="grid gap-3.5 min-w-0 order-first lg:order-none">
           <QuickStrip s={s} />
+          <Onboarding key={s.seed} s={s} />
           <Phases s={s} />
 
           {s.phase === "start" && (

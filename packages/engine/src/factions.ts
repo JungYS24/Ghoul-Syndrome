@@ -82,5 +82,26 @@ export const PRESETS: Record<PresetId, { name: string; agri: number; comm: numbe
 
 export const seasonOf = (turn: number): Season => SEASONS[(turn - 1) % 4]!;
 export const yearOf = (turn: number) => 759 + Math.floor((turn - 1) / 4);
-export const infStage = (v: number) => (v <= 30 ? "소강" : v <= 60 ? "확산" : v <= 90 ? "창궐" : "붕괴");
+export interface InfectionStage { min: number; max: number; name: "소강" | "확산" | "창궐" | "붕괴"; effect: string }
+/** 감염도 구간 — 대시보드·규칙 시트·온보딩이 모두 이 표를 읽습니다. */
+export const INFECTION_STAGES: InfectionStage[] = [
+  { min: 0, max: 30, name: "소강", effect: "효과 없음 (아르칸달·아이루스는 인구 회복)" },
+  { min: 31, max: 60, name: "확산", effect: "식량 생산 −10%, 매 계절 민심 −1" },
+  { min: 61, max: 90, name: "창궐", effect: "모든 판정 −5, 식량 생산 −20%, 매 계절 민심·질서 −2" },
+  { min: 91, max: 100, name: "붕괴", effect: "창궐 효과 + 매 계절 붕괴 카드 추가" },
+];
+export const infStageOf = (v: number): InfectionStage => INFECTION_STAGES.find((st) => v <= st.max) ?? INFECTION_STAGES[INFECTION_STAGES.length - 1]!;
+export const infStage = (v: number) => infStageOf(v).name;
+
+/** 게이지 뜻 (온보딩·규칙 시트) */
+export const GAUGE_HELP: Record<GaugeKey, string> = {
+  morale: "백성의 지지. 0이 되면 폭동으로 무너집니다.",
+  order: "치안과 군기. 봉쇄·징집 판정에 쓰입니다.",
+  finance: "국고의 건전성. 실링이 바닥나면 깎입니다.",
+  legit: "왕권의 정당성. 외교·책임 판정에 쓰입니다.",
+  faith: "신도의 믿음. 0이 되면 교단이 흩어집니다.",
+  control: "구울 무리를 다루는 힘. 낮으면 구울이 폭주합니다.",
+  offering: "교단 금고와 제물. 의식과 매수에 쓰입니다.",
+  stealth: "교단의 은신. 0이 되면 대토벌로 패배합니다.",
+};
 export const otherFactions = (f: FactionId) => FACTION_IDS.filter((x) => x !== f);

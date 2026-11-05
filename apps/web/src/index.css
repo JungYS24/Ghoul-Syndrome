@@ -52,3 +52,10 @@ button[data-faction] h2{color:var(--f-main)}
   .impact-dot,.card-deal{animation:none}
   .swipe-card{transition:none!important}
 }
+
+/* ── 온보딩 말풍선 ── */
+.tour-bubble::before{content:"";position:absolute;top:22px;left:-8px;width:14px;height:14px;background:#2a2216;border-left:1px solid #8c6f35;border-bottom:1px solid #8c6f35;transform:rotate(45deg)}
+@media (max-width:1023px){.tour-bubble::before{display:none}}
+.tour-focus{outline:2px solid #cfa752;outline-offset:4px;border-radius:3px;animation:tourpulse 1.6s ease-in-out infinite}
+@keyframes tourpulse{0%,100%{outline-color:#cfa752}50%{outline-color:#8c6f35}}
+@media (prefers-reduced-motion:reduce){.tour-focus{animation:none}}

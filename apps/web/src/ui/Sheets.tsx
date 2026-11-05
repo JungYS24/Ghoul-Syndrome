@@ -1,5 +1,24 @@
 import { useEffect } from "react";
-import { GAUGE_LABEL, infStage, type GameState } from "@guul/engine";
+import { AFTERMATH_AT_OR_BELOW, GAUGE_LABEL, INFECTION_STAGES, ON_FAIL_BELOW, gradeTable, infStage, type GameState, type Grade } from "@guul/engine";
+
+export const TONE_CLASS: Record<Grade["tone"], string> = {
+  crit: "text-gold-hi", great: "text-gold", success: "text-frost", partial: "text-[#c9b48a]", fail: "text-[#d98a74]", fumble: "text-blood", after: "text-blood",
+};
+
+/** grades.json 에서 자동 생성되는 등급표 */
+export function GradeTable({ compact }: { compact?: boolean }) {
+  const rows = gradeTable();
+  return (
+    <table className="border-collapse font-ui text-[12px] w-full">
+      <tbody>{rows.map((r) => (
+        <tr key={r.name}>
+          <td className={`border-b border-line pr-1.5 tabular-nums whitespace-nowrap ${compact ? "py-0.5" : "py-1"}`}>{r.min === r.max ? r.min : `${r.min}~${r.max}`}</td>
+          <td className={`border-b border-line pl-1.5 ${compact ? "py-0.5" : "py-1"} ${TONE_CLASS[r.tone]}`}>{r.name}{r.max < ON_FAIL_BELOW ? " · 실패 비용" : ""}{r.max <= AFTERMATH_AT_OR_BELOW ? " · 후유증" : ""}</td>
+        </tr>
+      ))}</tbody>
+    </table>
+  );
+}
 
 function Sheet({ title, onClose, children }: { title: string; onClose: () => void; children: React.ReactNode }) {
   useEffect(() => { const h = (e: KeyboardEvent) => { if (e.key === "Escape") onClose(); }; window.addEventListener("keydown", h); return () => window.removeEventListener("keydown", h); }, [onClose]);
@@ -32,8 +51,6 @@ export function ChronicleSheet({ s, onClose }: { s: GameState; onClose: () => vo
 }
 
 export function RulesSheet({ onClose }: { onClose: () => void }) {
-  const grades: [string, string][] = [["95~100 (rank)", "경이로운 대성공"], ["73+ (합)", "대성공 계열"], ["52~72", "성공 계열"], ["49~51", "반쪽 성공"], ["40~48", "실패"], ["30~39", "대실패"], ["≤29", "후유증 대실패"]];
-  const stages: [string, string][] = [["0~30 소강", "효과 없음"], ["31~60 확산", "식량 생산 −10%"], ["61~90 창궐", "모든 판정 −5, 식량 −20%"], ["91~100 붕괴", "매 턴 붕괴 카드 추가"]];
   return (
     <Sheet title="규칙" onClose={onClose}>
       <div className="text-[14px] text-[#d9cdb6] grid gap-2.5">
@@ -41,11 +58,11 @@ export function RulesSheet({ onClose }: { onClose: () => void }) {
         <h3 className="font-ui text-[12px] tracking-[0.1em] text-gold-dim font-medium mt-1">한 턴</h3>
         <p className="m-0">① 시작 결산(식량 소비, 감염도 갱신, 인구 손실) ② 사건 카드 3장(세력·공통·상황) ③ 행동권 2개(미사용 시 이월, 최대 3) ④ 종료 결산(생산·유지비, AI 세력) ⑤ 연대기 기록</p>
         <h3 className="font-ui text-[12px] tracking-[0.1em] text-gold-dim font-medium mt-1">주사위 (5d20)</h3>
-        <p className="m-0">20면체 5개를 굴려 합(5~100)에 보정(능력치 (게이지−50)÷5, 선택지 난이도, 상태)을 더합니다. 합의 분포가 종 모양이라, 최종값을 백분위 rank로 바꿔 효과 배율(0.30~1.60)을 정합니다. 이로운 효과는 배율만큼 커지고, 해로운 효과는 잘 나올수록 줄며, 자원 비용은 고정입니다. 40 미만이면 실패 비용이 더해지고, 아주 낮으면 후유증 카드가 나옵니다.</p>
-        <table className="border-collapse font-ui text-[12px] w-full">{grades.map(([a, b]) => <tr key={a}><td className="border-b border-line py-1 pr-1.5">{a}</td><td className="border-b border-line py-1 pl-1.5">{b}</td></tr>)}</table>
+        <p className="m-0">20면체 5개를 굴려 합(5~100)에 보정(능력치 (게이지−50)÷5, 선택지 난이도, 상태)을 더합니다. 합의 분포가 종 모양이라, 최종값을 백분위 rank로 바꿔 효과 배율(0.30~1.60)을 정합니다. 이로운 효과는 배율만큼 커지고, 해로운 효과는 잘 나올수록 줄며, 자원 비용은 고정입니다. 최종값 {ON_FAIL_BELOW} 미만이면 실패 비용이 더해지고, {AFTERMATH_AT_OR_BELOW} 이하면 후유증 카드가 나옵니다.</p>
+        <GradeTable />
         <h3 className="font-ui text-[12px] tracking-[0.1em] text-gold-dim font-medium mt-1">구울 증후군</h3>
         <p className="m-0">계절 보정: 봄 0 · 여름 +4 · 가을 +2 · 겨울 −6 (아이루스 겨울 추가 −3). 매 턴 인구 × 감염도 ÷ 100 × 5%가 구울이 됩니다(잠복·발병 2계절 지연).</p>
-        <table className="border-collapse font-ui text-[12px] w-full">{stages.map(([a, b]) => <tr key={a}><td className="border-b border-line py-1 pr-1.5">{a}</td><td className="border-b border-line py-1 pl-1.5">{b}</td></tr>)}</table>
+        <table className="border-collapse font-ui text-[12px] w-full"><tbody>{INFECTION_STAGES.map((st) => <tr key={st.name}><td className="border-b border-line py-1 pr-1.5 whitespace-nowrap">{st.min}~{st.max} {st.name}</td><td className="border-b border-line py-1 pl-1.5">{st.effect}</td></tr>)}</tbody></table>
         <h3 className="font-ui text-[12px] tracking-[0.1em] text-gold-dim font-medium mt-1">게이지 · 진노</h3>
         <p className="m-0">게이지({Object.values(GAUGE_LABEL).slice(0, 4).join("·")} 등)가 0이면 패배, 100이면 과잉 후유증 카드. 진노는 소각·처형·모독으로 오르고 30·60·90·100에서 생산이 줄며 100은 되돌릴 수 없습니다.</p>
         <h3 className="font-ui text-[12px] tracking-[0.1em] text-gold-dim font-medium mt-1">승리</h3>

@@ -41,6 +41,11 @@ export function multOfRank(rank: number): number {
   }
   return 1;
 }
+export interface GradeRow extends Grade { max: number }
+/** grades.json 에서 등급표(최종값 구간)를 만듭니다. 위에서부터 max = 윗 등급 min − 1. */
+export function gradeTable(grades: Grade[] = GRADES): GradeRow[] {
+  return grades.map((g, i) => ({ ...g, max: i === 0 ? 100 : grades[i - 1]!.min - 1 }));
+}
 export function gradeOf(final: number, grades: Grade[] = GRADES): Grade {
   for (const g of grades) if (final >= g.min) return g;
   return grades[grades.length - 1]!;
