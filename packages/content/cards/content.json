@@ -8325,5 +8325,277 @@
     ]
    }
   }
+ ],
+ "decrees": [
+  {
+   "id": "ark-war-levy",
+   "faction": "arkandal",
+   "name": "전시 징용령",
+   "icon": "soldier",
+   "desc": "열네 살 이상의 모든 남녀를 병영과 방벽 공사에 묶습니다. 성벽은 오르지만 마을은 비어 갑니다.",
+   "effects": {
+    "wall": 1,
+    "army": 0.2,
+    "morale": -1
+   },
+   "upkeep": {
+    "food": 2
+   },
+   "repealWhen": {
+    "gauge": {
+     "morale": {
+      "max": 15
+     }
+    }
+   },
+   "repealText": "민심 15 이하 — 징용 거부 폭동으로 철회"
+  },
+  {
+   "id": "ark-border-pyre",
+   "faction": "arkandal",
+   "name": "국경 소각령",
+   "icon": "fire",
+   "desc": "국경 마을에서 열이 나는 자는 집과 함께 태웁니다. 감염은 줄지만 여신은 셈을 합니다.",
+   "effects": {
+    "infection": -2
+   },
+   "upkeep": {
+    "silver": 2
+   },
+   "wrath": 2,
+   "repealWhen": {
+    "wrath": {
+     "min": 90
+    }
+   },
+   "repealText": "진노 90 이상 — 사제단의 파문 위협으로 철회"
+  },
+  {
+   "id": "ark-mithril-levy",
+   "faction": "arkandal",
+   "name": "미스릴 공출령",
+   "icon": "pickaxe",
+   "desc": "귀족의 갑옷과 성당의 종까지 녹여 방벽에 붓습니다.",
+   "effects": {
+    "wall": 2,
+    "finance": -1,
+    "legit": -1
+   },
+   "upkeep": {
+    "strat": 6
+   }
+  },
+  {
+   "id": "ark-curfew",
+   "faction": "arkandal",
+   "name": "계엄 통금령",
+   "icon": "bell",
+   "desc": "해가 지면 종이 울리고, 거리에 남은 자는 감염자로 간주됩니다.",
+   "effects": {
+    "order": 2,
+    "infection": -1,
+    "morale": -1
+   },
+   "upkeep": {
+    "silver": 1
+   },
+   "repealWhen": {
+    "gauge": {
+     "order": {
+      "min": 92
+     }
+    }
+   },
+   "repealText": "질서 92 이상 — 통금이 더는 필요 없다며 해제"
+  },
+  {
+   "id": "ark-hero-cult",
+   "faction": "arkandal",
+   "name": "영웅왕 숭배령",
+   "icon": "crown",
+   "desc": "모든 광장에 전운의 동상을 세우고, 매일 아침 그의 이름으로 맹세하게 합니다.",
+   "effects": {
+    "legit": 2,
+    "morale": 2,
+    "finance": -1
+   },
+   "upkeep": {
+    "silver": 2
+   }
+  },
+  {
+   "id": "iru-quarantine-fee",
+   "faction": "iruth",
+   "name": "검역 수수료령",
+   "icon": "scales",
+   "desc": "항구에 들어오는 모든 배와 사람에게 검역 수수료를 매깁니다. 돈을 낸 자는 검사를 덜 받습니다.",
+   "effects": {
+    "silver": 4,
+    "morale": -1
+   },
+   "upkeep": {},
+   "repealWhen": {
+    "infection": {
+     "min": 75
+    }
+   },
+   "repealText": "감염도 75 이상 — 의회가 수수료 검역을 폐지"
+  },
+  {
+   "id": "iru-ice-barrier",
+   "faction": "iruth",
+   "name": "빙철 격리벽 상설령",
+   "icon": "crystal",
+   "desc": "빙철로 지구마다 격리벽을 세워 상시 운영합니다. 차갑고 비쌉니다.",
+   "effects": {
+    "infection": -2,
+    "morale": -1
+   },
+   "upkeep": {
+    "silver": 2
+   }
+  },
+  {
+   "id": "iru-styx-tithe",
+   "faction": "iruth",
+   "name": "스틱스 십일조령",
+   "icon": "book",
+   "desc": "모든 거래의 십분의 일을 인공신 스틱스의 연산 신전에 바쳐 치료 연구를 돌립니다.",
+   "effects": {
+    "research": 3,
+    "finance": -1
+   },
+   "upkeep": {
+    "silver": 3
+   }
+  },
+  {
+   "id": "iru-grain-import",
+   "faction": "iruth",
+   "name": "곡물 강제 수입령",
+   "icon": "grain",
+   "desc": "남쪽 곡창의 상인들에게 금화를 쥐여 주고 곡물선을 강제로 돌립니다.",
+   "effects": {
+    "food": 6,
+    "rel": -1
+   },
+   "upkeep": {
+    "silver": 2
+   }
+  },
+  {
+   "id": "iru-sealed-docks",
+   "faction": "iruth",
+   "name": "항구 봉쇄령",
+   "icon": "ship",
+   "desc": "벨로링크 항구의 사슬을 올립니다. 역병도, 돈도 들어오지 않습니다.",
+   "effects": {
+    "infection": -3,
+    "finance": -2
+   },
+   "upkeep": {},
+   "repealWhen": {
+    "gauge": {
+     "finance": {
+      "max": 25
+     }
+    }
+   },
+   "repealText": "재정 25 이하 — 상인 길드의 압력으로 사슬을 내림",
+   "requires": {
+    "gauge": {
+     "finance": {
+      "min": 40
+     }
+    }
+   }
+  },
+  {
+   "id": "vdo-living-offering",
+   "faction": "voodoo",
+   "name": "산 제물의 서약",
+   "icon": "altar",
+   "desc": "신도마다 한 계절에 한 명, 살아 있는 자를 제단에 데려오기로 맹세합니다.",
+   "effects": {
+    "faith": 3,
+    "prey": 4,
+    "pop": -0.2
+   },
+   "upkeep": {},
+   "wrath": 1,
+   "repealWhen": {
+    "gauge": {
+     "stealth": {
+      "max": 12
+     }
+    }
+   },
+   "repealText": "은닉 12 이하 — 실종 사건이 들통나 서약을 거둠"
+  },
+  {
+   "id": "vdo-silent-mass",
+   "faction": "voodoo",
+   "name": "침묵의 미사령",
+   "icon": "moon",
+   "desc": "모든 의식을 지하에서, 말 없이 치릅니다. 들키지 않지만 열기는 식습니다.",
+   "effects": {
+    "stealth": 2,
+    "faith": -2,
+    "offering": -1
+   },
+   "upkeep": {
+    "silver": 1
+   }
+  },
+  {
+   "id": "vdo-ghoul-leash",
+   "faction": "voodoo",
+   "name": "구울 사슬령",
+   "icon": "chain",
+   "desc": "구울 무리마다 사슬과 감시자를 붙입니다. 굶주린 것들은 사슬을 끊으려 합니다.",
+   "effects": {
+    "control": 3,
+    "army": -0.1
+   },
+   "upkeep": {
+    "prey": 2
+   }
+  },
+  {
+   "id": "vdo-plague-pilgrims",
+   "faction": "voodoo",
+   "name": "역병 순례령",
+   "icon": "cart",
+   "desc": "감염된 순례자들을 대상 지역의 성지로 보냅니다. 그들은 기도하며 기침합니다.",
+   "effects": {
+    "target": 1,
+    "stealth": -1
+   },
+   "upkeep": {
+    "food": 2
+   },
+   "repealWhen": {
+    "gauge": {
+     "stealth": {
+      "max": 15
+     }
+    }
+   },
+   "repealText": "은닉 15 이하 — 순례 행렬이 추적당해 중단"
+  },
+  {
+   "id": "vdo-ash-tithe",
+   "faction": "voodoo",
+   "name": "재의 공물령",
+   "icon": "grave",
+   "desc": "구울이 지나간 마을의 재를 거두어 교단의 공물로 삼습니다.",
+   "effects": {
+    "offering": 3,
+    "faith": 1
+   },
+   "upkeep": {
+    "strat": 2
+   }
+  }
  ]
 }

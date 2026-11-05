@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { createRng, newGame, startTurn, openEvents, resolveEvent, endTurn, nextTurn, actionsFor, resolveAction, type GameState, type FactionId } from "@guul/engine";
+import { createRng, newGame, startTurn, openEvents, resolveEvent, endTurn, enactDecree, nextTurn, actionsFor, resolveAction, type GameState, type FactionId } from "@guul/engine";
 import { content } from "../src";
 
 describe("카드 데이터", () => {
@@ -26,7 +26,7 @@ function autoplay(f: FactionId, seed: number): GameState {
     if (s.phase === "event") { s = resolveEvent(s, Math.floor(rng.next() * (s.events[s.eventIdx]?.choices.length ?? 1))).state; continue; }
     if (s.phase === "action") {
       if (s.ap > 0) { const acts = actionsFor(s, content); const a = acts[Math.floor(rng.next() * acts.length)]!; s = resolveAction(s, content, a.id, Math.floor(rng.next() * a.card.choices.length)).state; }
-      else s = endTurn(s);
+      else s = endTurn(s, content);
       continue;
     }
     if (s.phase === "end") { s = nextTurn(s, content); continue; }
@@ -34,6 +34,31 @@ function autoplay(f: FactionId, seed: number): GameState {
   }
   return s;
 }
+
+describe("법령 데이터", () => {
+  it("세력마다 4~6개, id 유일", () => {
+    for (const f of ["arkandal", "iruth", "voodoo"]) {
+      const n = content.decrees.filter((d) => d.faction === f).length;
+      expect(n).toBeGreaterThanOrEqual(4); expect(n).toBeLessThanOrEqual(6);
+    }
+    const ids = content.decrees.map((d) => d.id);
+    expect(new Set(ids).size).toBe(ids.length);
+  });
+  it("모든 법령에 대가가 있다 (유지비·진노·해로운 효과 중 하나 이상)", () => {
+    for (const d of content.decrees) {
+      const harm = Object.entries(d.effects).some(([k, v]) => (k === "infection" || k === "wrath" ? v > 0 : v < 0));
+      expect(Object.keys(d.upkeep).length > 0 || (d.wrath ?? 0) > 0 || harm, d.id).toBe(true);
+    }
+  });
+  it("공포 → 10계절 결산이 오류 없이 돈다", () => {
+    for (const d of content.decrees) {
+      let s: GameState = { ...newGame(d.faction, 3), phase: "action", ap: 3 };
+      s = enactDecree(s, content, d.id);
+      for (let i = 0; i < 10; i++) s = { ...endTurn(s, content), phase: "action" };
+      expect(Number.isFinite(s.res.silver)).toBe(true);
+    }
+  });
+});
 
 describe("40턴 자동 플레이", () => {
   it.each(["arkandal", "iruth", "voodoo"] as const)("%s 세력이 오류 없이 끝까지 진행된다", (f) => {

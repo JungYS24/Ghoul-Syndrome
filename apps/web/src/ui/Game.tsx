@@ -7,6 +7,7 @@ import { Illus } from "../art/Art";
 import { ChronicleSheet, RulesSheet } from "./Sheets";
 import { ImpactMark } from "./Impact";
 import { Onboarding } from "./Onboarding";
+import { DecreePanel } from "./Decrees";
 
 const CREST: Record<string, string[]> = { arkandal: ["fortress", "shield"], iruth: ["ship", "scales"], voodoo: ["altar", "eye"] };
 
@@ -101,6 +102,7 @@ export function Game({ s }: { s: GameState }) {
                     <b className="font-display text-[20px] font-normal">{a.name}</b><span className="font-ui text-[12px] text-muted">{a.desc}</span></button>
                 ))}
               </div>
+              <DecreePanel s={s} />
               <div className="flex gap-2 flex-wrap"><button className="btn-gold" onClick={finishTurn}>계절을 마친다</button></div>
             </section>
           )}

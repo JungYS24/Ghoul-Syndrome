@@ -65,12 +65,40 @@ export interface ActionDef {
 }
 export interface Grade { min: number; name: string; tone: "crit" | "great" | "success" | "partial" | "fail" | "fumble" | "after" }
 
+export type UpkeepKey = "silver" | "strat" | "food" | "prey";
+/**
+ * 지속 법령 — 행동권 1개로 공포/철회. 공포 중에는 매 계절 종료 결산에서 효과가 적용되고 유지비가 빠집니다.
+ * 유지비를 낼 수 없거나 repealWhen 조건이 맞으면 저절로 폐지됩니다.
+ */
+export interface Decree {
+  id: string;
+  faction: FactionId;
+  name: string;
+  desc: string;
+  /** 대시보드 아이콘(일러스트 심볼 키) */
+  icon: string;
+  /** 매 턴 효과 (배율 없이 그대로) */
+  effects: Effects;
+  /** 매 턴 유지비 (종료 결산 차감) */
+  upkeep: Partial<Record<UpkeepKey, number>>;
+  /** 매 턴 진노 가산 (도덕적 대가) */
+  wrath?: number;
+  /** 공포 조건 */
+  requires?: When;
+  /** 이 조건이 맞으면 종료 결산에서 저절로 폐지 */
+  repealWhen?: When;
+  /** 해제 조건 설명 */
+  repealText?: string;
+}
+export interface ActiveDecree { id: string; since: number }
+
 export interface GameContent {
   cards: Card[];
   situational: Card[];
   collapse: Card[];
   fixed: Record<string, Card>;
   actions: ActionDef[];
+  decrees: Decree[];
 }
 
 export interface ChronicleEntry { turn: number; year: number; season: string; text: string; infection: number; ci: number }
@@ -87,7 +115,7 @@ export interface Ending {
 }
 
 export interface GameState {
-  version: 2;
+  version: 3;
   seed: number;
   rng: number;
   faction: FactionId;
@@ -122,6 +150,10 @@ export interface GameState {
   chronicle: ChronicleEntry[];
   maxInfection: number;
   tempInf: number;
+  /** 공포 중인 법령 (최대 MAX_DECREES) */
+  decrees: ActiveDecree[];
+  /** 한 번이라도 공포한 법령 id (후기용) */
+  decreeHistory: string[];
   ended: Ending | null;
 }
 export type PresetId = "balance" | "farm" | "trade" | "mine";

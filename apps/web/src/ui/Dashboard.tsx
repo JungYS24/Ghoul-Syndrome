@@ -4,6 +4,7 @@ import {
 } from "@guul/engine";
 import { useGame } from "../store/store";
 import { ImpactMark } from "./Impact";
+import { DecreeIcons } from "./Decrees";
 
 function Gauge({ label, v, hostile, k }: { label: string; v: number; hostile?: boolean; k?: EffectKey | EffectKey[] }) {
   const danger = hostile ? v >= 70 : v <= 20;
@@ -64,6 +65,8 @@ export function Dashboard({ s }: { s: GameState }) {
         <div className="grid grid-cols-3 gap-1.5">{res.map(([key, n, v, low]) => <div key={n} className="bg-[#15120e] border border-line rounded-[2px] px-2 py-1.5 min-w-0"><small className="flex items-center justify-between font-ui text-[11px] text-faint">{n}<ImpactMark k={key} /></small><b className={`font-ui tabular-nums font-medium text-[14px] ${low ? "text-blood" : ""}`}>{v}</b></div>)}</div>
         <span className="font-ui text-[11px] text-faint tabular-nums">계절마다 식량 {fu.toFixed(1)}{V ? ` · 먹이 ${preyUse(s.res.army).toFixed(1)}` : ""} 소비</span>
       </div>
+      {/* 법령 */}
+      <DecreeIcons s={s} />
       {/* 진노 */}
       <div className="grid gap-2"><h3 className="eyebrow">여신의 진노</h3><Gauge k="wrath" label="진노" v={s.wrath} hostile /></div>
       {/* 승리 진척 */}

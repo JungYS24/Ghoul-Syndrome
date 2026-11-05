@@ -1,7 +1,7 @@
 import { create } from "zustand";
 import { get as idbGet, set as idbSet, del as idbDel } from "idb-keyval";
 import {
-  actionsFor, endTurn, newGame, nextTurn, openEvents, resolveAction, resolveEvent, setPreset, setTarget, startTurn,
+  actionsFor, endTurn, enactDecree, migrateState, newGame, repealDecree, nextTurn, openEvents, resolveAction, resolveEvent, setPreset, setTarget, startTurn,
   type FactionId, type GameState, type ImpactDot, type PresetId, type RegionId, type RollOutcome,
 } from "@guul/engine";
 import { content } from "@guul/content";
@@ -32,6 +32,8 @@ interface Store {
   closeActionCard: () => void;
   chooseAction: (id: string, i: number) => void;
   finishTurn: () => void;
+  enact: (id: string) => void;
+  repeal: (id: string) => void;
   advance: () => void;
   setPreset: (p: PresetId) => void;
   setTarget: (t: RegionId) => void;
@@ -55,7 +57,7 @@ export const useGame = create<Store>((set, get) => ({
     set({ state: s, screen: s.ended ? "ending" : "game", openAction: null });
   },
   async continueSave() {
-    try { const saved = await idbGet<GameState>(SAVE_KEY); if (saved) set({ state: saved, screen: saved.ended ? "ending" : "game" }); } catch { /* ignore */ }
+    try { const raw = await idbGet<unknown>(SAVE_KEY); if (raw) { const saved = migrateState(raw); set({ state: saved, screen: saved.ended ? "ending" : "game" }); } } catch { /* ignore */ }
   },
   toTitle() { set({ screen: "title", openAction: null }); void get().init(); },
 
@@ -77,7 +79,9 @@ export const useGame = create<Store>((set, get) => ({
     set({ preview: null, dice: { outcome, cardTitle: act.name, choiceLabel: act.card.choices[i]!.label, onClose: () => { persist(next); set({ state: next, dice: null, openAction: null, screen: next.ended ? "ending" : "game" }); } } });
   },
 
-  finishTurn() { const s = get().state; if (!s) return; const n = endTurn(s); persist(n); set({ state: n, screen: n.ended ? "ending" : "game" }); },
+  finishTurn() { const s = get().state; if (!s) return; const n = endTurn(s, content); persist(n); set({ state: n, screen: n.ended ? "ending" : "game" }); },
+  enact(id) { const s = get().state; if (!s) return; try { const n = enactDecree(s, content, id); persist(n); set({ state: n }); } catch { /* 버튼이 막아 둔 경우 */ } },
+  repeal(id) { const s = get().state; if (!s) return; try { const n = repealDecree(s, content, id); persist(n); set({ state: n }); } catch { /* ignore */ } },
   advance() {
     const s = get().state; if (!s) return;
     if (s.ended) { set({ screen: "ending" }); return; }

@@ -5,7 +5,7 @@ const card: Card = {
   id: "t", faction: "arkandal", title: "감염된 국경 수비대", text: "",
   choices: [{ label: "봉쇄", check: { stat: "order" }, effects: { infection: -15, army: -0.3, wrath: 10 }, onFail: { army: -0.8, order: -10 } }],
 };
-const content: GameContent = { cards: [card, { ...card, id: "c", faction: "common" }], situational: [], collapse: [], fixed: {}, actions: [] };
+const content: GameContent = { cards: [card, { ...card, id: "c", faction: "common" }], situational: [], collapse: [], fixed: {}, actions: [], decrees: [] };
 
 describe("resolveChoice", () => {
   it("입력 state 를 바꾸지 않고, 같은 시드면 같은 결과", () => {
@@ -64,7 +64,7 @@ describe("턴 진행", () => {
     const run = () => {
       let s = openEvents(startTurn(newGame("iruth", 2026), content));
       while (s.phase === "event") s = resolveEvent(s, 0).state;
-      return endTurn(s);
+      return endTurn(s, content);
     };
     expect(JSON.stringify(run())).toBe(JSON.stringify(run()));
   });

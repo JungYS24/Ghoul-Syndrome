@@ -1,7 +1,7 @@
 // 밸런스 시뮬레이션: 세력당 N회 자동 플레이. 승률 목표 30~45%.
 // 휴리스틱 정책(그럭저럭 합리적인 플레이어)으로 돌립니다. 완벽한 플레이가 아닙니다.
 import {
-  actionsFor, createRng, endTurn, newGame, nextTurn, openEvents, resolveAction, resolveEvent, startTurn,
+  actionsFor, createRng, decreeById, enactBlocker, enactDecree, endTurn, newGame, nextTurn, openEvents, resolveAction, resolveEvent, startTurn,
   ci, canAfford, foodUseOf, preyUse, type ActionDef, type Choice, type FactionId, type GameState, type Rng,
 } from "../packages/engine/src/index";
 import { content } from "../packages/content/src/index";
@@ -55,6 +55,25 @@ function chooseAction(s: GameState, acts: ActionDef[], rng: Rng): ActionDef {
   return acts[Math.floor(rng.next() * acts.length)]!;
 }
 
+// 법령: 세력별 선호 순서로 최대 2개까지 공포 (행동권 2개 이상 남았을 때만)
+const DECREE_PREF: Record<FactionId, string[]> = {
+  arkandal: ["ark-border-pyre", "ark-curfew"],
+  iruth: ["iru-quarantine-fee", "iru-ice-barrier"],
+  voodoo: ["vdo-ghoul-leash", "vdo-ash-tithe"],
+};
+// SIM_DECREES=id,id 로 선호 목록을 덮어써 법령별 효과를 잴 수 있습니다 (빈 값이면 법령을 쓰지 않음).
+const OVERRIDE = process.env.SIM_DECREES;
+const ONLY = process.env.SIM_FACTION as FactionId | undefined;
+function maybeEnact(s: GameState): GameState {
+  if (s.turn < 2 || s.ap < 2 || s.decrees.length >= 2) return s;
+  const pref = OVERRIDE !== undefined ? OVERRIDE.split(",").filter(Boolean) : DECREE_PREF[s.faction];
+  for (const id of pref) {
+    const d = decreeById(content, id);
+    if (d && !enactBlocker(s, d)) return enactDecree(s, content, id);
+  }
+  return s;
+}
+
 function pickTarget(s: GameState): "arkandal" | "iruth" | "neutral" {
   // CI = (아르칸달 + 아이루스 + 중립지)/3 → 가장 낮은 지역을 올림
   const cand: ("arkandal" | "iruth" | "neutral")[] = ["arkandal", "iruth", "neutral"];
@@ -74,11 +93,12 @@ function playOne(f: FactionId, seed: number): { result: string; turn: number; sc
     }
     if (s.phase === "action") {
       if (s.faction === "voodoo") s = { ...s, target: pickTarget(s) };
+      s = maybeEnact(s);
       if (s.ap > 0) {
         const acts = actionsFor(s, content);
         const a = chooseAction(s, acts, rng);
         s = resolveAction(s, content, a.id, pickChoice(s, a.card.choices, rng)).state;
-      } else s = endTurn(s);
+      } else s = endTurn(s, content);
       continue;
     }
     if (s.phase === "end") { s = nextTurn(s, content); continue; }
@@ -90,7 +110,7 @@ function playOne(f: FactionId, seed: number): { result: string; turn: number; sc
 }
 
 const N = Number(process.argv[2] ?? 1000);
-const factions: FactionId[] = ["arkandal", "iruth", "voodoo"];
+const factions: FactionId[] = ONLY ? [ONLY] : ["arkandal", "iruth", "voodoo"];
 console.log(`세력당 ${N}회 자동 플레이 (휴리스틱 정책)\n`);
 for (const f of factions) {
   const tally: Record<string, number> = {};

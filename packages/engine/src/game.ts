@@ -1,11 +1,12 @@
 import { AFTERMATH_AT_OR_BELOW, ON_FAIL_BELOW, chanceAtLeast, clamp, judge, roll5d20 } from "./dice";
 import { FACTIONS, GAUGE_LABEL, NEUTRAL_START, REGION_NAME, SEASON_KO, VOODOO_MAP, infStage, otherFactions, seasonOf, yearOf } from "./factions";
 import { createRng, type Rng } from "./rng";
+import { settleDecrees } from "./decrees";
 import {
   abilityModifier, baseSpread, continentalInfection, foodUse, popLoss, preyUse, production, r1, seasonMod, stateModifier,
 } from "./rules";
 import type {
-  ActionDef, AppliedEffect, Card, Choice, EffectKey, Effects, Ending, FactionId, GameContent, GameState, GaugeKey,
+  ActionDef, AppliedEffect, Card, Choice, Decree, EffectKey, Effects, Ending, FactionId, GameContent, GameState, GaugeKey,
   RegionId, ResourceKey, RollOutcome, When,
 } from "./types";
 
@@ -23,14 +24,23 @@ export function newGame(faction: FactionId, seed: number): GameState {
   const rel: Partial<Record<FactionId, number>> = {};
   if (faction !== "voodoo") rel[faction === "arkandal" ? "iruth" : "arkandal"] = 40;
   return {
-    version: 2, seed: seed >>> 0, rng: seed >>> 0, faction, turn: 1, phase: "start",
+    version: 3, seed: seed >>> 0, rng: seed >>> 0, faction, turn: 1, phase: "start",
     gauges, res: { ...F.res }, startPop: F.res.pop,
     infection, infHist: [infection[faction], infection[faction]], streak: { arkandal: 0, iruth: 0, voodoo: 0, neutral: 0 }, ciStreak: 0,
     wrath: 0, research: 0, wall: 0, voodooPower: faction === "voodoo" ? 0 : 100,
     rel, pacts: [], target: faction === "voodoo" ? "arkandal" : "neutral",
     flags: [], ap: 2, preset: "balance", queue: [], recent: {}, events: [], eventIdx: 0,
     startReport: [], endReport: [], aiReport: [], turnLog: [], chronicle: [], maxInfection: infection[faction], tempInf: 0, ended: null,
+    decrees: [], decreeHistory: [],
   };
+}
+/** 이전 버전 저장을 현재 형태로 맞춥니다(빠진 필드는 기본값). 입력은 바꾸지 않습니다. */
+export function migrateState(raw: unknown): GameState {
+  const s = clone(raw) as GameState & Record<string, unknown>;
+  s.decrees ??= [];
+  s.decreeHistory ??= [];
+  s.version = 3;
+  return s;
 }
 const clone = <T>(v: T): T => (typeof structuredClone === "function" ? structuredClone(v) : JSON.parse(JSON.stringify(v)));
 export const isVoodooAi = (s: GameState) => s.faction !== "voodoo";
@@ -343,7 +353,7 @@ function runAi(s: GameState, rng: Rng): string[] {
     if (f === "voodoo") continue;
     const inf = s.infection[f];
     const base = baseSpread(f, inf, { wall: f === "arkandal" ? s.wall : 0 });
-    const defense = 3.3 + inf * 0.07 + rng.next() * 2.5 + (V ? 1.8 : 0);
+    const defense = 3.3 + inf * 0.07 + rng.next() * 2.5 + (V ? 1.7 : 0);
     setRegion(s, f, base + seasonMod(f, season) - defense);
     if (f === "arkandal") {
       const w = V ? 1.3 + rng.next() * 1.4 : 0;
@@ -376,7 +386,7 @@ function runAi(s: GameState, rng: Rng): string[] {
 }
 
 // ───────── 종료 결산 ─────────
-export function endTurn(state: GameState): GameState {
+export function endTurn(state: GameState, content: Pick<GameContent, "decrees">): GameState {
   const s = clone(state); const rng = createRng(s.rng);
   const F = FACTIONS[s.faction], rep: string[] = [];
   const V = s.faction === "voodoo";
@@ -394,6 +404,8 @@ export function endTurn(state: GameState): GameState {
   if (V && s.gauges.offering >= 25) addG(s, "faith", 4); // 제물이 흐르면 신앙이 유지된다
   if (V && s.gauges.control >= 45) addG(s, "faith", 2);
   if (V && s.res.prey >= preyUse(s.res.army) * 2) { addG(s, "control", 1); addG(s, "offering", 2); }
+  // 법령: 유지비 차감 → 매 턴 효과 → 해제 조건
+  rep.push(...settleDecrees(s, content));
   // AI
   s.aiReport = runAi(s, rng);
   // 동맹

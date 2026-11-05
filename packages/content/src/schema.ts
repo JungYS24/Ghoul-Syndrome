@@ -45,10 +45,24 @@ export const actionSchema = z.object({
   when: when.optional(),
   card: cardSchema,
 }).strict();
+export const decreeSchema = z.object({
+  id: z.string().min(1),
+  faction: factionId,
+  name: z.string().min(1),
+  desc: z.string(),
+  icon: z.string().min(1),
+  effects,
+  upkeep: z.record(z.enum(["silver", "strat", "food", "prey"]), z.number().nonnegative()),
+  wrath: z.number().optional(),
+  requires: when.optional(),
+  repealWhen: when.optional(),
+  repealText: z.string().optional(),
+}).strict();
 export const contentSchema = z.object({
   cards: z.array(cardSchema),
   situational: z.array(cardSchema),
   collapse: z.array(cardSchema),
   fixed: z.record(z.string(), cardSchema),
   actions: z.array(actionSchema),
+  decrees: z.array(decreeSchema),
 }).strict();
