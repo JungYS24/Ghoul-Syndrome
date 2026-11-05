@@ -56,7 +56,7 @@ export function RulesSheet({ onClose }: { onClose: () => void }) {
       <div className="text-[14px] text-[#d9cdb6] grid gap-2.5">
         <p className="m-0">1턴은 3개월입니다. 759년 봄부터 768년 겨울까지 40턴을 다스립니다.</p>
         <h3 className="font-ui text-[12px] tracking-[0.1em] text-gold-dim font-medium mt-1">한 턴</h3>
-        <p className="m-0">① 시작 결산(식량 소비, 감염도 갱신, 인구 손실) ② 사건 카드 3장(세력·공통·상황) ③ 행동권 2개(미사용 시 이월, 최대 3) ④ 종료 결산(생산·유지비, AI 세력) ⑤ 연대기 기록</p>
+        <p className="m-0">① 시작 결산(식량 소비, 감염도 갱신, 인구 손실) ② 사건 카드 3장(세력·공통·상황) ③ 행동권 2개(행동 또는 법령 공포·철회, 미사용 시 이월, 최대 3) ④ 종료 결산(생산·유지비·법령, AI 세력 소식) ⑤ 연대기 기록. 어떤 선택은 몇 계절 뒤 연쇄 사건을 부르고, 그때의 판정 등급에 따라 상황이 달라집니다.</p>
         <h3 className="font-ui text-[12px] tracking-[0.1em] text-gold-dim font-medium mt-1">주사위 (5d20)</h3>
         <p className="m-0">20면체 5개를 굴려 합(5~100)에 보정(능력치 (게이지−50)÷5, 선택지 난이도, 상태)을 더합니다. 합의 분포가 종 모양이라, 최종값을 백분위 rank로 바꿔 효과 배율(0.30~1.60)을 정합니다. 이로운 효과는 배율만큼 커지고, 해로운 효과는 잘 나올수록 줄며, 자원 비용은 고정입니다. 최종값 {ON_FAIL_BELOW} 미만이면 실패 비용이 더해지고, {AFTERMATH_AT_OR_BELOW} 이하면 후유증 카드가 나옵니다.</p>
         <GradeTable />
