@@ -122,6 +122,8 @@ export type QueueItem = { type: "overflow"; key: GaugeKey } | { type: "aftermath
 export type Phase = "start" | "event" | "action" | "end" | "over";
 
 export interface Ending {
+  /** 엔딩 컬렉션 id (endings.ts) */
+  id: string;
   type: "victory" | "defeat" | "survive";
   title: string;
   text: string;
@@ -131,6 +133,9 @@ export interface Ending {
 
 export interface GameState {
   version: 3;
+  difficulty: import("./difficulty").Difficulty;
+  /** 판정 기록 (후기용) */
+  tally: { rolls: number; great: number; fumble: number };
   seed: number;
   rng: number;
   faction: FactionId;

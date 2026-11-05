@@ -2,11 +2,14 @@ import { create } from "zustand";
 import { get as idbGet, set as idbSet, del as idbDel } from "idb-keyval";
 import {
   actionsFor, endTurn, enactDecree, migrateState, newGame, repealDecree, nextTurn, openEvents, resolveAction, resolveEvent, setPreset, setTarget, startTurn,
-  type FactionId, type GameState, type ImpactDot, type PresetId, type RegionId, type RollOutcome,
+  type Difficulty, type FactionId, type GameState, type ImpactDot, type PresetId, type RegionId, type RollOutcome,
 } from "@guul/engine";
 import { content } from "@guul/content";
+import { addEnding, type EndingBook } from "./share";
 
 const SAVE_KEY = "guul-save-v2";
+const BOOK_KEY = "guul-endings-v1";
+const recorded = new Set<string>();
 
 export type Screen = "title" | "game" | "ending";
 interface DicePayload { outcome: RollOutcome; cardTitle: string; choiceLabel: string; onClose: () => void }
@@ -23,7 +26,10 @@ interface Store {
   preview: ImpactDot[] | null;
   setPreview: (p: ImpactDot[] | null) => void;
   init: () => Promise<void>;
-  start: (f: FactionId, seed: number) => void;
+  start: (f: FactionId, seed: number, difficulty?: Difficulty) => void;
+  /** 엔딩 달성 기록 (IndexedDB) */
+  book: EndingBook;
+  recordEnding: (s: GameState) => void;
   continueSave: () => Promise<void>;
   toTitle: () => void;
   goEvents: () => void;
@@ -45,14 +51,24 @@ function persist(s: GameState | null) {
 }
 
 export const useGame = create<Store>((set, get) => ({
-  screen: "title", state: null, dice: null, hasSave: false, actedThisAp: false, openAction: null, preview: null,
+  screen: "title", state: null, dice: null, hasSave: false, actedThisAp: false, openAction: null, preview: null, book: {},
   setPreview(p) { set({ preview: p }); },
 
   async init() {
     try { const saved = await idbGet<GameState>(SAVE_KEY); set({ hasSave: !!saved }); } catch { /* ignore */ }
+    try { const book = await idbGet<EndingBook>(BOOK_KEY); if (book) set({ book }); } catch { /* ignore */ }
   },
-  start(f, seed) {
-    const s = startTurn(newGame(f, seed), content);
+  recordEnding(s) {
+    if (!s.ended) return;
+    const key = `${s.seed}:${s.faction}:${s.difficulty}:${s.turn}:${s.ended.id}`;
+    if (recorded.has(key)) return;
+    recorded.add(key);
+    const book = addEnding(get().book, s.ended, s, new Date().toISOString());
+    set({ book });
+    try { void idbSet(BOOK_KEY, book); } catch { /* 저장 불가 */ }
+  },
+  start(f, seed, difficulty = "normal") {
+    const s = startTurn(newGame(f, seed, { difficulty }), content);
     persist(s);
     set({ state: s, screen: s.ended ? "ending" : "game", openAction: null });
   },

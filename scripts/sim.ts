@@ -2,7 +2,7 @@
 // 휴리스틱 정책(그럭저럭 합리적인 플레이어)으로 돌립니다. 완벽한 플레이가 아닙니다.
 import {
   actionsFor, createRng, decreeById, enactBlocker, enactDecree, endTurn, newGame, nextTurn, openEvents, resolveAction, resolveEvent, startTurn,
-  ci, canAfford, foodUseOf, preyUse, type ActionDef, type Choice, type FactionId, type GameState, type Rng,
+  ci, canAfford, isDifficulty, foodUseOf, preyUse, type ActionDef, type Choice, type FactionId, type GameState, type Rng,
 } from "../packages/engine/src/index";
 import { content } from "../packages/content/src/index";
 
@@ -64,6 +64,8 @@ const DECREE_PREF: Record<FactionId, string[]> = {
 // SIM_DECREES=id,id 로 선호 목록을 덮어써 법령별 효과를 잴 수 있습니다 (빈 값이면 법령을 쓰지 않음).
 const OVERRIDE = process.env.SIM_DECREES;
 const ONLY = process.env.SIM_FACTION as FactionId | undefined;
+// SIM_DIFFICULTY=hard|hell 로 난이도별 승률을 잴 수 있습니다 (기본 보통).
+const DIFF = isDifficulty(process.env.SIM_DIFFICULTY) ? process.env.SIM_DIFFICULTY : "normal";
 function maybeEnact(s: GameState): GameState {
   if (s.turn < 2 || s.ap < 2 || s.decrees.length >= 2) return s;
   const pref = OVERRIDE !== undefined ? OVERRIDE.split(",").filter(Boolean) : DECREE_PREF[s.faction];
@@ -81,7 +83,7 @@ function pickTarget(s: GameState): "arkandal" | "iruth" | "neutral" {
 }
 
 function playOne(f: FactionId, seed: number): { result: string; turn: number; score: number } {
-  let s = startTurn(newGame(f, seed), content);
+  let s = startTurn(newGame(f, seed, { difficulty: DIFF }), content);
   const rng = createRng((seed * 2654435761) >>> 0);
   let guard = 0;
   while (!s.ended && guard++ < 1000) {
@@ -111,7 +113,7 @@ function playOne(f: FactionId, seed: number): { result: string; turn: number; sc
 
 const N = Number(process.argv[2] ?? 1000);
 const factions: FactionId[] = ONLY ? [ONLY] : ["arkandal", "iruth", "voodoo"];
-console.log(`세력당 ${N}회 자동 플레이 (휴리스틱 정책)\n`);
+console.log(`세력당 ${N}회 자동 플레이 (휴리스틱 정책, 난이도 ${DIFF})\n`);
 for (const f of factions) {
   const tally: Record<string, number> = {};
   let win = 0, totalTurn = 0;

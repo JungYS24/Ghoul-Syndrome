@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { FACTIONS, GAUGE_LABEL, REGION_NAME, SEASON_KO, actionsFor, seasonOf, yearOf, type GameState, type RegionId } from "@guul/engine";
+import { DIFFICULTIES, FACTIONS, GAUGE_LABEL, REGION_NAME, SEASON_KO, actionsFor, seasonOf, yearOf, type GameState, type RegionId } from "@guul/engine";
 import { content, useGame } from "../store/store";
 import { Dashboard } from "./Dashboard";
 import { CardView } from "./Cards";
@@ -58,7 +58,7 @@ export function Game({ s }: { s: GameState }) {
     <section className="gutter max-w-[1120px] mx-auto py-5 pb-10">
       <header className="flex flex-wrap items-center gap-x-4 gap-y-2.5 pb-3.5 border-b border-line mb-4">
         <div className="flex items-center gap-2.5 min-w-0"><span className="w-7 h-7 shrink-0"><Illus keys={CREST[s.faction]} faction={s.faction} accent /></span>
-          <div><h2 className="font-display text-[22px] leading-none">{F.name}</h2><div className="font-ui text-[12px] text-muted">{F.ruler} · 시드 {s.seed}</div></div></div>
+          <div><h2 className="font-display text-[22px] leading-none">{F.name}</h2><div className="font-ui text-[12px] text-muted">{F.ruler} · 시드 {s.seed}{s.difficulty !== "normal" ? ` · ${DIFFICULTIES[s.difficulty].name}` : ""}</div></div></div>
         <div className="ml-auto text-right"><div className="font-display text-[22px] leading-none">{yearOf(s.turn)}년 {SEASON_KO[seasonOf(s.turn)]}</div><div className="font-ui text-[12px] text-muted">{s.turn} / 40턴</div></div>
         <div className="flex gap-1.5 w-full justify-end lg:w-auto">
           <button className="btn !px-2.5 !text-[12px]" onClick={() => setSheet("chron")}>연대기</button>
