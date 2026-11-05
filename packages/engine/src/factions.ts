@@ -40,7 +40,7 @@ export const FACTIONS: Record<FactionId, FactionDef> = {
     id: "iruth", name: "아이루스 공국", short: "아이루스", ruler: "대공 겸 벨로링크 최고 의장", tagline: "무역·금융·빙철, 인공신 스틱스",
     gauges: ["morale", "order", "finance", "legit"], start: { morale: 55, order: 50, finance: 65, legit: 55 },
     res: { pop: 85, army: 3, food: 70, silver: 120, strat: 20, prey: 0 }, infection: 22,
-    eff: { agri: 0.16, comm: 1.0, mine: 0.3 }, resEff: 0.3,
+    eff: { agri: 0.16, comm: 1.0, mine: 0.3 }, resEff: 0.27,
     popName: "인구", armyName: "병력", stratName: "빙철",
     victory: "치료", victoryText: "공유 연구 트랙 100 (치료제 완성)",
     strength: "자금, 한랭 지대(겨울 −3), 스틱스 수호", weakness: "식량 자급 불가, 무역 허브가 전염 경로, 병력 적음", system: "황금 저울 — 환전·검역 수수료, 빙철 격리벽",

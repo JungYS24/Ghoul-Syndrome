@@ -343,7 +343,7 @@ function runAi(s: GameState, rng: Rng): string[] {
     if (f === "voodoo") continue;
     const inf = s.infection[f];
     const base = baseSpread(f, inf, { wall: f === "arkandal" ? s.wall : 0 });
-    const defense = 3.3 + inf * 0.07 + rng.next() * 2.5 + (V ? 1.6 : 0);
+    const defense = 3.3 + inf * 0.07 + rng.next() * 2.5 + (V ? 1.8 : 0);
     setRegion(s, f, base + seasonMod(f, season) - defense);
     if (f === "arkandal") {
       const w = V ? 1.3 + rng.next() * 1.4 : 0;

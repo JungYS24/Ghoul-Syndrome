@@ -7977,7 +7977,7 @@
        "stat": "order"
       },
       "effects": {
-       "wall": 7,
+       "wall": 6,
        "strat": -12,
        "silver": -2
       }
