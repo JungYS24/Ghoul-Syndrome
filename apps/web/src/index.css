@@ -39,23 +39,3 @@ button[data-faction] h2{color:var(--f-main)}
 .art-sway{animation:artsway 4s ease-in-out infinite;transform-origin:50% 90%}
 @keyframes artsway{0%,100%{transform:rotate(-2deg)}50%{transform:rotate(2deg)}}
 @media (prefers-reduced-motion:reduce){.art-sway{animation:none}}
-
-/* ── 스와이프 카드 · 영향 점 ── */
-.impact-dot{box-shadow:0 0 0 2px #14110e,0 0 8px 1px #cfa75299;animation:impactpop .18s ease-out}
-@keyframes impactpop{from{transform:scale(.3);opacity:0}to{transform:scale(1);opacity:1}}
-.card-deal{animation:carddeal .28s ease-out}
-@keyframes carddeal{from{transform:translateY(10px);opacity:0}to{transform:none;opacity:1}}
-.swipe-face{touch-action:pan-y;user-select:none;-webkit-user-select:none;cursor:grab}
-.swipe-face.swipe-3{touch-action:none}
-.swipe-face:active{cursor:grabbing}
-@media (prefers-reduced-motion:reduce){
-  .impact-dot,.card-deal{animation:none}
-  .swipe-card{transition:none!important}
-}
-
-/* ── 온보딩 말풍선 ── */
-.tour-bubble::before{content:"";position:absolute;top:22px;left:-8px;width:14px;height:14px;background:#2a2216;border-left:1px solid #8c6f35;border-bottom:1px solid #8c6f35;transform:rotate(45deg)}
-@media (max-width:1023px){.tour-bubble::before{display:none}}
-.tour-focus{outline:2px solid #cfa752;outline-offset:4px;border-radius:3px;animation:tourpulse 1.6s ease-in-out infinite}
-@keyframes tourpulse{0%,100%{outline-color:#cfa752}50%{outline-color:#8c6f35}}
-@media (prefers-reduced-motion:reduce){.tour-focus{animation:none}}

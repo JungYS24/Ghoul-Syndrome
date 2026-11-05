@@ -19,15 +19,15 @@
 .die-slot.is-rolling::after{animation:die-shadow .46s cubic-bezier(.33,0,.4,1) infinite;animation-delay:calc(var(--i) * -0.11s)}
 @keyframes die-bounce{
   0%{transform:translateY(0)}
-  50%{transform:translateY(-78px)}
+  50%{transform:translateY(-40px)}
   100%{transform:translateY(0)}
 }
 @keyframes die-spin{
-  0%  {transform:rotate(0deg) scale(1.04,.9)}     /* 바닥 접촉: 눌림 */
-  18% {transform:rotate(140deg) scale(.92,1.1)}   /* 튀어오름: 늘어남 */
+  0%  {transform:rotate(0deg) scale(1.02,.95)}     /* 바닥 접촉: 눌림 */
+  18% {transform:rotate(120deg) scale(.96,1.05)}   /* 튀어오름: 늘어남 */
   50% {transform:rotate(calc(var(--spin) * .55)) scale(1)}
-  82% {transform:rotate(calc(var(--spin) * .85)) scale(.94,1.08)}
-  100%{transform:rotate(var(--spin)) scale(1.04,.9)}
+  82% {transform:rotate(calc(var(--spin) * .85)) scale(.97,1.04)}
+  100%{transform:rotate(var(--spin)) scale(1.02,.95)}
 }
 @keyframes die-shadow{
   0%,100%{transform:scaleX(1);opacity:.6}
@@ -38,10 +38,10 @@
 .die-slot.is-landed .die-tumbler{animation:die-settle .5s cubic-bezier(.3,1.4,.5,1) both}
 .die-slot.is-landed::after{animation:die-shadow-settle .5s ease-out both}
 @keyframes die-settle{
-  0%  {transform:translateY(-46px) rotate(calc(var(--spin) / 10)) scale(.9,1.08)}
-  40% {transform:translateY(0) rotate(0deg) scale(1.12,.86)}      /* 쿵, 눌림 */
-  60% {transform:translateY(-14px) scale(.96,1.06)}                /* 작게 반동 */
-  80% {transform:translateY(0) scale(1.05,.95)}
+  0%  {transform:translateY(-26px) rotate(calc(var(--spin) / 10)) scale(.95,1.05)}
+  40% {transform:translateY(0) rotate(0deg) scale(1.07,.93)}       /* 쿵, 눌림 */
+  60% {transform:translateY(-8px) scale(.98,1.03)}                 /* 작게 반동 */
+  80% {transform:translateY(0) scale(1.03,.97)}
   100%{transform:translateY(0) rotate(0deg) scale(1)}
 }
 @keyframes die-shadow-settle{0%{transform:scaleX(.6);opacity:.3}40%{transform:scaleX(1.12);opacity:.65}100%{transform:scaleX(1);opacity:.6}}

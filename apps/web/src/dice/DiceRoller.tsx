@@ -38,7 +38,6 @@ export function DiceRoller({ roll, autoRoll, onDone, children, title }: Props) {
   const [shown, setShown] = useState<number | null>(null);
   const [showFinal, setShowFinal] = useState(false);
   const timers = useRef<number[]>([]);
-  const touchY = useRef<number | null>(null);
   const landedRef = useRef<boolean[]>(roll.dice.map(() => false));
   const reduced = reducedMotion();
 
@@ -95,11 +94,6 @@ export function DiceRoller({ roll, autoRoll, onDone, children, title }: Props) {
   useEffect(() => { if (phase === "counting" && shown !== null && shown % 7 === 0) tick(); }, [shown, phase]);
 
   const onTap = () => { if (phase === "rolling" || phase === "counting") reveal(); else if (phase === "ready") throwDice(); };
-  const onPointerDown = (e: React.PointerEvent) => { touchY.current = e.clientY; };
-  const onPointerUp = (e: React.PointerEvent) => {
-    const y0 = touchY.current; touchY.current = null;
-    if (y0 !== null && y0 - e.clientY > 40 && phase === "ready") throwDice();
-  };
 
   const color = TONE_COLOR[roll.tone];
   const big = roll.tone === "crit" || roll.tone === "great";
@@ -130,8 +124,7 @@ export function DiceRoller({ roll, autoRoll, onDone, children, title }: Props) {
 
       {/* 주사위 판 */}
       <div className="dice-tray select-none touch-none" role="button" tabIndex={0} aria-label={phase === "ready" ? "주사위 던지기" : "결과 바로 보기"}
-        onClick={onTap} onKeyDown={(e) => { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); onTap(); } }}
-        onPointerDown={onPointerDown} onPointerUp={onPointerUp}>
+        onClick={onTap} onKeyDown={(e) => { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); onTap(); } }}>
         {roll.dice.map((v, i) => (
           <div key={i} className={`die-slot ${phase === "rolling" && !landed[i] ? "is-rolling" : ""} ${landed[i] && phase !== "ready" ? "is-landed" : ""} ${phase === "ready" ? "is-ready" : ""}`}
             style={{ ["--i" as string]: i, ["--dir" as string]: i % 2 ? -1 : 1, ["--spin" as string]: `${(i % 2 ? -1 : 1) * (720 + i * 180)}deg` }}>
@@ -146,7 +139,6 @@ export function DiceRoller({ roll, autoRoll, onDone, children, title }: Props) {
         {phase === "ready" && (
           <>
             <button className="btn-gold" onClick={throwDice} autoFocus>주사위 굴리기</button>
-            <span className="font-ui text-[12px] text-faint">주사위를 위로 쓸어 던져도 됩니다</span>
           </>
         )}
         {(phase === "rolling" || phase === "counting") && <span className="font-ui text-[12px] text-faint">탭하면 바로 결과를 봅니다</span>}
