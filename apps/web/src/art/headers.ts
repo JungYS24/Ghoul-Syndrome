@@ -47,6 +47,8 @@ export const HEADER_IDS = new Set<string>([
   "voo-ritual-frenzy", "voo-rival-cult", "voo-rot-harvest", "voo-sacred-ash",
   "voo-schism", "voo-silver-tongue", "voo-starved-ghouls", "voo-tainted-well",
   "voo-twin-born", "voo-twin-temple", "wall",
+  "npc-franci", "npc-dio", "npc-yard", "npc-kshala", "npc-imis",
+  "npc-milione", "npc-lapis", "npc-cruill", "npc-kobiko",
 ]);
 
 export const headerUrl = (id: string) => `headers/${id}.webp`;

@@ -9,7 +9,7 @@ import { parseShare } from "../store/share";
 
 const shared = typeof window !== "undefined" ? parseShare(window.location.search) : {};
 
-const CREST: Record<FactionId, string[]> = { arkandal: ["fortress", "shield"], iruth: ["ship", "scales"], voodoo: ["altar", "eye"] };
+const CREST: Record<FactionId, string[]> = { arkandal: ["shield"], iruth: ["snowflake"], voodoo: ["eye"] };
 
 export function Title() {
   const start = useGame((z) => z.start);

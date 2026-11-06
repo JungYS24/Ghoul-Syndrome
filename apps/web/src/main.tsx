@@ -5,13 +5,19 @@ import { Title } from "./ui/Title";
 import { Game } from "./ui/Game";
 import { Ending } from "./ui/Ending";
 import { DiceOverlay } from "./ui/DiceOverlay";
+import { playBgm } from "./audio/bgm";
 import "./index.css";
 
 function App() {
   const screen = useGame((z) => z.screen);
   const state = useGame((z) => z.state);
   const init = useGame((z) => z.init);
+  const faction = state?.faction;
   useEffect(() => { void init(); }, [init]);
+  useEffect(() => {
+    if (screen === "title") playBgm("lobby");
+    else if (faction) playBgm(faction);
+  }, [screen, faction]);
   return (
     <>
       {screen === "title" && <Title />}

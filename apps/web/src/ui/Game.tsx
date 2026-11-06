@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { DIFFICULTIES, FACTIONS, GAUGE_LABEL, REGION_NAME, SEASON_KO, actionsFor, seasonOf, yearOf, type GameState, type RegionId } from "@guul/engine";
+import { DIFFICULTIES, FACTIONS, GAUGE_LABEL, REGION_NAME, SEASON_KO, actionsFor, npcVisit, seasonOf, yearOf, type GameState, type RegionId } from "@guul/engine";
 import { content, useGame } from "../store/store";
 import { Dashboard } from "./Dashboard";
 import { CardView } from "./Cards";
@@ -9,7 +9,7 @@ import { ImpactMark } from "./Impact";
 import { Onboarding } from "./Onboarding";
 import { DecreePanel } from "./Decrees";
 
-const CREST: Record<string, string[]> = { arkandal: ["fortress", "shield"], iruth: ["ship", "scales"], voodoo: ["altar", "eye"] };
+const CREST: Record<string, string[]> = { arkandal: ["shield"], iruth: ["snowflake"], voodoo: ["eye"] };
 
 function Phases({ s }: { s: GameState }) {
   const steps = [["start", "시작 결산"], ["event", "사건 카드"], ["action", "행동"], ["end", "종료 결산"]];
@@ -48,7 +48,7 @@ function TargetPicker({ s }: { s: GameState }) {
 }
 
 export function Game({ s }: { s: GameState }) {
-  const { goEvents, chooseEvent, openActionCard, closeActionCard, chooseAction, finishTurn, advance, toTitle, openAction } = useGame();
+  const { goEvents, chooseEvent, openActionCard, closeActionCard, chooseAction, chooseNpc, finishTurn, advance, toTitle, openAction } = useGame();
   const [sheet, setSheet] = useState<null | "chron" | "rules">(null);
   const F = FACTIONS[s.faction];
   const V = s.faction === "voodoo";
@@ -114,16 +114,24 @@ export function Game({ s }: { s: GameState }) {
             </CardView>;
           })()}
 
-          {(s.phase === "end" || s.phase === "over") && (
-            <section className="bg-panel border border-line rounded p-[18px] grid gap-2.5">
-              <div className="eyebrow">{yearOf(s.turn)}년 {SEASON_KO[seasonOf(s.turn)]} · 종료 결산</div>
-              <h2 className="font-display text-[26px]">계절 결산</h2>
-              <ul className="m-0 pl-[18px] grid gap-1 text-[14px] text-[#d9cdb6]">{s.endReport.map((l, i) => <li key={i}>{l}</li>)}</ul>
-              {s.aiReport.length > 0 && <div className="grid gap-1 text-[13px] text-muted border-t border-line pt-2.5"><span className="eyebrow">소식</span>{s.aiReport.map((l, i) => <div key={i}>· {l}</div>)}</div>}
-              {last && <div className="text-[15px] border-l-2 border-gold-dim pl-3 text-ink"><span className="eyebrow">연대기</span><br />{last.year}년 {last.season} — {last.text}</div>}
-              <div className="flex gap-2 flex-wrap"><button className="btn-gold" onClick={advance}>{s.ended ? "결말 보기" : `${yearOf(s.turn + 1)}년 ${SEASON_KO[seasonOf(s.turn + 1)]}으로`}</button></div>
-            </section>
-          )}
+          {(s.phase === "end" || s.phase === "over") && (() => {
+            const visit = s.phase === "end" ? npcVisit(s) : null;
+            return (
+              <section className="bg-panel border border-line rounded p-[18px] grid gap-2.5">
+                <div className="eyebrow">{yearOf(s.turn)}년 {SEASON_KO[seasonOf(s.turn)]} · 종료 결산</div>
+                <h2 className="font-display text-[26px]">계절 결산</h2>
+                <ul className="m-0 pl-[18px] grid gap-1 text-[14px] text-[#d9cdb6]">{s.endReport.map((l, i) => <li key={i}>{l}</li>)}</ul>
+                {s.aiReport.length > 0 && <div className="grid gap-1 text-[13px] text-muted border-t border-line pt-2.5"><span className="eyebrow">소식</span>{s.aiReport.map((l, i) => <div key={i}>· {l}</div>)}</div>}
+                {last && <div className="text-[15px] border-l-2 border-gold-dim pl-3 text-ink"><span className="eyebrow">연대기</span><br />{last.year}년 {last.season} — {last.text}</div>}
+                {visit
+                  ? (<div className="grid gap-2.5 border-t border-gold-dim pt-3 mt-1">
+                      <div className="eyebrow text-gold">연말 알현 · {visit.npc.name} ({visit.npc.role})</div>
+                      <CardView key={`npc-${s.turn}`} s={s} card={visit.card} onPick={chooseNpc} />
+                    </div>)
+                  : (<div className="flex gap-2 flex-wrap"><button className="btn-gold" onClick={advance}>{s.ended ? "결말 보기" : `${yearOf(s.turn + 1)}년 ${SEASON_KO[seasonOf(s.turn + 1)]}으로`}</button></div>)}
+              </section>
+            );
+          })()}
         </main>
       </div>
 

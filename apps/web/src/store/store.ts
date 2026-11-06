@@ -1,7 +1,7 @@
 import { create } from "zustand";
 import { get as idbGet, set as idbSet, del as idbDel } from "idb-keyval";
 import {
-  actionsFor, endTurn, enactDecree, migrateState, newGame, repealDecree, nextTurn, openEvents, resolveAction, resolveEvent, setPreset, setTarget, startTurn,
+  actionsFor, endTurn, enactDecree, migrateState, newGame, npcVisit, repealDecree, resolveNpc, nextTurn, openEvents, resolveAction, resolveEvent, setPreset, setTarget, startTurn,
   type Difficulty, type FactionId, type GameState, type ImpactDot, type PresetId, type RegionId, type RollOutcome,
 } from "@guul/engine";
 import { content } from "@guul/content";
@@ -37,6 +37,7 @@ interface Store {
   openActionCard: (id: string) => void;
   closeActionCard: () => void;
   chooseAction: (id: string, i: number) => void;
+  chooseNpc: (i: number) => void;
   finishTurn: () => void;
   enact: (id: string) => void;
   repeal: (id: string) => void;
@@ -93,6 +94,13 @@ export const useGame = create<Store>((set, get) => ({
     const act = content.actions.find((a) => a.id === id); if (!act) return;
     const { state: next, outcome } = resolveAction(s, content, id, i);
     set({ preview: null, dice: { outcome, cardTitle: act.name, choiceLabel: act.card.choices[i]!.label, onClose: () => { persist(next); set({ state: next, dice: null, openAction: null, screen: next.ended ? "ending" : "game" }); } } });
+  },
+
+  chooseNpc(i) {
+    const s = get().state; if (!s) return;
+    const visit = npcVisit(s); if (!visit) return;
+    const { state: next, outcome } = resolveNpc(s, i);
+    set({ preview: null, dice: { outcome, cardTitle: visit.npc.name, choiceLabel: visit.card.choices[i]!.label, onClose: () => { persist(next); set({ state: next, dice: null, screen: next.ended ? "ending" : "game" }); } } });
   },
 
   finishTurn() { const s = get().state; if (!s) return; const n = endTurn(s, content); persist(n); set({ state: n, screen: n.ended ? "ending" : "game" }); },

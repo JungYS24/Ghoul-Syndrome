@@ -48,6 +48,7 @@ export const ART: Record<string, () => ReactNode> = {
   well: () => <Base><path d="M16 28h32v26H16z" fill={F} /><path d="M16 28l16-10 16 10M20 18v-4h24v4" /><path d="M16 40h32" stroke={A} /><circle cx="32" cy="47" r="4" fill={A} stroke={A} /></Base>,
   treaty: () => <Base><path d="M14 12h28v40H14z" fill={F} /><path d="M20 22h16M20 30h16M20 38h10" stroke={A} /><circle cx="40" cy="46" r="7" fill={A} stroke={A} /><path d="M40 46l-3 10 3-2 3 2z" fill={A} stroke={A} /></Base>,
   eye: () => <Base sway><path d="M8 32s10-14 24-14 24 14 24 14-10 14-24 14S8 32 8 32z" fill={F} /><circle cx="32" cy="32" r="7" fill="currentColor" /><circle cx="32" cy="32" r="3" fill={A} stroke={A} /></Base>,
+  snowflake: () => <Base sway><path d="M32 8v48M12.3 20l39.4 24M51.7 20L12.3 44" stroke={F} /><path d="M32 16l-5 5M32 16l5 5M32 48l-5-5M32 48l5 5M17 23l.8 6.8 6.8-.8M47 41l-.8-6.8-6.8.8M47 23l.8 6.8-6.8-.8M17 41l-.8-6.8 6.8.8" stroke={A} /><circle cx="32" cy="32" r="3" fill={A} stroke={A} /></Base>,
 };
 
 export function Illus({ keys, faction, accent, className, style }: { keys?: string[]; faction: "arkandal" | "iruth" | "voodoo"; accent?: boolean; className?: string; style?: CSSProperties }) {
