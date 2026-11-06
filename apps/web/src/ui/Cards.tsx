@@ -10,7 +10,7 @@ function HeaderArt({ card, faction }: { card: Card; faction: GameState["faction"
   if (HEADER_IDS.has(card.id)) {
     return (
       <img src={headerUrl(card.id)} alt="" loading="lazy" width={512} height={512}
-        className="w-full h-[clamp(190px,48vw,360px)] rounded-[4px] border border-line2 object-cover object-center shadow-[0_10px_28px_-12px_#000]" />
+        className="w-full max-w-[460px] mx-auto aspect-square object-contain rounded-[4px] border border-line2 shadow-[0_10px_28px_-12px_#000]" />
     );
   }
   return card.art ? <div className="w-full h-[clamp(150px,34vw,230px)] grid place-items-center opacity-95"><Illus keys={card.art} faction={faction} accent /></div> : null;
