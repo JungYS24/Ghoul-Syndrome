@@ -1,5 +1,22 @@
 import { useEffect } from "react";
-import { GAUGE_LABEL, infStage, type GameState } from "@guul/engine";
+import { GAUGE_LABEL, gradeTable, infStage, type GameState } from "@guul/engine";
+
+/** 판정 등급표 (grades.json 자동 생성). compact = 온보딩 말풍선용 소형. */
+export function GradeTable({ compact }: { compact?: boolean }) {
+  const rows = gradeTable();
+  return (
+    <table className={`border-collapse font-ui w-full ${compact ? "text-[11px]" : "text-[12px]"}`}>
+      <tbody>
+        {rows.map((r) => (
+          <tr key={r.name}>
+            <td className="border-b border-line py-0.5 pr-1.5 whitespace-nowrap tabular-nums">{r.min}~{r.max}</td>
+            <td className="border-b border-line py-0.5 pl-1.5">{r.name}</td>
+          </tr>
+        ))}
+      </tbody>
+    </table>
+  );
+}
 
 function Sheet({ title, onClose, children }: { title: string; onClose: () => void; children: React.ReactNode }) {
   useEffect(() => { const h = (e: KeyboardEvent) => { if (e.key === "Escape") onClose(); }; window.addEventListener("keydown", h); return () => window.removeEventListener("keydown", h); }, [onClose]);

@@ -1,9 +1,14 @@
 import { AFTERMATH_AT_OR_BELOW, ON_FAIL_BELOW, chanceAtLeast, clamp, judge, roll5d20 } from "./dice";
-import { FACTIONS, GAUGE_LABEL, NEUTRAL_START, REGION_NAME, SEASON_KO, VOODOO_MAP, infStage, otherFactions, seasonOf, yearOf } from "./factions";
+import { FACTIONS, GAUGE_LABEL, NEUTRAL_START, REGION_NAME, SEASON_KO, VOODOO_MAP, otherFactions, seasonOf, yearOf } from "./factions";
 import { createRng, type Rng } from "./rng";
 import {
   abilityModifier, baseSpread, continentalInfection, foodUse, popLoss, preyUse, production, r1, seasonMod, stateModifier,
 } from "./rules";
+import { diffOf, isDifficulty, type Difficulty } from "./difficulty";
+import { settleDecrees } from "./decrees";
+import { chainTailIds, scheduleChain, takeDueChain } from "./chains";
+import { makeEnding } from "./endings";
+import { newsLines, type AiFacts } from "./news";
 import type {
   ActionDef, AppliedEffect, Card, Choice, EffectKey, Effects, Ending, FactionId, GameContent, GameState, GaugeKey,
   RegionId, ResourceKey, RollOutcome, When,
@@ -14,7 +19,7 @@ const RES_KEYS: ResourceKey[] = ["pop", "army", "food", "silver", "strat", "prey
 const COST_KEYS: EffectKey[] = ["silver", "strat", "food", "prey"];
 
 // ───────── 생성 ─────────
-export function newGame(faction: FactionId, seed: number): GameState {
+export function newGame(faction: FactionId, seed: number, opts: { difficulty?: Difficulty } = {}): GameState {
   const F = FACTIONS[faction];
   const gauges = Object.fromEntries(ALL_GAUGES.map((k) => [k, F.start[k] ?? 50])) as Record<GaugeKey, number>;
   const infection: Record<RegionId, number> = {
@@ -23,18 +28,33 @@ export function newGame(faction: FactionId, seed: number): GameState {
   const rel: Partial<Record<FactionId, number>> = {};
   if (faction !== "voodoo") rel[faction === "arkandal" ? "iruth" : "arkandal"] = 40;
   return {
-    version: 2, seed: seed >>> 0, rng: seed >>> 0, faction, turn: 1, phase: "start",
+    version: 3, difficulty: opts.difficulty ?? "normal", tally: { rolls: 0, great: 0, fumble: 0 },
+    seed: seed >>> 0, rng: seed >>> 0, faction, turn: 1, phase: "start",
     gauges, res: { ...F.res }, startPop: F.res.pop,
     infection, infHist: [infection[faction], infection[faction]], streak: { arkandal: 0, iruth: 0, voodoo: 0, neutral: 0 }, ciStreak: 0,
     wrath: 0, research: 0, wall: 0, voodooPower: faction === "voodoo" ? 0 : 100,
     rel, pacts: [], target: faction === "voodoo" ? "arkandal" : "neutral",
     flags: [], ap: 2, preset: "balance", queue: [], recent: {}, events: [], eventIdx: 0,
-    startReport: [], endReport: [], aiReport: [], turnLog: [], chronicle: [], maxInfection: infection[faction], tempInf: 0, ended: null,
+    startReport: [], endReport: [], aiReport: [], turnLog: [], chronicle: [], maxInfection: infection[faction], tempInf: 0,
+    decrees: [], decreeHistory: [], chains: [], chainsDone: [], ended: null,
   };
 }
 const clone = <T>(v: T): T => (typeof structuredClone === "function" ? structuredClone(v) : JSON.parse(JSON.stringify(v)));
 export const isVoodooAi = (s: GameState) => s.faction !== "voodoo";
 export const ci = (s: GameState) => continentalInfection(s.infection);
+
+/** 옛 저장(v2 이하)에 v3 필드를 채웁니다. 입력은 바꾸지 않습니다. */
+export function migrateState(raw: unknown): GameState {
+  const o = { ...(raw as Record<string, unknown>) };
+  o.version = 3;
+  o.difficulty = isDifficulty(o.difficulty) ? o.difficulty : "normal";
+  o.tally = (o.tally as GameState["tally"]) ?? { rolls: 0, great: 0, fumble: 0 };
+  o.decrees = (o.decrees as GameState["decrees"]) ?? [];
+  o.decreeHistory = (o.decreeHistory as string[]) ?? [];
+  o.chains = (o.chains as GameState["chains"]) ?? [];
+  o.chainsDone = (o.chainsDone as string[]) ?? [];
+  return o as unknown as GameState;
+}
 
 // ───────── 키 매핑·라벨 ─────────
 /** 공통 키를 현재 세력 키로 바꿉니다. 해당 없는 키는 null. */
@@ -75,6 +95,7 @@ function setRegion(s: GameState, r: RegionId, d: number): number {
 /**
  * mult === null 이면 그대로 적용. 아니면 이로운 값 ×배율, 해로운 값 ×(2−배율)[0.4~1.7],
  * 자원 비용(실링·전략 자원·식량·먹이 감소)은 고정, withSuccess 키는 부호와 무관하게 ×배율.
+ * 오르는 진노는 추가로 난이도 배율을 받습니다.
  */
 export function applyEffects(s: GameState, eff: Effects | undefined, mult: number | null, opts: { withSuccess?: EffectKey[]; target?: FactionId } = {}): AppliedEffect[] {
   const out: AppliedEffect[] = [];
@@ -102,7 +123,9 @@ export function applyEffects(s: GameState, eff: Effects | undefined, mult: numbe
       const rk = k as ResourceKey; const unit = rk === "pop" || rk === "army";
       const b = s.res[rk]; s.res[rk] = Math.max(0, unit ? r1(b + v) : Math.round(b + v)); d = r1(s.res[rk] - b);
     } else if (k === "wrath") {
-      let dd = Math.round(v); if (s.wrath >= 100 && dd < 0) dd = 0;
+      let dd = Math.round(v);
+      if (dd > 0) dd = Math.round(dd * diffOf(s).wrath);
+      if (s.wrath >= 100 && dd < 0) dd = 0;
       const b = s.wrath; s.wrath = clamp(b + dd, 0, 100); d = s.wrath - b;
     } else if (k === "infection") d = setRegion(s, s.faction, v);
     else if (k === "target") d = setRegion(s, s.target, v);
@@ -155,6 +178,13 @@ export function resolveChoice(state: GameState, card: Card, choice: Choice, rng:
   const aftermath = j.final <= AFTERMATH_AT_OR_BELOW;
   if (aftermath) s.queue.push({ type: "aftermath" });
   for (const f of choice.setFlags ?? []) if (!s.flags.includes(f)) s.flags.push(f);
+  scheduleChain(s, card, choice, j.grade.tone);
+  const t = j.grade.tone;
+  s.tally = {
+    rolls: s.tally.rolls + 1,
+    great: s.tally.great + (t === "crit" || t === "great" ? 1 : 0),
+    fumble: s.tally.fumble + (t === "fumble" || t === "after" ? 1 : 0),
+  };
   s.turnLog.push({ title: card.title, label: choice.label, grade: j.grade.name, tone: j.grade.tone, final: j.final });
   s.rng = rng.state;
   return {
@@ -214,14 +244,17 @@ function dequeue(s: GameState): Card {
   return q.type === "overflow" ? overflowCard(s, q.key) : aftermathCard();
 }
 function drawEventsInto(s: GameState, content: GameContent, rng: Rng) {
+  const tails = chainTailIds(s);
   const cards: Card[] = [];
-  const fac = pick(s, content.cards.filter((c) => c.faction === s.faction), rng);
+  const fac = pick(s, content.cards.filter((c) => c.faction === s.faction && !tails.has(c.id)), rng);
   if (fac) cards.push({ ...fac, kind: `${FACTIONS[s.faction].short} 사건` });
-  const common = content.cards.filter((c) => c.faction === "common");
+  const common = content.cards.filter((c) => c.faction === "common" && !tails.has(c.id));
   const com = pick(s, common, rng); if (com) cards.push({ ...com, kind: "공통 사건" });
   let third: Card | null = null;
+  const chain = takeDueChain(s, content);
   const fixed = content.fixed[String(s.turn)];
-  if (fixed) third = { ...fixed, kind: "고정 사건" };
+  if (chain) third = chain;
+  else if (fixed) third = { ...fixed, kind: "고정 사건" };
   else if (s.queue.length) third = dequeue(s);
   else { const sit = pick(s, content.situational, rng); if (sit) third = { ...sit, kind: "상황 반응" }; }
   if (!third) { const c2 = pick(s, common, rng); if (c2) third = { ...c2, kind: "공통 사건" }; }
@@ -251,9 +284,9 @@ export function startTurn(state: GameState, content: GameContent): GameState {
     const pu = preyUse(s.res.army); s.res.prey = r1(s.res.prey - pu); rep.push(`먹이 ${pu.toFixed(1)} 소비`);
     if (s.res.prey < 0) { s.res.prey = 0; addG(s, "control", -20); rep.push("먹이 고갈 — 제어 −20"); }
   }
-  // 2) 감염도 갱신
+  // 2) 감염도 갱신 (난이도 확산 배율)
   const inf0 = s.infection[s.faction];
-  const base = baseSpread(s.faction, inf0, { wall: s.wall, control: s.gauges.control });
+  const base = baseSpread(s.faction, inf0, { wall: s.wall, control: s.gauges.control }) * diffOf(s).spread;
   const sm = seasonMod(s.faction, season);
   const d = Math.round(base + sm + s.tempInf); s.tempInf = 0;
   setRegion(s, s.faction, d);
@@ -335,48 +368,55 @@ function finishCheck(s: GameState) {
 }
 
 // ───────── AI 세력 ─────────
-function runAi(s: GameState, rng: Rng): string[] {
-  const rep: string[] = [];
+function runAi(s: GameState, rng: Rng): AiFacts {
   const season = seasonOf(s.turn);
   const V = s.faction === "voodoo";
+  const df = diffOf(s);
+  const aiDelta: Partial<Record<RegionId, number>> = {};
+  const wall0 = s.wall, research0 = s.research;
   for (const f of otherFactions(s.faction)) {
     if (f === "voodoo") continue;
     const inf = s.infection[f];
     const base = baseSpread(f, inf, { wall: f === "arkandal" ? s.wall : 0 });
-    const defense = 3.3 + inf * 0.07 + rng.next() * 2.5 + (V ? 1.6 : 0);
+    const defense = (3.3 + inf * 0.07 + rng.next() * 2.5 + (V ? 1.6 : 0)) * df.aiDefense;
+    const before = s.infection[f];
     setRegion(s, f, base + seasonMod(f, season) - defense);
+    aiDelta[f] = s.infection[f] - before;
     if (f === "arkandal") {
-      const w = V ? 1.3 + rng.next() * 1.4 : 0;
-      if (w) { s.wall = clamp(Math.round((s.wall + w) * 10) / 10, 0, 100); }
+      const w = (V ? 1.3 + rng.next() * 1.4 : 0) * df.aiProgress;
+      if (w) s.wall = clamp(Math.round((s.wall + w) * 10) / 10, 0, 100);
     }
     if (f === "iruth") {
-      const rate = (V ? 1.7 + rng.next() * 1.1 : 0.5 + rng.next() * 0.5) * (1 - s.infection.iruth / 120);
+      const rate = (V ? 1.7 + rng.next() * 1.1 : 0.5 + rng.next() * 0.5) * (1 - s.infection.iruth / 120) * df.aiProgress;
       s.research = clamp(r1(s.research + rate), 0, 100);
     }
   }
   // 중립지(라벤 폐허 포함)
-  const n = s.infection.neutral;
-  setRegion(s, "neutral", baseSpread("neutral", n) + seasonMod("neutral", season) - (1 + rng.next() * 2.5));
+  const nb = s.infection.neutral;
+  setRegion(s, "neutral", baseSpread("neutral", nb) + seasonMod("neutral", season) - (1 + rng.next() * 2.5));
+  aiDelta.neutral = s.infection.neutral - nb;
   // AI 부두교의 압박
+  let plague: AiFacts["plague"];
   if (!V) {
     s.voodooPower = clamp(s.voodooPower + 1, 0, 100);
-    const p = Math.round((2 + (s.turn - 1) / 20 + rng.next()) * (s.voodooPower / 100));
+    const p = Math.round((2 + (s.turn - 1) / 20 + rng.next()) * (s.voodooPower / 100) * df.pressure);
     if (p > 0) {
       const roll = rng.next();
       const other = otherFactions(s.faction).find((f) => f !== "voodoo")!;
       const tgt: RegionId = roll < 0.5 ? s.faction : roll < 0.75 ? other : "neutral";
+      const before = s.infection[tgt];
       setRegion(s, tgt, p);
-      rep.push(`구울 부두교가 ${REGION_NAME[tgt]}에 역병을 퍼뜨렸습니다 (감염도 +${p})`);
+      plague = { region: tgt, amount: s.infection[tgt] - before };
     }
-  } else {
-    if (s.wall > 0) rep.push(`아르칸달 방벽 진척 ${Math.floor(s.wall)}`);
-    rep.push(`아이루스 치료 연구 ${Math.floor(s.research)}`);
   }
-  return rep;
+  return {
+    turn: s.turn, player: s.faction, aiDelta, inf: { ...s.infection },
+    wallDelta: s.wall - wall0, wall: s.wall, researchDelta: s.research - research0, research: s.research, plague,
+  };
 }
 
 // ───────── 종료 결산 ─────────
-export function endTurn(state: GameState): GameState {
+export function endTurn(state: GameState, content: Pick<GameContent, "decrees">): GameState {
   const s = clone(state); const rng = createRng(s.rng);
   const F = FACTIONS[s.faction], rep: string[] = [];
   const V = s.faction === "voodoo";
@@ -394,8 +434,10 @@ export function endTurn(state: GameState): GameState {
   if (V && s.gauges.offering >= 25) addG(s, "faith", 4); // 제물이 흐르면 신앙이 유지된다
   if (V && s.gauges.control >= 45) addG(s, "faith", 2);
   if (V && s.res.prey >= preyUse(s.res.army) * 2) { addG(s, "control", 1); addG(s, "offering", 2); }
-  // AI
-  s.aiReport = runAi(s, rng);
+  // 지속 법령 결산
+  rep.push(...settleDecrees(s, content, diffOf(s).wrath));
+  // AI 세력 — 대륙 소식
+  s.aiReport = newsLines(runAi(s, rng));
   // 동맹
   for (const [o, v] of Object.entries(s.rel) as [FactionId, number][]) {
     if (v >= 80 && !s.pacts.includes(o)) { s.pacts.push(o); rep.push(`${FACTIONS[o].name}과(와) 방역 동맹 체결`); }
@@ -423,28 +465,27 @@ function chron(s: GameState, text: string) {
   return { turn: s.turn, year: yearOf(s.turn), season: SEASON_KO[seasonOf(s.turn)], text, infection: s.infection[s.faction], ci: ci(s) };
 }
 
-// ───────── 승패 ─────────
+// ───────── 승패 (엔딩 카탈로그) ─────────
+const GAUGE_DEFEAT: Record<GaugeKey, string> = {
+  morale: "d-morale", order: "d-order", finance: "d-finance", legit: "d-legit",
+  faith: "d-faith", control: "d-control", offering: "d-offering", stealth: "d-stealth",
+};
 export function checkDefeat(s: GameState): Ending | null {
-  for (const k of FACTIONS[s.faction].gauges) {
-    if (s.gauges[k] <= 0) {
-      if (k === "stealth") return { type: "defeat", title: "대토벌", text: "교단의 은신처가 모두 드러났습니다. 아르칸달과 아이루스의 연합군이 제단을 불태웠습니다." };
-      return { type: "defeat", title: `${GAUGE_LABEL[k]}의 붕괴`, text: `${GAUGE_LABEL[k]}이(가) 바닥났습니다. 나라는 안에서부터 무너졌습니다.` };
-    }
-  }
-  if (s.res.pop <= s.startPop * 0.15) return { type: "defeat", title: "텅 빈 나라", text: "살아남은 자가 시작의 15%도 남지 않았습니다." };
-  if (s.faction !== "voodoo" && s.streak[s.faction] >= 3) return { type: "defeat", title: "수도 함락", text: "감염도 100이 세 계절 동안 이어졌습니다. 수도의 성문이 안쪽에서 열렸습니다." };
-  if (s.faction !== "voodoo" && s.ciStreak >= 2) return { type: "defeat", title: "대륙 구울화", text: "구울 부두교의 은총이 대륙을 덮었습니다. 산 자의 왕국들은 동시에 침묵했습니다." };
+  for (const k of FACTIONS[s.faction].gauges) if (s.gauges[k] <= 0) return makeEnding(GAUGE_DEFEAT[k]);
+  if (s.res.pop <= s.startPop * 0.15) return makeEnding("d-empty");
+  if (s.faction !== "voodoo" && s.streak[s.faction] >= 3) return makeEnding("d-capital");
+  if (s.faction !== "voodoo" && s.ciStreak >= 2) return makeEnding("d-continent");
   if (s.faction === "voodoo") {
-    if (s.research >= 100) return { type: "defeat", title: "치료제 완성", text: "아이루스가 치료제를 완성했습니다. 은총은 병으로 불리며 씻겨 나갔고, 교단은 이단으로 남았습니다." };
-    if (s.wall >= 100 && s.infection.arkandal < 20) return { type: "defeat", title: "철벽의 대륙", text: "아르칸달의 방벽망이 완성되었습니다. 구울은 성벽 앞에서 멈추었습니다." };
+    if (s.research >= 100) return makeEnding("d-voodoo-cure");
+    if (s.wall >= 100 && s.infection.arkandal < 20) return makeEnding("d-voodoo-wall");
   }
   return null;
 }
 export function checkVictory(s: GameState): Ending | null {
-  if (s.faction === "voodoo" && s.ciStreak >= 2) return { type: "victory", title: "대륙 구울화", text: "대륙 감염 진척이 두 계절 연속 85를 넘었습니다. 죽은 자가 밭을 갈고, 산 자는 그 곁에서 무릎을 꿇습니다. 은총이 완성되었습니다." };
-  if (s.faction === "iruth" && s.research >= 100) return { type: "victory", title: "치료제 완성", text: "벨로링크의 빙철 증류기에서 첫 치료제가 나왔습니다. 구울로 변해 가던 자들이 다시 이름을 부르기 시작합니다." };
-  if (s.faction === "arkandal" && s.wall >= 100 && s.infection.arkandal < 20) return { type: "victory", title: "철벽의 대륙", text: "방벽망이 완성되고 국경 안의 역병이 잦아들었습니다. 영웅왕 전운의 깃발이 대륙을 굽어봅니다." };
-  if (s.faction === "arkandal" && s.research >= 100) return finalScore(s, "치료제 완성 — 아이루스 주도", "아이루스가 치료제를 완성했습니다. 아르칸달은 살아남았지만 대륙의 패권은 상인들에게 넘어갔습니다.");
+  if (s.faction === "voodoo" && s.ciStreak >= 2) return makeEnding("v-voodoo-grace");
+  if (s.faction === "iruth" && s.research >= 100) return makeEnding("v-iruth-cure");
+  if (s.faction === "arkandal" && s.wall >= 100 && s.infection.arkandal < 20) return makeEnding("v-arkandal-wall");
+  if (s.faction === "arkandal" && s.research >= 100) return makeEnding("s-iruth-led");
   return null;
 }
 export function progressOf(s: GameState): number {
@@ -456,9 +497,8 @@ export function scoreOf(s: GameState): number {
   const popPct = clamp(s.res.pop / s.startPop, 0, 1.2) * 100;
   return Math.round(popPct * 0.3 + avg * 0.3 + (100 - s.wrath) * 0.15 + progressOf(s) * 0.25);
 }
-export function finalScore(s: GameState, title?: string, text?: string): Ending {
+export function finalScore(s: GameState): Ending {
   const sc = scoreOf(s);
   const grade = sc >= 80 ? "S" : sc >= 68 ? "A" : sc >= 55 ? "B" : sc >= 42 ? "C" : "D";
-  return { type: "survive", title: title ?? `생존 등급 ${grade}`, score: sc, grade, text: text ?? "10년의 밤이 끝났습니다. 승리 조건을 이루지는 못했지만, 나라는 아직 서 있습니다." };
+  return makeEnding(`s-${grade}`, { score: sc, grade });
 }
-export { infStage };
