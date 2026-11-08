@@ -55,10 +55,11 @@ function LeverEdict({ s }: { s: GameState }) {
 
 const ARROW = { 1: ["▲", "▲▲", "▲▲▲"], "-1": ["▼", "▼▼", "▼▼▼"] } as const;
 function Plate({ name, value, low, k }: { name: string; value: string; low: boolean; k: EffectKey }) {
+  const m = /^(.*?)(t|만)$/.exec(value);
   const dot = useImpactDot(k);
   return (
     <div className={`nameplate ${low ? "low" : ""} ${dot ? (dot.dir > 0 ? "plate-up" : "plate-down") : ""}`} data-res={k}>
-      <small>{name}{dot && <span className={`ml-1 text-[10px] ${dot.dir > 0 ? "text-[#a9c0a2]" : "text-[#e0907a]"}`}>{ARROW[dot.dir > 0 ? 1 : "-1"][dot.size - 1]}</span>}</small><b>{value}</b>
+      <small>{name}{dot && <span className={`ml-1 text-[10px] ${dot.dir > 0 ? "text-[#a9c0a2]" : "text-[#e0907a]"}`}>{ARROW[dot.dir > 0 ? 1 : "-1"][dot.size - 1]}</span>}</small><b>{m ? <>{m[1]}<span className="unit">{m[2]}</span></> : value}</b>
     </div>
   );
 }

@@ -63,7 +63,7 @@ export const REGION_NAME: Record<RegionId, string> = { arkandal: "아르칸달",
 export const NEUTRAL_START = 40;
 
 export const GAUGE_LABEL: Record<GaugeKey, string> = {
-  morale: "민심", order: "질서", finance: "재정", legit: "신앙도",
+  morale: "민심", order: "질서", finance: "재정", legit: "신앙",
   faith: "신앙", control: "제어", offering: "제물", stealth: "은닉",
 };
 /** 공통 카드 게이지 → 부두교 게이지 */

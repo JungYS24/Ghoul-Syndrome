@@ -222,3 +222,6 @@ html[data-blight="3"] .rot-layer { animation: rotpulse 3s ease-in-out infinite; 
 .plate-up { box-shadow: 0 0 0 2px #7f9a78, 0 3px 5px -2px #000 !important; }
 .plate-down { box-shadow: 0 0 0 2px #b8473a, 0 3px 5px -2px #000 !important; }
 @media (prefers-reduced-motion: reduce) { .ghost-up, .ghost-down { animation: none; } }
+
+/* 자원 단위(t, 만)는 회색으로 가라앉혀 숫자가 먼저 읽히게 */
+.nameplate b .unit { color: #8f8672; font-weight: 500; font-size: .72em; margin-left: 1px; text-shadow: none; }
