@@ -9,6 +9,8 @@ import { settleDecrees } from "./decrees";
 import { chainTailIds, scheduleChain, takeDueChain } from "./chains";
 import { makeEnding } from "./endings";
 import { newsLines, type AiFacts } from "./news";
+import { applyLegacy } from "./legacy";
+import { MAX_RELICS } from "./relics";
 import type {
   ActionDef, AppliedEffect, Card, Choice, EffectKey, Effects, Ending, FactionId, GameContent, GameState, GaugeKey,
   RegionId, ResourceKey, RollOutcome, When,
@@ -19,7 +21,7 @@ const RES_KEYS: ResourceKey[] = ["pop", "army", "food", "silver", "strat", "prey
 const COST_KEYS: EffectKey[] = ["silver", "strat", "food", "prey"];
 
 // ───────── 생성 ─────────
-export function newGame(faction: FactionId, seed: number, opts: { difficulty?: Difficulty } = {}): GameState {
+export function newGame(faction: FactionId, seed: number, opts: { difficulty?: Difficulty; legacy?: string[] } = {}): GameState {
   const F = FACTIONS[faction];
   const gauges = Object.fromEntries(ALL_GAUGES.map((k) => [k, F.start[k] ?? 50])) as Record<GaugeKey, number>;
   const infection: Record<RegionId, number> = {
@@ -27,7 +29,7 @@ export function newGame(faction: FactionId, seed: number, opts: { difficulty?: D
   };
   const rel: Partial<Record<FactionId, number>> = {};
   if (faction !== "voodoo") rel[faction === "arkandal" ? "iruth" : "arkandal"] = 40;
-  return {
+  const st: GameState = {
     version: 3, difficulty: opts.difficulty ?? "normal", tally: { rolls: 0, great: 0, fumble: 0 },
     seed: seed >>> 0, rng: seed >>> 0, faction, turn: 1, phase: "start",
     gauges, res: { ...F.res }, startPop: F.res.pop,
@@ -36,8 +38,10 @@ export function newGame(faction: FactionId, seed: number, opts: { difficulty?: D
     rel, pacts: [], target: faction === "voodoo" ? "arkandal" : "neutral",
     flags: [], ap: 2, preset: "balance", queue: [], recent: {}, events: [], eventIdx: 0,
     startReport: [], endReport: [], aiReport: [], turnLog: [], chronicle: [], maxInfection: infection[faction], tempInf: 0,
-    decrees: [], decreeHistory: [], chains: [], chainsDone: [], ended: null,
+    decrees: [], decreeHistory: [], chains: [], chainsDone: [], ended: null, relics: [], legacy: [],
   };
+  applyLegacy(st, opts.legacy ?? []);
+  return st;
 }
 const clone = <T>(v: T): T => (typeof structuredClone === "function" ? structuredClone(v) : JSON.parse(JSON.stringify(v)));
 export const isVoodooAi = (s: GameState) => s.faction !== "voodoo";
@@ -53,6 +57,8 @@ export function migrateState(raw: unknown): GameState {
   o.decreeHistory = (o.decreeHistory as string[]) ?? [];
   o.chains = (o.chains as GameState["chains"]) ?? [];
   o.chainsDone = (o.chainsDone as string[]) ?? [];
+  o.relics = (o.relics as string[]) ?? [];
+  o.legacy = (o.legacy as string[]) ?? [];
   return o as unknown as GameState;
 }
 
@@ -179,6 +185,7 @@ export function resolveChoice(state: GameState, card: Card, choice: Choice, rng:
   if (aftermath) s.queue.push({ type: "aftermath" });
   for (const f of choice.setFlags ?? []) if (!s.flags.includes(f)) s.flags.push(f);
   scheduleChain(s, card, choice, j.grade.tone);
+  if (choice.grantRelic && j.final >= ON_FAIL_BELOW && !s.relics.includes(choice.grantRelic) && s.relics.length < MAX_RELICS) s.relics.push(choice.grantRelic);
   const t = j.grade.tone;
   s.tally = {
     rolls: s.tally.rolls + 1,
@@ -369,7 +376,7 @@ export function resolveAction(state: GameState, content: GameContent, actionId: 
 export function setTarget(state: GameState, target: RegionId): GameState { const s = clone(state); s.target = target; return s; }
 export function setPreset(state: GameState, preset: GameState["preset"]): GameState { const s = clone(state); s.preset = preset; return s; }
 
-function finishCheck(s: GameState) {
+export function finishCheck(s: GameState) {
   const d = checkDefeat(s);
   if (d) { s.ended = d; s.phase = "over"; s.chronicle.push(chron(s, `${d.title}.`)); }
 }

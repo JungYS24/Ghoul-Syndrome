@@ -25,6 +25,7 @@ const choice = z.object({
   target: factionId.optional(),
   withSuccess: z.array(effectKey).optional(),
   followUp: z.object({ cardId: z.string().min(1), afterTurns: z.number().int().min(1) }).strict().optional(),
+  grantRelic: z.string().min(1).optional(),
 }).strict();
 const tone = z.enum(["crit", "great", "success", "partial", "fail", "fumble", "after"]);
 const branch = z.object({
@@ -67,6 +68,13 @@ export const decreeSchema = z.object({
   repealWhen: when.optional(),
   repealText: z.string().optional(),
 }).strict();
+export const relicSchema = z.object({
+  id: z.string().min(1),
+  faction: z.enum(["arkandal", "iruth", "voodoo", "common"]),
+  name: z.string().min(1),
+  desc: z.string(),
+  choice,
+}).strict();
 export const contentSchema = z.object({
   cards: z.array(cardSchema),
   situational: z.array(cardSchema),
@@ -75,4 +83,5 @@ export const contentSchema = z.object({
   actions: z.array(actionSchema),
   decrees: z.array(decreeSchema),
   opportunities: z.array(cardSchema).optional(),
+  relics: z.array(relicSchema).optional(),
 }).strict();

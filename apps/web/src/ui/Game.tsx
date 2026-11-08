@@ -1,3 +1,4 @@
+import { RelicBar } from "./RelicBar";
 import { useState } from "react";
 import { DIFFICULTIES, FACTIONS, GAUGE_LABEL, REGION_NAME, SEASON_KO, actionsFor, npcVisit, seasonOf, yearOf, type GameState, type RegionId } from "@guul/engine";
 import { content, useGame } from "../store/store";
@@ -84,7 +85,7 @@ export function Game({ s }: { s: GameState }) {
           )}
 
           {s.phase === "event" && s.events[s.eventIdx] && (
-            <CardView key={`${s.turn}-${s.eventIdx}`} s={s} card={s.events[s.eventIdx]!} onPick={chooseEvent} />
+            <CardView key={`${s.turn}-${s.eventIdx}`} s={s} card={s.events[s.eventIdx]!} onPick={chooseEvent}><RelicBar s={s} /></CardView>
           )}
 
           {s.phase === "action" && !openAction && (

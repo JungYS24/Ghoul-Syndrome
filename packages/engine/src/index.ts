@@ -13,3 +13,6 @@ export * from "./endings";
 export * from "./npcs";
 export { computeNdKCounts } from "./distribution";
 export { COUNTS_5D20, CDF_5D20, TOTAL_5D20 } from "./generated/cdf5d20";
+export * from "./relics";
+export * from "./legacy";
+export * from "./influences";

@@ -26,6 +26,7 @@ function ShareLink({ s }: { s: GameState }) {
 export function Ending({ s }: { s: GameState }) {
   const toTitle = useGame((z) => z.toTitle);
   const recordEnding = useGame((z) => z.recordEnding);
+  const lastGain = useGame((z) => z.lastGain);
   const e = s.ended!;
   const F = FACTIONS[s.faction];
   const score = e.score ?? scoreOf(s);
@@ -42,6 +43,7 @@ export function Ending({ s }: { s: GameState }) {
           <span className="eyebrow mr-2">통치 성향</span>{governanceTitle(s).title}
           <span className="text-muted text-[13px]"> — {governanceTitle(s).reason}</span>
         </p>
+        {lastGain > 0 && <p className="m-0 font-ui text-[13px] text-gold" data-testid="legacy-gain">역사의 유산 +{lastGain}점 — 타이틀에서 영구 보너스를 살 수 있습니다.</p>}
         <blockquote className="m-0 border-l-2 border-gold-dim pl-3.5 text-[15px] text-ink max-w-[62ch]">
           <span className="eyebrow block mb-1">후기</span>
           {epilogueOf(s, content.decrees)}

@@ -1,9 +1,28 @@
 import {
   FACTIONS, GAUGE_LABEL, PRESETS, REGION_NAME, SEASON_KO, SEASON_MOD, ci, foodUseOf, infStage, otherFactions, preyUse,
-  progressOf, seasonOf, type GameState, type GaugeKey, type PresetId, type RegionId,
+  gaugeInfluences, ownedRelics, progressOf, seasonOf, type GameState, type GaugeKey, type PresetId, type RegionId,
 } from "@guul/engine";
-import { useGame } from "../store/store";
+import { useState } from "react";
+import { content, useGame } from "../store/store";
 
+function GaugeRow({ s, k }: { s: GameState; k: GaugeKey }) {
+  const [open, setOpen] = useState(false);
+  const inf = gaugeInfluences(s, k, content);
+  return (
+    <div className="grid gap-1">
+      <button type="button" aria-expanded={open} onClick={() => setOpen(!open)} title="눌러서 이 수치를 움직이는 규칙 보기" className="text-left">
+        <Gauge label={GAUGE_LABEL[k]} v={s.gauges[k]} hostile={false} />
+      </button>
+      {open && (
+        <ul className="m-0 pl-3.5 grid gap-0.5 font-ui text-[11px] text-muted list-none" data-testid={`influences-${k}`}>
+          {inf.map((x, i) => (
+            <li key={i} className={x.active ? (x.sign > 0 ? "text-frost" : "text-blood") : "text-faint"}>{x.active ? "● " : "○ "}{x.text}</li>
+          ))}
+        </ul>
+      )}
+    </div>
+  );
+}
 function Gauge({ label, v, hostile }: { label: string; v: number; hostile?: boolean }) {
   const danger = hostile ? v >= 70 : v <= 20;
   const warn = hostile ? v >= 50 : v <= 35;
@@ -54,7 +73,11 @@ export function Dashboard({ s }: { s: GameState }) {
         <span className="font-ui text-[11px] text-faint">{stage === "소강" ? "효과 없음" : stage === "확산" ? "식량 생산 −10%" : stage === "창궐" ? "모든 판정 −5 · 식량 −20%" : "매 턴 붕괴 카드 추가"}{!V && s.streak[s.faction] ? ` · 감염도 100 연속 ${s.streak[s.faction]}/3` : ""}</span>
       </div>
       {/* 게이지 */}
-      <div className="grid gap-2"><h3 className="eyebrow">{V ? "교단 게이지" : "국정 게이지"}</h3>{F.gauges.map((k) => <Gauge key={k} label={GAUGE_LABEL[k]} v={s.gauges[k]} hostile={false} />)}</div>
+      <div className="grid gap-2"><h3 className="eyebrow">{V ? "교단 게이지" : "국정 게이지"}</h3>{F.gauges.map((k) => <GaugeRow key={k} s={s} k={k} />)}<span className="font-ui text-[10px] text-faint">수치를 누르면 올리고 내리는 규칙이 나옵니다 (● 지금 적용 중)</span></div>
+      {ownedRelics(s, content).length > 0 && (
+        <div className="grid gap-1.5"><h3 className="eyebrow">유물</h3>
+          {ownedRelics(s, content).map((r) => <span key={r.id} className="font-ui text-[12px] text-gold" title={r.desc}>◆ {r.name}</span>)}</div>
+      )}
       {/* 자원 */}
       <div className="grid gap-2"><h3 className="eyebrow">비축 자원</h3>
         <div className="grid grid-cols-3 gap-1.5">{res.map(([n, v, low]) => <div key={n} className="bg-[#15120e] border border-line rounded-[2px] px-2 py-1.5 min-w-0"><small className="block font-ui text-[11px] text-faint">{n}</small><b className={`font-ui tabular-nums font-medium text-[14px] ${low ? "text-blood" : ""}`}>{v}</b></div>)}</div>

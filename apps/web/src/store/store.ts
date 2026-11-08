@@ -1,7 +1,7 @@
 import { create } from "zustand";
 import { get as idbGet, set as idbSet, del as idbDel } from "idb-keyval";
 import {
-  actionsFor, endTurn, enactDecree, migrateState, newGame, npcVisit, repealDecree, resolveNpc, nextTurn, openEvents, resolveAction, resolveEvent, setPreset, setTarget, startTurn,
+  LEGACY_PERKS, legacyPointsFor, relicById, useRelic, actionsFor, endTurn, enactDecree, migrateState, newGame, npcVisit, repealDecree, resolveNpc, nextTurn, openEvents, resolveAction, resolveEvent, setPreset, setTarget, startTurn,
   type Difficulty, type FactionId, type GameState, type ImpactDot, type PresetId, type RegionId, type RollOutcome,
 } from "@guul/engine";
 import { content } from "@guul/content";
@@ -9,7 +9,9 @@ import { addEnding, type EndingBook } from "./share";
 
 const SAVE_KEY = "guul-save-v2";
 const BOOK_KEY = "guul-endings-v1";
+const LEGACY_KEY = "guul-legacy-v1";
 const recorded = new Set<string>();
+export interface LegacyBook { points: number; perks: string[] }
 
 export type Screen = "title" | "game" | "ending";
 interface DicePayload { outcome: RollOutcome; cardTitle: string; choiceLabel: string; onClose: () => void }
@@ -25,6 +27,12 @@ interface Store {
   /** 스와이프/호버 중인 선택지가 영향을 주는 키 (숫자 없이 규모만) */
   preview: ImpactDot[] | null;
   setPreview: (p: ImpactDot[] | null) => void;
+  /** 역사의 유산: 모은 점수와 산 보너스 */
+  legacy: LegacyBook;
+  /** 가장 최근 엔딩으로 얻은 점수 (엔딩 화면 표시용) */
+  lastGain: number;
+  buyPerk: (id: string) => void;
+  useRelicNow: (id: string) => void;
   init: () => Promise<void>;
   start: (f: FactionId, seed: number, difficulty?: Difficulty) => void;
   /** 엔딩 달성 기록 (IndexedDB) */
@@ -52,12 +60,13 @@ function persist(s: GameState | null) {
 }
 
 export const useGame = create<Store>((set, get) => ({
-  screen: "title", state: null, dice: null, hasSave: false, actedThisAp: false, openAction: null, preview: null, book: {},
+  screen: "title", state: null, dice: null, hasSave: false, actedThisAp: false, openAction: null, preview: null, book: {}, legacy: { points: 0, perks: [] }, lastGain: 0,
   setPreview(p) { set({ preview: p }); },
 
   async init() {
     try { const saved = await idbGet<GameState>(SAVE_KEY); set({ hasSave: !!saved }); } catch { /* ignore */ }
     try { const book = await idbGet<EndingBook>(BOOK_KEY); if (book) set({ book }); } catch { /* ignore */ }
+    try { const lg = await idbGet<LegacyBook>(LEGACY_KEY); if (lg) set({ legacy: lg }); } catch { /* ignore */ }
   },
   recordEnding(s) {
     if (!s.ended) return;
@@ -65,11 +74,13 @@ export const useGame = create<Store>((set, get) => ({
     if (recorded.has(key)) return;
     recorded.add(key);
     const book = addEnding(get().book, s.ended, s, new Date().toISOString());
-    set({ book });
-    try { void idbSet(BOOK_KEY, book); } catch { /* 저장 불가 */ }
+    const gain = legacyPointsFor(s);
+    const legacy = { ...get().legacy, points: get().legacy.points + gain };
+    set({ book, legacy, lastGain: gain });
+    try { void idbSet(BOOK_KEY, book); void idbSet(LEGACY_KEY, legacy); } catch { /* 저장 불가 */ }
   },
   start(f, seed, difficulty = "normal") {
-    const s = startTurn(newGame(f, seed, { difficulty }), content);
+    const s = startTurn(newGame(f, seed, { difficulty, legacy: get().legacy.perks }), content);
     persist(s);
     set({ state: s, screen: s.ended ? "ending" : "game", openAction: null });
   },
@@ -87,6 +98,20 @@ export const useGame = create<Store>((set, get) => ({
     set({ preview: null, dice: { outcome, cardTitle: card.title, choiceLabel: card.choices[i]!.label, onClose: () => { persist(next); set({ state: next, dice: null, screen: next.ended ? "ending" : "game" }); } } });
   },
 
+  buyPerk(id) {
+    const perk = LEGACY_PERKS.find((p) => p.id === id); const lg = get().legacy;
+    if (!perk || lg.perks.includes(id) || lg.points < perk.cost) return;
+    const next = { points: lg.points - perk.cost, perks: [...lg.perks, id] };
+    set({ legacy: next });
+    try { void idbSet(LEGACY_KEY, next); } catch { /* 저장 불가 */ }
+  },
+  useRelicNow(id) {
+    const s = get().state; if (!s) return;
+    const card = s.events[s.eventIdx]; const relic = relicById(content, id); if (!card || !relic) return;
+    let r; try { r = useRelic(s, content, id); } catch { return; }
+    const next = r.state;
+    set({ preview: null, dice: { outcome: r.outcome, cardTitle: card.title, choiceLabel: `유물 · ${relic.name}`, onClose: () => { persist(next); set({ state: next, dice: null, screen: next.ended ? "ending" : "game" }); } } });
+  },
   openActionCard(id) { set({ openAction: id }); },
   closeActionCard() { set({ openAction: null }); },
   chooseAction(id, i) {

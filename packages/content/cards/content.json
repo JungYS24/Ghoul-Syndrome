@@ -9693,7 +9693,8 @@
      },
      "onFail": {
       "army": -0.3
-     }
+     },
+     "grantRelic": "relic-ward"
     },
     {
      "label": "무기를 팔아 군자금을 만든다",
@@ -9757,7 +9758,8 @@
      "effects": {
       "order": 6,
       "morale": 3
-     }
+     },
+     "grantRelic": "relic-seal"
     },
     {
      "label": "지나친다",
@@ -9812,7 +9814,8 @@
      },
      "onFail": {
       "legit": -3
-     }
+     },
+     "grantRelic": "relic-ledger"
     },
     {
      "label": "지나친다",
@@ -9851,7 +9854,8 @@
      },
      "onFail": {
       "morale": -3
-     }
+     },
+     "grantRelic": "relic-vial"
     },
     {
      "label": "자료만 사들인다",
@@ -9922,7 +9926,8 @@
      },
      "onFail": {
       "faith": -3
-     }
+     },
+     "grantRelic": "relic-bone"
     },
     {
      "label": "지나친다",
@@ -9962,7 +9967,8 @@
      },
      "onFail": {
       "offering": -3
-     }
+     },
+     "grantRelic": "relic-bell"
     },
     {
      "label": "몰래 팔아 제물을 마련한다",
@@ -10027,7 +10033,8 @@
      "effects": {
       "food": 6,
       "morale": 6
-     }
+     },
+     "grantRelic": "relic-coin"
     },
     {
      "label": "지나친다",
@@ -10066,7 +10073,8 @@
      },
      "onFail": {
       "legit": -3
-     }
+     },
+     "grantRelic": "relic-coin"
     },
     {
      "label": "식량 지원을 약속한다",
@@ -10135,10 +10143,183 @@
      "effects": {
       "morale": 5,
       "infection": -2
-     }
+     },
+     "grantRelic": "relic-coin"
     }
    ],
    "weight": 5
+  }
+ ],
+ "relics": [
+  {
+   "id": "relic-seal",
+   "faction": "arkandal",
+   "name": "왕가의 인장",
+   "desc": "영웅왕의 직인. 이 사건을 칙령으로 일방 처리합니다.",
+   "choice": {
+    "label": "인장을 찍어 칙령으로 처리한다",
+    "art": [
+     "crown",
+     "scroll"
+    ],
+    "check": {
+     "stat": "legit",
+     "mod": 8
+    },
+    "effects": {
+     "order": 6,
+     "legit": 4,
+     "infection": -4
+    },
+    "onFail": {
+     "legit": -4
+    }
+   }
+  },
+  {
+   "id": "relic-ward",
+   "faction": "arkandal",
+   "name": "늑대뼈 부적",
+   "desc": "전장에서 살아 돌아온 병사의 부적. 병영의 사기를 끌어올립니다.",
+   "choice": {
+    "label": "부적을 높이 들어 병사를 독려한다",
+    "art": [
+     "soldier",
+     "banner"
+    ],
+    "check": {
+     "stat": "order",
+     "mod": 6
+    },
+    "effects": {
+     "army": 0.4,
+     "morale": 6
+    },
+    "onFail": {
+     "morale": -3
+    }
+   }
+  },
+  {
+   "id": "relic-ledger",
+   "faction": "iruth",
+   "name": "황금 장부",
+   "desc": "황금 저울 상회의 비밀 장부. 비용을 장부로 처리합니다.",
+   "choice": {
+    "label": "장부를 펼쳐 비용을 처리한다",
+    "art": [
+     "scales",
+     "coin"
+    ],
+    "check": {
+     "stat": "finance",
+     "mod": 8
+    },
+    "effects": {
+     "silver": 10,
+     "finance": 4
+    },
+    "onFail": {
+     "finance": -3
+    }
+   }
+  },
+  {
+   "id": "relic-vial",
+   "faction": "iruth",
+   "name": "빙철 시약병",
+   "desc": "치료제 연구의 첫 시약. 감염을 크게 누르고 연구를 진척시킵니다.",
+   "choice": {
+    "label": "시약을 풀어 방역한다",
+    "art": [
+     "potion",
+     "crystal"
+    ],
+    "check": {
+     "stat": "legit",
+     "mod": 6
+    },
+    "effects": {
+     "infection": -8,
+     "research": 2
+    },
+    "onFail": {
+     "morale": -3
+    }
+   }
+  },
+  {
+   "id": "relic-bell",
+   "faction": "voodoo",
+   "name": "장례 종",
+   "desc": "무덤지기가 울리던 종. 구울과 신도를 한 번에 묶습니다.",
+   "choice": {
+    "label": "종을 울려 무리를 모은다",
+    "art": [
+     "bell",
+     "ghoul"
+    ],
+    "check": {
+     "stat": "control",
+     "mod": 8
+    },
+    "effects": {
+     "faith": 6,
+     "prey": 8,
+     "stealth": 2
+    },
+    "onFail": {
+     "control": -3
+    }
+   }
+  },
+  {
+   "id": "relic-bone",
+   "faction": "voodoo",
+   "name": "뼈 지팡이",
+   "desc": "대사제의 지팡이. 제어와 제물을 함께 다잡습니다.",
+   "choice": {
+    "label": "지팡이를 내리쳐 서약을 새긴다",
+    "art": [
+     "altar",
+     "chain"
+    ],
+    "check": {
+     "stat": "faith",
+     "mod": 6
+    },
+    "effects": {
+     "control": 8,
+     "offering": 3
+    },
+    "onFail": {
+     "faith": -3
+    }
+   }
+  },
+  {
+   "id": "relic-coin",
+   "faction": "common",
+   "name": "여신의 은화",
+   "desc": "샤리아의 성전에서 나온 낡은 은화. 진노를 조금 가라앉힙니다.",
+   "choice": {
+    "label": "은화를 제단에 바친다",
+    "art": [
+     "coin",
+     "moon"
+    ],
+    "check": {
+     "stat": "morale",
+     "mod": 4
+    },
+    "effects": {
+     "wrath": -10,
+     "infection": -3
+    },
+    "onFail": {
+     "wrath": 2
+    }
+   }
   }
  ]
 }

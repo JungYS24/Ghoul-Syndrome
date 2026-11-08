@@ -44,6 +44,8 @@ export interface Choice {
   withSuccess?: EffectKey[];
   /** 연쇄 사건: afterTurns 턴 뒤 cardId 카드를 예약 */
   followUp?: FollowUp;
+  /** 판정이 실패가 아니면(최종값 40 이상) 이 유물을 얻음 */
+  grantRelic?: string;
 }
 export interface FollowUp { cardId: string; afterTurns: number }
 /** 연쇄로 나온 카드가 이전 판정 등급에 따라 바뀌는 갈래 */
@@ -116,6 +118,17 @@ export interface GameContent {
   decrees: Decree[];
   /** 기회의 창 — 가끔 사건 단계 끝에 끼어드는 한 턴짜리 보너스 카드 (없어도 됨) */
   opportunities?: Card[];
+  /** 유물 정의 */
+  relics?: Relic[];
+}
+/** 유물 — 사건 단계에서 선택지를 대신해 쓰는 일회용 아이템 (Reigns: Her Majesty 의 아이템 참고) */
+export interface Relic {
+  id: string;
+  faction: CardFaction;
+  name: string;
+  desc: string;
+  /** 사용하면 현재 사건 카드를 이 선택지로 처리하고 사라짐 */
+  choice: Choice;
 }
 
 export interface ChronicleEntry { turn: number; year: number; season: string; text: string; infection: number; ci: number }
@@ -181,6 +194,10 @@ export interface GameState {
   /** 이미 예약한 연쇄 키 "머리>꼬리" — 한 판에 같은 연쇄는 한 번만 */
   chainsDone: string[];
   ended: Ending | null;
+  /** 가진 유물 id (최대 3) */
+  relics: string[];
+  /** 이 판에 적용된 역사의 유산 id */
+  legacy: string[];
 }
 export type PresetId = "balance" | "farm" | "trade" | "mine";
 
