@@ -56,7 +56,7 @@ export function ChoiceButton({ s, choice, onPick, disabled }: { s: GameState; ch
   const label = choice.target === s.faction ? `${FACTIONS[s.faction].short} 내 ${COUNCIL[s.faction] ?? "가문회"}` : choice.label;
   return (
     <button onClick={onPick} disabled={disabled || !afford}
-      className="text-left bg-[#17130f] border border-line rounded-[3px] p-3 grid grid-cols-[1fr_auto] gap-x-3 gap-y-1.5 items-center hover:border-gold hover:bg-[#1d1812] transition-colors disabled:opacity-45 disabled:cursor-not-allowed">
+      className="seal-btn p-3 grid grid-cols-[1fr_auto] gap-x-3 gap-y-1.5 items-center disabled:opacity-55 disabled:cursor-not-allowed">
       <span className="font-body text-[16px] font-bold col-start-1">{label}</span>
       {choice.art && <span className="row-span-2 col-start-2 w-12 h-12 shrink-0"><Illus keys={choice.art} faction={s.faction} /></span>}
       <span className="col-start-1 grid gap-1.5">
@@ -75,7 +75,7 @@ export function ChoiceButton({ s, choice, onPick, disabled }: { s: GameState; ch
 
 export function CardView({ s, card, kind, onPick, disabled, children }: { s: GameState; card: Card; kind?: string; onPick: (i: number) => void; disabled?: boolean; children?: React.ReactNode }) {
   return (
-    <article className="relative bg-gradient-to-b from-[#2a231b] to-[#211b15] border border-line2 rounded p-[22px_22px_20px] grid gap-3.5 shadow-[0_18px_40px_-24px_#000] card-deal">
+    <article className="letter relative p-[26px_24px_24px] grid gap-3.5 card-deal">
       <span className="pointer-events-none absolute inset-1.5 border border-[#3e3328] rounded-[2px]" aria-hidden="true" />
       <div className="flex justify-between gap-2 font-ui text-[12px] text-gold-dim"><span>{kind ?? card.kind ?? ""}</span><span>{REGION_NAME[s.faction]}</span></div>
       <HeaderArt card={card} faction={s.faction} />

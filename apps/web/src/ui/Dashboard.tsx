@@ -4,6 +4,8 @@ import {
 } from "@guul/engine";
 import { useState } from "react";
 import { content, useGame } from "../store/store";
+import { ResourcePanel } from "./ResourcePanel";
+import { TerritoryPanel } from "./TerritoryPanel";
 
 function GaugeRow({ s, k }: { s: GameState; k: GaugeKey }) {
   const [open, setOpen] = useState(false);
@@ -64,38 +66,22 @@ export function Dashboard({ s }: { s: GameState }) {
   ];
   const prog = Math.round(progressOf(s));
   return (
-    <aside className="grid gap-3.5 bg-panel border border-line rounded p-4 self-start lg:sticky lg:top-3">
-      {/* 감염도 */}
-      <div className="grid gap-1.5 p-3 bg-[#15120e] border border-line rounded-[3px]">
-        <div className="flex justify-between items-center"><span className="eyebrow">감염도</span><span className={`font-ui text-[12px] px-2 py-px rounded-[2px] border border-current ${stageColor[stage]}`}>{stage}</span></div>
-        <div className="flex justify-between items-baseline gap-2"><span className="font-display text-[34px] leading-none tabular-nums">{inf}</span><span className="font-ui text-[11px] text-faint">다음 {SEASON_KO[nextSeason]} 보정 {SEASON_MOD[nextSeason] >= 0 ? "+" : ""}{SEASON_MOD[nextSeason]}</span></div>
-        <span className="h-2.5 bg-[#100d0b] border border-line rounded-[1px] overflow-hidden"><i className="block h-full bg-blight transition-[width] duration-500" style={{ width: `${inf}%` }} /></span>
-        <span className="font-ui text-[11px] text-faint">{stage === "소강" ? "효과 없음" : stage === "확산" ? "식량 생산 −10%" : stage === "창궐" ? "모든 판정 −5 · 식량 −20%" : "매 턴 붕괴 카드 추가"}{!V && s.streak[s.faction] ? ` · 감염도 100 연속 ${s.streak[s.faction]}/3` : ""}</span>
-      </div>
+    <aside className="panel-iron grid gap-3.5 p-5 self-start lg:sticky lg:top-3">
+      <span className="rot-layer" aria-hidden="true" />
+      <TerritoryPanel s={s} />
       {/* 게이지 */}
       <div className="grid gap-2"><h3 className="eyebrow">{V ? "교단 게이지" : "국정 게이지"}</h3>{F.gauges.map((k) => <GaugeRow key={k} s={s} k={k} />)}<span className="font-ui text-[10px] text-faint">수치를 누르면 올리고 내리는 규칙이 나옵니다 (● 지금 적용 중)</span></div>
       {ownedRelics(s, content).length > 0 && (
         <div className="grid gap-1.5"><h3 className="eyebrow">유물</h3>
           {ownedRelics(s, content).map((r) => <span key={r.id} className="font-ui text-[12px] text-gold" title={r.desc}>◆ {r.name}</span>)}</div>
       )}
-      {/* 자원 */}
-      <div className="grid gap-2"><h3 className="eyebrow">비축 자원</h3>
-        <div className="grid grid-cols-3 gap-1.5">{res.map(([n, v, low]) => <div key={n} className="bg-[#15120e] border border-line rounded-[2px] px-2 py-1.5 min-w-0"><small className="block font-ui text-[11px] text-faint">{n}</small><b className={`font-ui tabular-nums font-medium text-[14px] ${low ? "text-blood" : ""}`}>{v}</b></div>)}</div>
-        <span className="font-ui text-[11px] text-faint tabular-nums">계절마다 식량 {fu.toFixed(1)}{V ? ` · 먹이 ${preyUse(s.res.army).toFixed(1)}` : ""} 소비</span>
-      </div>
+      <ResourcePanel s={s} />
       {/* 진노 */}
       <div className="grid gap-2"><h3 className="eyebrow">여신의 진노</h3><Gauge label="진노" v={s.wrath} hostile /></div>
       {/* 승리 진척 */}
       <div className="grid gap-2"><h3 className="eyebrow">승리 진척 · {F.victory}</h3>
         <Bar label={V ? "CI" : F.victory} v={V ? ci(s) : prog} cls="bg-frost" />
         <span className="font-ui text-[11px] text-faint">{F.victoryText}{V ? ` · CI ${ci(s)} (85×2턴) · 연속 ${s.ciStreak}/2` : ""}</span>
-      </div>
-      {/* 프리셋 */}
-      <div className="grid gap-2"><h3 className="eyebrow">인구 배분 (종료 결산 적용)</h3>
-        <div className="flex flex-wrap gap-1">{(Object.entries(PRESETS) as [PresetId, { name: string }][]).map(([k, p]) => (
-          <button key={k} onClick={() => setPreset(k)} aria-pressed={s.preset === k}
-            className={`flex-1 font-ui text-[12px] px-1.5 py-1 rounded-[2px] border ${s.preset === k ? "border-gold text-gold bg-[#2a2216]" : "border-line text-muted"}`}>{p.name}</button>
-        ))}</div>
       </div>
       {/* 타 세력 */}
       <div className="grid gap-2"><h3 className="eyebrow">대륙 정세</h3>
