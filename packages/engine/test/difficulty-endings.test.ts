@@ -94,3 +94,19 @@ describe("맞춤 후기", () => {
     expect(epilogueOf(s, [{ id: "a", name: "검역 수수료령" }, { id: "b", name: "항구 봉쇄령" }])).toMatch(/아이루스는 1계절 만에 끝내 승리를 거두었다\. 「검역 수수료령」 등 법령 2개를 공포했고, 주사위는/);
   });
 });
+
+import { governanceTitle } from "../src";
+describe("통치 성향 칭호", () => {
+  it("가장 높은 게이지와 엔딩 유형으로 칭호를 만든다", () => {
+    const s = newGame("arkandal", 1);
+    s.gauges.order = 95; s.ended = makeEnding("v-arkandal-wall");
+    expect(governanceTitle(s).title).toBe("철혈의 구원자");
+    s.ended = makeEnding("d-morale");
+    expect(governanceTitle(s).title).toBe("철혈의 몰락자");
+  });
+  it("진노가 높으면 접두어가 붙고, 부두교는 다른 명사를 쓴다", () => {
+    const s = newGame("voodoo", 1);
+    s.gauges.faith = 99; s.wrath = 95; s.ended = makeEnding("v-voodoo-grace");
+    expect(governanceTitle(s).title).toBe("진노를 짊어진 광신의 대사제");
+  });
+});

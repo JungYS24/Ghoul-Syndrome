@@ -114,6 +114,8 @@ export interface GameContent {
   fixed: Record<string, Card>;
   actions: ActionDef[];
   decrees: Decree[];
+  /** 기회의 창 — 가끔 사건 단계 끝에 끼어드는 한 턴짜리 보너스 카드 (없어도 됨) */
+  opportunities?: Card[];
 }
 
 export interface ChronicleEntry { turn: number; year: number; season: string; text: string; infection: number; ci: number }

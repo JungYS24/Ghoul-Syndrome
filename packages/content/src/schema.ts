@@ -74,4 +74,5 @@ export const contentSchema = z.object({
   fixed: z.record(z.string(), cardSchema),
   actions: z.array(actionSchema),
   decrees: z.array(decreeSchema),
+  opportunities: z.array(cardSchema).optional(),
 }).strict();

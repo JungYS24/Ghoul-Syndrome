@@ -243,6 +243,7 @@ function dequeue(s: GameState): Card {
   const q = s.queue.shift()!;
   return q.type === "overflow" ? overflowCard(s, q.key) : aftermathCard();
 }
+export const OPPORTUNITY_CHANCE = 0.12;
 function drawEventsInto(s: GameState, content: GameContent, rng: Rng) {
   const tails = chainTailIds(s);
   const cards: Card[] = [];
@@ -263,6 +264,12 @@ function drawEventsInto(s: GameState, content: GameContent, rng: Rng) {
     cards.push({ ...content.collapse[Math.floor(rng.next() * content.collapse.length)]!, kind: "붕괴" });
   }
   if (s.queue.length) cards.push(dequeue(s));
+  // 기회의 창 — 12% 확률로 한 장. 마지막 선택지는 "지나친다"라 놓쳐도 손해가 없습니다.
+  const opps = content.opportunities ?? [];
+  if (opps.length && rng.next() < OPPORTUNITY_CHANCE) {
+    const o = pick(s, opps.filter((c) => c.faction === s.faction || c.faction === "common"), rng);
+    if (o) cards.push({ ...o, kind: "기회의 창" });
+  }
   s.events = cards; s.eventIdx = 0;
 }
 
@@ -275,7 +282,7 @@ export function startTurn(state: GameState, content: GameContent): GameState {
   // 1) 식량 소비
   const fu = foodUseOf(s);
   s.res.food = r1(s.res.food - fu);
-  rep.push(`식량 ${fu.toFixed(1)} 소비`);
+  rep.push(`식량 ${fu.toFixed(1)} 소비 (남은 식량 ${Math.max(0, s.res.food).toFixed(1)}, ${fu > 0 ? `약 ${Math.max(0, Math.floor(s.res.food / fu))}계절분` : "소비 없음"})`);
   if (s.res.food < 0) {
     s.res.food = 0; addG(s, V ? "faith" : "morale", -15); s.res.pop = r1(s.res.pop * 0.97);
     rep.push(`기아 — ${V ? "신앙" : "민심"} −15, ${F.popName} −3%`);
@@ -425,6 +432,10 @@ export function endTurn(state: GameState, content: Pick<GameContent, "decrees">)
   s.res.silver = Math.max(0, Math.round(s.res.silver + P.silver));
   s.res.strat = Math.round(s.res.strat + P.strat);
   rep.push(`생산 — 식량 +${P.food}, 실링 ${P.silver >= 0 ? "+" : ""}${P.silver}${P.upkeep ? ` (유지비 −${P.upkeep} 포함)` : ""}, ${F.stratName} +${P.strat}`);
+  {
+    const fuNext = foodUseOf(s), net = r1(P.food - fuNext);
+    rep.push(`식량 수지 — 생산 +${P.food} − 소비 ${fuNext.toFixed(1)} = ${net >= 0 ? "+" : ""}${net}${net < 0 && s.res.food + net < 0 ? " ⚠ 다음 계절 기아 위험" : ""}`);
+  }
   if (s.wrath >= 30) rep.push("여신의 진노로 생산 감소");
   if (s.res.silver <= 0) { addG(s, V ? "offering" : "finance", -6); rep.push(`금고 고갈 — ${V ? "제물" : "재정"} −6`); }
   else if (!V && s.res.silver < 10) addG(s, "finance", -1);

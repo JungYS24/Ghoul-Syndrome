@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { DIFFICULTIES, FACTIONS, SEASON_KO, ci, epilogueOf, infStage, scoreOf, seasonOf, yearOf, type GameState } from "@guul/engine";
+import { DIFFICULTIES, FACTIONS, SEASON_KO, ci, epilogueOf, governanceTitle, infStage, scoreOf, seasonOf, yearOf, type GameState } from "@guul/engine";
 import { content, useGame } from "../store/store";
 import { shareUrl } from "../store/share";
 
@@ -38,6 +38,10 @@ export function Ending({ s }: { s: GameState }) {
         <div className={`font-ui text-[13px] tracking-[0.14em] ${tone}`}>{verdict} · {F.name} · {yearOf(s.turn)}년 {SEASON_KO[seasonOf(s.turn)]} · {DIFFICULTIES[s.difficulty].name}</div>
         <h1 className="font-display text-[clamp(40px,8vw,72px)] leading-[1.05]">{e.title}</h1>
         <p className="text-muted max-w-[62ch] m-0 text-[16px]">{e.text}</p>
+        <p className="m-0 text-[15px] text-gold" data-testid="gov-title">
+          <span className="eyebrow mr-2">통치 성향</span>{governanceTitle(s).title}
+          <span className="text-muted text-[13px]"> — {governanceTitle(s).reason}</span>
+        </p>
         <blockquote className="m-0 border-l-2 border-gold-dim pl-3.5 text-[15px] text-ink max-w-[62ch]">
           <span className="eyebrow block mb-1">후기</span>
           {epilogueOf(s, content.decrees)}

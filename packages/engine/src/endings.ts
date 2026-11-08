@@ -1,7 +1,7 @@
 // 엔딩 컬렉션 — 승리·패배·생존 유형마다 고유 문구. 화면은 id 로 달성 기록을 모읍니다.
-import { SEASON_KO, FACTIONS, seasonOf, yearOf } from "./factions";
+import { SEASON_KO, FACTIONS, GAUGE_LABEL, seasonOf, yearOf } from "./factions";
 import { josa } from "./news";
-import type { Decree, Ending, FactionId, GameState } from "./types";
+import type { Decree, Ending, FactionId, GameState, GaugeKey } from "./types";
 
 export interface EndingDef {
   id: string;
@@ -73,4 +73,29 @@ export function epilogueOf(s: GameState, decrees: Pick<Decree, "id" | "name">[] 
   const t = s.tally;
   const rolls = t.rolls ? `${t.rolls}번의 판정에서 대성공 ${t.great}번, 대실패 ${t.fumble}번을 겪었다.` : "주사위는 한 번도 굴러가지 않았다.";
   return `${first} ${law}${rolls}`;
+}
+
+const GAUGE_ADJ: Record<GaugeKey, string> = {
+  morale: "자애로운", order: "철혈의", finance: "황금의", legit: "정통의",
+  faith: "광신의", control: "고삐 쥔", offering: "탐식의", stealth: "그림자의",
+};
+const TITLE_NOUN: Record<Ending["type"], { normal: string; voodoo: string }> = {
+  victory: { normal: "구원자", voodoo: "대사제" },
+  survive: { normal: "수호자", voodoo: "은둔자" },
+  defeat: { normal: "몰락자", voodoo: "순교자" },
+};
+/**
+ * 통치 성향 칭호 (NationStates 의 정부 분류 참고). 난수를 쓰지 않습니다.
+ * 마지막 게이지 중 가장 높은 것이 형용사, 엔딩 유형이 명사. 진노·법령·판정 기록이 앞에 붙습니다.
+ */
+export function governanceTitle(s: GameState): { title: string; reason: string } {
+  const keys = (s.faction === "voodoo" ? ["faith", "control", "offering", "stealth"] : ["morale", "order", "finance", "legit"]) as GaugeKey[];
+  const top = keys.reduce((m, k) => (s.gauges[k] > s.gauges[m] ? k : m), keys[0]!);
+  const type = s.ended?.type ?? "survive";
+  const noun = TITLE_NOUN[type][s.faction === "voodoo" ? "voodoo" : "normal"];
+  let prefix = "", why = `마지막 게이지 중 ${GAUGE_LABEL[top]}이(가) 가장 높았다`;
+  if (s.wrath >= 90) { prefix = "진노를 짊어진 "; why = `여신의 진노가 ${Math.round(s.wrath)}에 이르렀다`; }
+  else if (s.decreeHistory.length >= 4) { prefix = "법령의 "; why = `법령을 ${s.decreeHistory.length}개나 공포했다`; }
+  else if (s.tally.rolls >= 10 && s.tally.fumble >= s.tally.great * 2 && s.tally.fumble >= 3) { prefix = "운명에 버림받은 "; why = `대실패 ${s.tally.fumble}번 · 대성공 ${s.tally.great}번`; }
+  return { title: `${prefix}${GAUGE_ADJ[top]} ${noun}`, reason: why };
 }

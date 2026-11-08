@@ -9666,5 +9666,479 @@
     "strat": 2
    }
   }
+ ],
+ "opportunities": [
+  {
+   "id": "opp-ark-armory",
+   "faction": "arkandal",
+   "title": "[기회] 버려진 무기고",
+   "text": "국경 폐요새에서 봉인된 무기고가 발견됐습니다. 오래 열어 두면 약탈꾼이 먼저 올 것입니다.",
+   "art": [
+    "fortress",
+    "sword"
+   ],
+   "choices": [
+    {
+     "label": "병력을 풀어 회수한다",
+     "art": [
+      "soldier",
+      "cart"
+     ],
+     "check": {
+      "stat": "order"
+     },
+     "effects": {
+      "strat": 14,
+      "army": 0.3
+     },
+     "onFail": {
+      "army": -0.3
+     }
+    },
+    {
+     "label": "무기를 팔아 군자금을 만든다",
+     "art": [
+      "coin"
+     ],
+     "check": {
+      "stat": "finance"
+     },
+     "effects": {
+      "silver": 14
+     }
+    },
+    {
+     "label": "지나친다",
+     "art": [
+      "scroll"
+     ],
+     "check": {
+      "stat": "order"
+     },
+     "effects": {}
+    }
+   ],
+   "weight": 5
+  },
+  {
+   "id": "opp-ark-engineer",
+   "faction": "arkandal",
+   "title": "[기회] 떠돌이 공병대",
+   "text": "전쟁에 지친 공병대가 일감을 찾아 왔습니다. 방벽 공사에 쓰면 속도가 날 것입니다.",
+   "art": [
+    "wall",
+    "pickaxe"
+   ],
+   "choices": [
+    {
+     "label": "방벽 공사에 투입한다",
+     "art": [
+      "wall"
+     ],
+     "check": {
+      "stat": "finance"
+     },
+     "effects": {
+      "wall": 4,
+      "silver": -4
+     },
+     "onFail": {
+      "silver": -4
+     }
+    },
+    {
+     "label": "병영 수리를 맡긴다",
+     "art": [
+      "tent"
+     ],
+     "check": {
+      "stat": "order"
+     },
+     "effects": {
+      "order": 6,
+      "morale": 3
+     }
+    },
+    {
+     "label": "지나친다",
+     "art": [
+      "scroll"
+     ],
+     "check": {
+      "stat": "order"
+     },
+     "effects": {}
+    }
+   ],
+   "weight": 5
+  },
+  {
+   "id": "opp-iru-caravan",
+   "faction": "iruth",
+   "title": "[기회] 북방 대상단",
+   "text": "눈길을 뚫고 온 대상단이 약초와 향신료를 싸게 넘기겠다고 합니다. 오늘 안에 결정해야 합니다.",
+   "art": [
+    "cart",
+    "coin"
+   ],
+   "choices": [
+    {
+     "label": "약초를 대량 구입한다",
+     "art": [
+      "potion"
+     ],
+     "check": {
+      "stat": "finance"
+     },
+     "effects": {
+      "research": 3,
+      "silver": -6
+     },
+     "onFail": {
+      "silver": -6
+     }
+    },
+    {
+     "label": "세금 면제를 조건으로 흥정한다",
+     "art": [
+      "scales"
+     ],
+     "check": {
+      "stat": "legit"
+     },
+     "effects": {
+      "silver": 10,
+      "legit": 3
+     },
+     "onFail": {
+      "legit": -3
+     }
+    },
+    {
+     "label": "지나친다",
+     "art": [
+      "scroll"
+     ],
+     "check": {
+      "stat": "legit"
+     },
+     "effects": {}
+    }
+   ],
+   "weight": 5
+  },
+  {
+   "id": "opp-iru-scholar",
+   "faction": "iruth",
+   "title": "[기회] 망명 학자",
+   "text": "무너진 학원에서 도망쳐 온 의학자가 연구 자료를 들고 문 앞에 섰습니다.",
+   "art": [
+    "book",
+    "crystal"
+   ],
+   "choices": [
+    {
+     "label": "연구소에 받아들인다",
+     "art": [
+      "book"
+     ],
+     "check": {
+      "stat": "legit"
+     },
+     "effects": {
+      "research": 4,
+      "strat": 6
+     },
+     "onFail": {
+      "morale": -3
+     }
+    },
+    {
+     "label": "자료만 사들인다",
+     "art": [
+      "scroll",
+      "coin"
+     ],
+     "check": {
+      "stat": "finance"
+     },
+     "effects": {
+      "research": 2,
+      "silver": -3
+     }
+    },
+    {
+     "label": "지나친다",
+     "art": [
+      "scroll"
+     ],
+     "check": {
+      "stat": "legit"
+     },
+     "effects": {}
+    }
+   ],
+   "weight": 5
+  },
+  {
+   "id": "opp-voo-pilgrims",
+   "faction": "voodoo",
+   "title": "[기회] 길 잃은 순례단",
+   "text": "늪가에 지친 순례단이 모닥불을 피웠습니다. 보는 눈이 적은 지금이 은총을 나눌 때입니다.",
+   "art": [
+    "altar",
+    "moon"
+   ],
+   "choices": [
+    {
+     "label": "은총을 베푼다",
+     "art": [
+      "ghoul",
+      "altar"
+     ],
+     "check": {
+      "stat": "control"
+     },
+     "effects": {
+      "prey": 10,
+      "faith": 4,
+      "stealth": -3
+     },
+     "onFail": {
+      "stealth": -6
+     }
+    },
+    {
+     "label": "조용히 개종을 권한다",
+     "art": [
+      "eye"
+     ],
+     "check": {
+      "stat": "faith"
+     },
+     "effects": {
+      "faith": 6,
+      "pop": 0.3
+     },
+     "onFail": {
+      "faith": -3
+     }
+    },
+    {
+     "label": "지나친다",
+     "art": [
+      "scroll"
+     ],
+     "check": {
+      "stat": "control"
+     },
+     "effects": {}
+    }
+   ],
+   "weight": 5
+  },
+  {
+   "id": "opp-voo-relic",
+   "faction": "voodoo",
+   "title": "[기회] 묻힌 성물",
+   "text": "오래된 공동묘지에서 이름 없는 사제의 성물이 드러났습니다. 의식에 쓰면 제단이 응답할 것입니다.",
+   "art": [
+    "grave",
+    "chain"
+   ],
+   "choices": [
+    {
+     "label": "의식에 바친다",
+     "art": [
+      "altar",
+      "fire"
+     ],
+     "check": {
+      "stat": "faith"
+     },
+     "effects": {
+      "strat": 12,
+      "offering": 4
+     },
+     "onFail": {
+      "offering": -3
+     }
+    },
+    {
+     "label": "몰래 팔아 제물을 마련한다",
+     "art": [
+      "coin"
+     ],
+     "check": {
+      "stat": "stealth"
+     },
+     "effects": {
+      "offering": 6,
+      "stealth": -2
+     }
+    },
+    {
+     "label": "지나친다",
+     "art": [
+      "scroll"
+     ],
+     "check": {
+      "stat": "control"
+     },
+     "effects": {}
+    }
+   ],
+   "weight": 5
+  },
+  {
+   "id": "opp-com-harvest",
+   "faction": "common",
+   "title": "[기회] 이른 풍년",
+   "text": "예상보다 일찍 곡식이 영글었습니다. 일손만 모이면 한 번 더 거둘 수 있습니다.",
+   "art": [
+    "grain"
+   ],
+   "choices": [
+    {
+     "label": "총동원해 추수한다",
+     "art": [
+      "grain",
+      "cart"
+     ],
+     "check": {
+      "stat": "order"
+     },
+     "effects": {
+      "food": 14,
+      "morale": -1
+     },
+     "onFail": {
+      "morale": -3
+     }
+    },
+    {
+     "label": "일부만 거두고 축제를 연다",
+     "art": [
+      "bell"
+     ],
+     "check": {
+      "stat": "morale"
+     },
+     "effects": {
+      "food": 6,
+      "morale": 6
+     }
+    },
+    {
+     "label": "지나친다",
+     "art": [
+      "scroll"
+     ],
+     "check": {
+      "stat": "order"
+     },
+     "effects": {}
+    }
+   ],
+   "weight": 5
+  },
+  {
+   "id": "opp-com-envoy",
+   "faction": "common",
+   "title": "[기회] 중립지의 사절",
+   "text": "라벤 폐허 근처 마을이 길 안내를 대가로 동맹의 증표를 내밀었습니다.",
+   "art": [
+    "treaty",
+    "banner"
+   ],
+   "choices": [
+    {
+     "label": "증표를 받아들인다",
+     "art": [
+      "treaty"
+     ],
+     "check": {
+      "stat": "legit"
+     },
+     "effects": {
+      "rel": 6,
+      "legit": 2
+     },
+     "onFail": {
+      "legit": -3
+     }
+    },
+    {
+     "label": "식량 지원을 약속한다",
+     "art": [
+      "grain"
+     ],
+     "check": {
+      "stat": "finance"
+     },
+     "effects": {
+      "rel": 9,
+      "food": -8
+     },
+     "onFail": {
+      "food": -8
+     }
+    },
+    {
+     "label": "지나친다",
+     "art": [
+      "scroll"
+     ],
+     "check": {
+      "stat": "legit"
+     },
+     "effects": {}
+    }
+   ],
+   "weight": 5
+  },
+  {
+   "id": "opp-com-well",
+   "faction": "common",
+   "title": "[기회] 맑은 샘의 발견",
+   "text": "폐허 아래에서 오염되지 않은 샘이 솟았습니다. 소문이 나면 사람이 몰릴 것입니다.",
+   "art": [
+    "well",
+    "potion"
+   ],
+   "choices": [
+    {
+     "label": "방역소를 세운다",
+     "art": [
+      "tent",
+      "well"
+     ],
+     "check": {
+      "stat": "order"
+     },
+     "effects": {
+      "infection": -4,
+      "silver": -4
+     },
+     "onFail": {
+      "silver": -4
+     }
+    },
+    {
+     "label": "샘을 지키며 비밀로 한다",
+     "art": [
+      "shield"
+     ],
+     "check": {
+      "stat": "legit"
+     },
+     "effects": {
+      "morale": 5,
+      "infection": -2
+     }
+    }
+   ],
+   "weight": 5
+  }
  ]
 }

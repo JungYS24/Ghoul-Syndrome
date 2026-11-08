@@ -81,3 +81,30 @@ describe("40턴 자동 플레이", () => {
     for (let seed = 1; seed <= 20; seed++) { const s = autoplay(f, seed * 101); expect(s.ended).not.toBeNull(); expect(s.turn).toBeLessThanOrEqual(40); }
   });
 });
+
+describe("기회의 창", () => {
+  const opps = content.opportunities ?? [];
+  it("세력별·공통 카드가 있고 id 가 기존 카드와 겹치지 않는다", () => {
+    expect(opps.length).toBeGreaterThanOrEqual(9);
+    const all = new Set([...content.cards, ...content.situational, ...content.collapse].map((c) => c.id));
+    for (const o of opps) expect(all.has(o.id)).toBe(false);
+    for (const f of ["arkandal", "iruth", "voodoo", "common"]) expect(opps.some((o) => o.faction === f)).toBe(true);
+  });
+  it("모든 카드에 비용 없는 선택지(지나친다 또는 자원 감소 없음)가 있다", () => {
+    for (const o of opps) expect(o.choices.some((c) => Object.values(c.onFail ?? {}).every((v) => v >= 0) && !Object.entries(c.effects).some(([k, v]) => ["silver", "food", "prey", "army"].includes(k) && v < 0))).toBe(true);
+  });
+  it("플레이하다 보면 기회의 창이 실제로 나온다", () => {
+    let seen = 0;
+    for (const f of ["arkandal", "iruth", "voodoo"] as FactionId[]) for (let seed = 1; seed <= 6; seed++) {
+      let s = startTurn(newGame(f, seed), content);
+      for (let t = 0; t < 12 && !s.ended; t++) {
+        seen += s.events.filter((e) => e.kind === "기회의 창").length;
+        s = openEvents(s);
+        while (s.phase === "event" && !s.ended) s = resolveEvent(s, 0).state;
+        if (s.ended) break;
+        s = endTurn(s, content); if (s.ended) break; s = nextTurn(s, content);
+      }
+    }
+    expect(seen).toBeGreaterThan(0);
+  });
+});
