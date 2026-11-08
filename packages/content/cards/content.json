@@ -10200,6 +10200,117 @@
     }
    ],
    "weight": 5
+  },
+  {
+   "id": "opp-ark-gate",
+   "faction": "arkandal",
+   "title": "[기회] 까마귀가 앉은 부서진 관문",
+   "text": "무너진 국경 관문의 쇠창살 위에 까마귀가 내려앉았습니다. 굳게 닫혔던 사슬이 끊겨, 지금이라면 관문을 다시 세울 수 있습니다. 오래 비워 두면 굶주린 자들이 먼저 넘어올 것입니다.",
+   "art": [
+    "raven",
+    "chain"
+   ],
+   "choices": [
+    {
+     "label": "관문을 수리해 다시 닫는다",
+     "art": [
+      "wall",
+      "pickaxe"
+     ],
+     "check": {
+      "stat": "order"
+     },
+     "effects": {
+      "wall": 8,
+      "order": 3
+     },
+     "onFail": {
+      "pop": -0.2
+     }
+    },
+    {
+     "label": "까마귀를 따라 정찰대를 보낸다",
+     "art": [
+      "soldier",
+      "raven"
+     ],
+     "check": {
+      "stat": "order"
+     },
+     "effects": {
+      "stealth": 6,
+      "strat": 8
+     },
+     "onFail": {
+      "army": -0.2
+     }
+    },
+    {
+     "label": "지나친다",
+     "art": [
+      "scroll"
+     ],
+     "check": {
+      "stat": "order"
+     },
+     "effects": {}
+    }
+   ],
+   "weight": 5
+  },
+  {
+   "id": "opp-com-hourglass",
+   "faction": "common",
+   "title": "[기회] 꺼지지 않는 촛불과 모래시계",
+   "text": "폐허가 된 예배당에서 모래시계와 촛불이 발견됐습니다. 촛불은 며칠째 꺼지지 않고 있습니다. 이 불을 잇는 자는 시간을 번다고들 합니다.",
+   "art": [
+    "torch",
+    "scroll"
+   ],
+   "choices": [
+    {
+     "label": "불을 지키며 기도한다",
+     "art": [
+      "altar",
+      "torch"
+     ],
+     "check": {
+      "stat": "legit"
+     },
+     "effects": {
+      "morale": 5,
+      "faith": 4
+     },
+     "onFail": {
+      "morale": -3
+     }
+    },
+    {
+     "label": "모래시계를 팔아 식량을 산다",
+     "art": [
+      "coin",
+      "grain"
+     ],
+     "check": {
+      "stat": "finance"
+     },
+     "effects": {
+      "food": 12,
+      "silver": -2
+     }
+    },
+    {
+     "label": "지나친다",
+     "art": [
+      "scroll"
+     ],
+     "check": {
+      "stat": "order"
+     },
+     "effects": {}
+    }
+   ],
+   "weight": 5
   }
  ],
  "relics": [

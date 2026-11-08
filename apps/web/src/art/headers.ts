@@ -33,7 +33,7 @@ export const HEADER_IDS = new Set<string>([
   "iru-research-leak", "iru-salt-trade", "iru-scholar-exchange", "iru-sea-wall",
   "iru-smuggler-boats", "iru-snow-festival", "iru-stock-crash", "iru-strange-meat",
   "iru-styx-cost", "iru-styx-guardian", "iru-styx-warning", "iru-whale-oil",
-  "opp-ark-armory", "opp-ark-engineer", "opp-com-envoy", "opp-com-harvest",
+  "opp-ark-armory", "opp-ark-gate", "opp-com-hourglass", "opp-ark-engineer", "opp-com-envoy", "opp-com-harvest",
   "opp-com-well", "opp-iru-caravan", "opp-iru-scholar", "opp-voo-pilgrims",
   "opp-voo-relic", "overflow", "purify", "quarantine",
   "quarantine_iru", "research", "ritual", "sit-border-clash",
