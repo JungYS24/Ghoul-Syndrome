@@ -4,7 +4,7 @@ import { content } from "@guul/content";
 import { useGame } from "../store/store";
 import { Illus } from "../art/Art";
 import { MuteToggle } from "./MuteToggle";
-import { RulesSheet } from "./Sheets";
+import { RulesSheet, SettingsSheet } from "./Sheets";
 import { parseShare } from "../store/share";
 
 const shared = typeof window !== "undefined" ? parseShare(window.location.search) : {};
@@ -18,13 +18,14 @@ export function Title() {
   const [seed, setSeed] = useState(() => String(shared.seed ?? Math.floor(Math.random() * 900000) + 100000));
   const [diff, setDiff] = useState<Difficulty>(shared.difficulty ?? "normal");
   const [rules, setRules] = useState(false);
+  const [settings, setSettings] = useState(false);
   const legacy = useGame((z) => z.legacy);
   const buyPerk = useGame((z) => z.buyPerk);
   return (
     <section className="gutter max-w-[1120px] mx-auto py-5 pb-10">
       <div className="flex justify-between items-start gap-3">
         <div className="eyebrow pt-1">The Game of Peace · 여신력 759년 봄</div>
-        <MuteToggle />
+        <div className="flex gap-1.5"><button className="btn" onClick={() => setSettings(true)}>설정</button><MuteToggle /></div>
       </div>
       <div className="grid gap-2.5 max-w-[760px] py-5">
         <h1 className="font-display text-[clamp(44px,9vw,84px)] leading-none">구울 <span className="text-gold">증후군</span></h1>
@@ -45,21 +46,6 @@ export function Title() {
         ))}
         <span className="text-faint text-[12px]">{DIFFICULTIES[diff].desc}</span>
       </fieldset>
-      <div className="grid gap-1.5 mb-3.5 p-3 border border-line rounded-[3px] bg-[#15120e] max-w-[760px]" data-testid="legacy-panel">
-        <div className="flex justify-between items-baseline"><span className="eyebrow">역사의 유산</span><span className="font-ui text-[13px] text-gold">{legacy.points}점</span></div>
-        <p className="m-0 font-ui text-[12px] text-faint">엔딩을 볼 때마다 점수를 얻고(승리 3, 생존 1~3, 패배 1~, 어려움 +1, 지옥 +2), 영구 보너스를 삽니다. 시드 공유 링크에는 포함되지 않습니다.</p>
-        <div className="grid gap-1.5 [grid-template-columns:repeat(auto-fit,minmax(200px,1fr))]">
-          {LEGACY_PERKS.map((p) => {
-            const owned = legacy.perks.includes(p.id);
-            return (
-              <button key={p.id} type="button" disabled={owned || legacy.points < p.cost} onClick={() => buyPerk(p.id)}
-                className={`text-left font-ui text-[12px] p-2 rounded-[3px] border ${owned ? "border-gold text-gold" : "border-line text-muted"} disabled:opacity-60`}>
-                <b className="text-ink font-medium">{p.name}</b> {owned ? "✓ 보유" : `· ${p.cost}점`}<span className="block text-faint">{p.desc}</span>
-              </button>
-            );
-          })}
-        </div>
-      </div>
       <div className="grid gap-3.5 [grid-template-columns:repeat(auto-fit,minmax(270px,1fr))]">
         {FACTION_IDS.map((id) => {
           const F = FACTIONS[id];
@@ -89,7 +75,23 @@ export function Title() {
       </div>
       <p className="font-ui text-[11px] text-faint mt-6">카드 {content.cards.length}장 · 일러스트 심볼 벡터 · 주사위 데모는 <a className="text-gold-dim underline" href="./dice.html">/dice.html</a>, 일러스트 갤러리는 <a className="text-gold-dim underline" href="./art.html">/art.html</a></p>
       <EndingCollection />
+      <div className="grid gap-1.5 mt-7 p-3 border border-line rounded-[3px] bg-[#15120e] max-w-[760px]" data-testid="legacy-panel">
+        <div className="flex justify-between items-baseline"><span className="eyebrow">역사의 유산</span><span className="font-ui text-[13px] text-gold">{legacy.points}점</span></div>
+        <p className="m-0 font-ui text-[12px] text-faint">엔딩을 볼 때마다 점수를 얻고(승리 3, 생존 1~3, 패배 1~, 어려움 +1, 지옥 +2), 영구 보너스를 삽니다. 시드 공유 링크에는 포함되지 않습니다.</p>
+        <div className="grid gap-1.5 [grid-template-columns:repeat(auto-fit,minmax(200px,1fr))]">
+          {LEGACY_PERKS.map((p) => {
+            const owned = legacy.perks.includes(p.id);
+            return (
+              <button key={p.id} type="button" disabled={owned || legacy.points < p.cost} onClick={() => buyPerk(p.id)}
+                className={`text-left font-ui text-[12px] p-2 rounded-[3px] border ${owned ? "border-gold text-gold" : "border-line text-muted"} disabled:opacity-60`}>
+                <b className="text-ink font-medium">{p.name}</b> {owned ? "✓ 보유" : `· ${p.cost}점`}<span className="block text-faint">{p.desc}</span>
+              </button>
+            );
+          })}
+        </div>
+      </div>
       {rules && <RulesSheet onClose={() => setRules(false)} />}
+      {settings && <SettingsSheet onClose={() => setSettings(false)} />}
     </section>
   );
 }

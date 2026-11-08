@@ -17,8 +17,8 @@ import type {
 } from "./types";
 
 const ALL_GAUGES: GaugeKey[] = ["morale", "order", "finance", "legit", "faith", "control", "offering", "stealth"];
-const RES_KEYS: ResourceKey[] = ["pop", "army", "food", "silver", "strat", "prey"];
-const COST_KEYS: EffectKey[] = ["silver", "strat", "food", "prey"];
+const RES_KEYS: ResourceKey[] = ["pop", "army", "food", "silver", "strat", "stone", "prey"];
+const COST_KEYS: EffectKey[] = ["silver", "strat", "stone", "food", "prey"];
 
 // ───────── 생성 ─────────
 export function newGame(faction: FactionId, seed: number, opts: { difficulty?: Difficulty; legacy?: string[] } = {}): GameState {
@@ -57,6 +57,7 @@ export function migrateState(raw: unknown): GameState {
   o.decreeHistory = (o.decreeHistory as string[]) ?? [];
   o.chains = (o.chains as GameState["chains"]) ?? [];
   o.chainsDone = (o.chainsDone as string[]) ?? [];
+  { const r = { ...(o.res as Record<string, number>) }; if (r.stone === undefined) r.stone = 0; o.res = r; }
   o.relics = (o.relics as string[]) ?? [];
   o.legacy = (o.legacy as string[]) ?? [];
   return o as unknown as GameState;
@@ -69,6 +70,7 @@ export function mapKey(s: GameState, key: EffectKey): EffectKey | null {
   if (V && key in VOODOO_MAP) return VOODOO_MAP[key as GaugeKey]!;
   if (!V && (["faith", "control", "offering", "stealth", "prey", "target"] as EffectKey[]).includes(key)) return null;
   if (key === "wall" && s.faction !== "arkandal") return null;
+  if (V && key === "stone") return null;
   if (key === "voodooPower" && V) return null;
   if (V && (key === "rel" || key === "relTo")) return null;
   return key;
@@ -78,7 +80,7 @@ export function labelOf(s: GameState, k: EffectKey): string {
   if (k in GAUGE_LABEL) return GAUGE_LABEL[k as GaugeKey];
   const F = FACTIONS[s.faction];
   const L: Partial<Record<EffectKey, string>> = {
-    pop: F.popName, army: F.armyName, food: "식량", silver: "실링", strat: F.stratName, prey: "먹이",
+    pop: F.popName, army: F.armyName, food: "식량", silver: "실링", strat: F.stratName, stone: "정화석", prey: "먹이",
     infection: "감염도", target: `${REGION_NAME[s.target]} 감염도`, neutral: "중립지 감염도", wrath: "진노", research: "연구", wall: "방벽",
     rel: "타 세력 관계", relTo: "관계", voodooPower: "부두교 세력",
   };
@@ -289,7 +291,7 @@ export function startTurn(state: GameState, content: GameContent): GameState {
   // 1) 식량 소비
   const fu = foodUseOf(s);
   s.res.food = r1(s.res.food - fu);
-  rep.push(`식량 ${fu.toFixed(1)} 소비 (남은 식량 ${Math.max(0, s.res.food).toFixed(1)}, ${fu > 0 ? `약 ${Math.max(0, Math.floor(s.res.food / fu))}계절분` : "소비 없음"})`);
+  rep.push(`식량 ${fu.toFixed(1)}t 소비 (남은 식량 ${Math.max(0, s.res.food).toFixed(1)}t, ${fu > 0 ? `약 ${Math.max(0, Math.floor(s.res.food / fu))}계절분` : "소비 없음"})`);
   if (s.res.food < 0) {
     s.res.food = 0; addG(s, V ? "faith" : "morale", -15); s.res.pop = r1(s.res.pop * 0.97);
     rep.push(`기아 — ${V ? "신앙" : "민심"} −15, ${F.popName} −3%`);
@@ -438,10 +440,11 @@ export function endTurn(state: GameState, content: Pick<GameContent, "decrees">)
   s.res.food = r1(s.res.food + P.food);
   s.res.silver = Math.max(0, Math.round(s.res.silver + P.silver));
   s.res.strat = Math.round(s.res.strat + P.strat);
-  rep.push(`생산 — 식량 +${P.food}, 실링 ${P.silver >= 0 ? "+" : ""}${P.silver}${P.upkeep ? ` (유지비 −${P.upkeep} 포함)` : ""}, ${F.stratName} +${P.strat}`);
+  s.res.stone = Math.round(s.res.stone + P.stone);
+  rep.push(`생산 — 식량 +${P.food}t, 실링 ${P.silver >= 0 ? "+" : ""}${P.silver}만${P.upkeep ? ` (유지비 −${P.upkeep} 포함)` : ""}, ${F.stratName} +${P.strat}t${P.stone ? `, 정화석 +${P.stone}t` : ""}`);
   {
     const fuNext = foodUseOf(s), net = r1(P.food - fuNext);
-    rep.push(`식량 수지 — 생산 +${P.food} − 소비 ${fuNext.toFixed(1)} = ${net >= 0 ? "+" : ""}${net}${net < 0 && s.res.food + net < 0 ? " ⚠ 다음 계절 기아 위험" : ""}`);
+    rep.push(`식량 수지 — 생산 +${P.food}t − 소비 ${fuNext.toFixed(1)}t = ${net >= 0 ? "+" : ""}${net}t${net < 0 && s.res.food + net < 0 ? " ⚠ 다음 계절 기아 위험" : ""}`);
   }
   if (s.wrath >= 30) rep.push("여신의 진노로 생산 감소");
   if (s.res.silver <= 0) { addG(s, V ? "offering" : "finance", -6); rep.push(`금고 고갈 — ${V ? "제물" : "재정"} −6`); }

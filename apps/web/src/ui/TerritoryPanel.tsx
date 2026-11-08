@@ -52,7 +52,7 @@ export function TerritoryPanel({ s }: { s: GameState }) {
       <div className="flex justify-between items-center"><span className="eyebrow">감염도 · 오염</span>
         <span className={`rune text-[13px] px-2 py-px border ${stage === "붕괴" ? "border-[#590909] text-[#d9806a]" : stage === "창궐" ? "border-[#5a3328] text-[#c98a5a]" : "border-[#4a4439]"}`}>{stage}</span></div>
       <div className="flex justify-between items-baseline gap-2">
-        <span className="rune text-[40px] leading-none tabular-nums" style={{ color: inf >= 61 ? "#c0705a" : "#d4bd7e" }}>{inf}</span>
+        <span className="num text-[40px] leading-none" style={{ color: inf >= 61 ? "#c0705a" : "#d4bd7e" }}>{inf}</span>
         <span className="font-ui text-[11px] text-faint">다음 {SEASON_KO[next]} 보정 {SEASON_MOD[next] >= 0 ? "+" : ""}{SEASON_MOD[next]}</span>
       </div>
       <VeinGauge value={inf} label={`${REGION_NAME[s.faction]} 감염도`} />
@@ -91,7 +91,7 @@ export function TerritoryPanel({ s }: { s: GameState }) {
                     <circle cx="-1.5" cy="-5.5" r="1.6" fill="#fff" opacity=".25" />
                   </g>
                   <text x={ZONES[z].cap[0]} y={ZONES[z].cap[1] + 24} textAnchor="middle" fontSize="12" fontFamily="Song Myung, serif" fill="#2a2118" stroke="#cbbb86" strokeWidth="2.6" paintOrder="stroke">{ZONES[z].name}</text>
-                  <text x={ZONES[z].cap[0]} y={ZONES[z].cap[1] + 37} textAnchor="middle" fontSize="11" fontFamily="IM Fell English SC, serif" fill={v >= 61 ? "#590909" : "#2a2118"} stroke="#cbbb86" strokeWidth="2.6" paintOrder="stroke">{v} · {infStage(v)}</text>
+                  <text x={ZONES[z].cap[0]} y={ZONES[z].cap[1] + 37} textAnchor="middle" fontSize="11" fontFamily="IBM Plex Sans KR, sans-serif" fontWeight="600" fill={v >= 61 ? "#590909" : "#2a2118"} stroke="#cbbb86" strokeWidth="2.6" paintOrder="stroke">{v} · {infStage(v)}</text>
                 </g>
               );
             })}

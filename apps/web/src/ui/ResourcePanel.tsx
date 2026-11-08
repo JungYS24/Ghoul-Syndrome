@@ -1,5 +1,6 @@
 import { useRef, useState } from "react";
-import { FACTIONS, PRESETS, foodUseOf, preyUse, type GameState, type PresetId } from "@guul/engine";
+import { FACTIONS, PRESETS, foodUseOf, preyUse, type EffectKey, type GameState, type PresetId } from "@guul/engine";
+import { useImpactDot } from "./Impact";
 import { useGame } from "../store/store";
 
 /** 징수 칙령 — 4단 레버. 상태는 s.preset 하나이며 종료 결산에서 인구 배분이 이 값으로 적용됩니다. */
@@ -52,31 +53,49 @@ function LeverEdict({ s }: { s: GameState }) {
   );
 }
 
-/** 상단 자원 선반(나무 판 위의 철제 명판) + 징수 칙령 레버 */
+const ARROW = { 1: ["▲", "▲▲", "▲▲▲"], "-1": ["▼", "▼▼", "▼▼▼"] } as const;
+function Plate({ name, value, low, k }: { name: string; value: string; low: boolean; k: EffectKey }) {
+  const dot = useImpactDot(k);
+  return (
+    <div className={`nameplate ${low ? "low" : ""} ${dot ? (dot.dir > 0 ? "plate-up" : "plate-down") : ""}`} data-res={k}>
+      <small>{name}{dot && <span className={`ml-1 text-[10px] ${dot.dir > 0 ? "text-[#a9c0a2]" : "text-[#e0907a]"}`}>{ARROW[dot.dir > 0 ? 1 : "-1"][dot.size - 1]}</span>}</small><b>{value}</b>
+    </div>
+  );
+}
+
+/** 상단 자원 선반(나무 판 위의 철제 명판 6개) + 징수 칙령 레버. 식량·광석·정화석은 t, 실링·인구·병력은 만. */
 export function ResourcePanel({ s }: { s: GameState }) {
   const F = FACTIONS[s.faction];
   const V = s.faction === "voodoo";
   const fu = foodUseOf(s);
-  const plates: [string, string, boolean][] = [
-    [F.popName, s.res.pop.toFixed(1) + "만", s.res.pop <= s.startPop * 0.3],
-    [F.armyName, s.res.army.toFixed(1) + "만", false],
-    ["식량", String(Math.round(s.res.food)), s.res.food < fu * 2.5],
-    ...(V ? [["먹이", String(Math.round(s.res.prey)), s.res.prey < preyUse(s.res.army) * 2.5] as [string, string, boolean]] : []),
-    ["실링", String(Math.round(s.res.silver)), s.res.silver < 10],
-    [F.stratName, String(Math.round(s.res.strat)), false],
-  ];
+  const t = (n: number) => `${Math.round(n)}t`;
+  const plates: [string, string, boolean, EffectKey][] = V
+    ? [
+        [F.popName, s.res.pop.toFixed(1) + "만", s.res.pop <= s.startPop * 0.3, "pop"],
+        [F.armyName, s.res.army.toFixed(1) + "만", false, "army"],
+        ["식량", t(s.res.food), s.res.food < fu * 2.5, "food"],
+        ["먹이", t(s.res.prey), s.res.prey < preyUse(s.res.army) * 2.5, "prey"],
+        ["실링", `${Math.round(s.res.silver)}만`, s.res.silver < 10, "silver"],
+        [F.stratName, t(s.res.strat), false, "strat"],
+      ]
+    : [
+        [F.popName, s.res.pop.toFixed(1) + "만", s.res.pop <= s.startPop * 0.3, "pop"],
+        [F.armyName, s.res.army.toFixed(1) + "만", false, "army"],
+        ["식량", t(s.res.food), s.res.food < fu * 2.5, "food"],
+        ["실링", `${Math.round(s.res.silver)}만`, s.res.silver < 10, "silver"],
+        ["광석", t(s.res.strat), false, "strat"],
+        ["정화석", t(s.res.stone), s.res.stone < 4, "stone"],
+      ];
   return (
     <div className="grid gap-3.5" data-testid="resource-panel">
       <div className="grid gap-2.5">
         <h3 className="eyebrow">비축 자원</h3>
         <div className="plank pt-[18px]">
           <div className="grid grid-cols-3 gap-x-2 gap-y-3.5">
-            {plates.map(([n, v, low]) => (
-              <div key={n} className={`nameplate ${low ? "low" : ""}`}><small>{n}</small><b>{v}</b></div>
-            ))}
+            {plates.map(([n, v, low, k]) => <Plate key={n} name={n} value={v} low={low} k={k} />)}
           </div>
         </div>
-        <span className="font-ui text-[11px] text-faint tabular-nums">계절마다 식량 {fu.toFixed(1)}{V ? ` · 먹이 ${preyUse(s.res.army).toFixed(1)}` : ""} 소비</span>
+        <span className="font-ui text-[11px] text-faint tabular-nums">계절마다 식량 {fu.toFixed(1)}t{V ? ` · 먹이 ${preyUse(s.res.army).toFixed(1)}t` : ""} 소비{V ? "" : " · 광석은 무구·방벽, 정화석은 오염 정화에 씁니다"}</span>
       </div>
       <div className="grid gap-2">
         <h3 className="eyebrow">징수 칙령 (레버)</h3>

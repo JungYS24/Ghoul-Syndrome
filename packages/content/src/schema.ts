@@ -3,7 +3,7 @@ import { z } from "zod";
 const gaugeKey = z.enum(["morale", "order", "finance", "legit", "faith", "control", "offering", "stealth"]);
 const effectKey = z.enum([
   "morale", "order", "finance", "legit", "faith", "control", "offering", "stealth",
-  "pop", "army", "food", "silver", "strat", "prey",
+  "pop", "army", "food", "silver", "strat", "stone", "prey",
   "infection", "target", "neutral", "wrath", "research", "wall", "rel", "relTo", "voodooPower",
 ]);
 const effects = z.record(effectKey, z.number());

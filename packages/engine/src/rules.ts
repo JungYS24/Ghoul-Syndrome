@@ -43,7 +43,9 @@ export function wrathProdMod(wrath: number): number {
 /** 감염도 구간별 식량 생산 배율 */
 export function infectionFoodMod(inf: number): number { return inf >= 61 ? 0.8 : inf >= 31 ? 0.9 : 1; }
 
-export interface Production { food: number; silver: number; strat: number; upkeep: number }
+/** 광업 생산 중 정화석으로 가는 비율 (부두교는 전부 재) */
+export const STONE_SHARE = 0.4;
+export interface Production { food: number; silver: number; strat: number; stone: number; upkeep: number }
 /** 일반결산: 인구 × 배분 × 효율 계수 */
 export function production(faction: FactionId, pop: number, army: number, preset: PresetId, infection: number, wrath: number): Production {
   const P = PRESETS[preset], F = FACTIONS[faction], wm = wrathProdMod(wrath);
@@ -52,7 +54,8 @@ export function production(faction: FactionId, pop: number, army: number, preset
   if (faction === "iruth") silver += 2 + pop * 0.02; // 황금 저울: 환전·검역 수수료
   const upkeep = faction === "voodoo" ? 0 : army * 0.5;
   const strat = pop * P.mine * F.eff.mine * 0.15 * wm;
-  return { food: r1(food), silver: r1(silver - upkeep), strat: r1(strat), upkeep: r1(upkeep) };
+  const stone = faction === "voodoo" ? 0 : strat * STONE_SHARE;
+  return { food: r1(food), silver: r1(silver - upkeep), strat: r1(strat - stone), stone: r1(stone), upkeep: r1(upkeep) };
 }
 export const r1 = (v: number) => Math.round(v * 10) / 10;
 

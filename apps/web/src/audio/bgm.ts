@@ -8,7 +8,15 @@ const SRC: Record<BgmTrack, string> = {
   iruth: "bgm/bgm-iruth.mp3",
   voodoo: "bgm/bgm-voodoo.mp3",
 };
-const VOLUME = 0.45;
+const loadVol = () => { try { const v = parseFloat(localStorage.getItem("guul-vol-bgm") ?? ""); return Number.isFinite(v) ? Math.min(1, Math.max(0, v)) : 0.45; } catch { return 0.45; } };
+let VOLUME = loadVol();
+export const getBgmVolume = () => VOLUME;
+/** 배경음 음량 (0~1) — 설정 탭에서 조절 */
+export function setBgmVolume(v: number) {
+  VOLUME = Math.min(1, Math.max(0, v));
+  try { localStorage.setItem("guul-vol-bgm", String(VOLUME)); } catch { /* 저장 불가 */ }
+  if (audio) audio.volume = VOLUME;
+}
 
 let audio: HTMLAudioElement | null = null;
 let current: BgmTrack | null = null;

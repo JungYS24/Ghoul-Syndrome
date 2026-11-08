@@ -19,6 +19,20 @@ function ac(): AudioContext | null {
     return ctx;
   } catch { return null; }
 }
+const loadVol = (k: string, d: number) => { try { const v = parseFloat(localStorage.getItem(k) ?? ""); return Number.isFinite(v) ? Math.min(1, Math.max(0, v)) : d; } catch { return d; } };
+let sfxVol = loadVol("guul-vol-sfx", 0.8);
+let master: GainNode | null = null;
+/** 효과음 마스터 게인 (음량 설정) */
+function dest(c: AudioContext): AudioNode {
+  if (!master || master.context !== c) { master = c.createGain(); master.gain.value = sfxVol; master.connect(c.destination); }
+  return master;
+}
+export const getSfxVolume = () => sfxVol;
+export function setSfxVolume(v: number) {
+  sfxVol = Math.min(1, Math.max(0, v));
+  try { localStorage.setItem("guul-vol-sfx", String(sfxVol)); } catch { /* 저장 불가 */ }
+  if (master) master.gain.value = sfxVol;
+}
 function noiseBuffer(c: AudioContext, dur: number) {
   const b = c.createBuffer(1, Math.floor(c.sampleRate * dur), c.sampleRate);
   const d = b.getChannelData(0);
@@ -32,11 +46,11 @@ export function thud(intensity = 1) {
   const o = c.createOscillator(), g = c.createGain();
   o.type = "sine"; o.frequency.setValueAtTime(150, t); o.frequency.exponentialRampToValueAtTime(55, t + 0.14);
   g.gain.setValueAtTime(0.0001, t); g.gain.exponentialRampToValueAtTime(0.5 * intensity, t + 0.008); g.gain.exponentialRampToValueAtTime(0.0001, t + 0.2);
-  o.connect(g).connect(c.destination); o.start(t); o.stop(t + 0.22);
+  o.connect(g).connect(dest(c)); o.start(t); o.stop(t + 0.22);
   const n = c.createBufferSource(); n.buffer = noiseBuffer(c, 0.07);
   const f = c.createBiquadFilter(); f.type = "lowpass"; f.frequency.value = 900;
   const ng = c.createGain(); ng.gain.value = 0.25 * intensity;
-  n.connect(f).connect(ng).connect(c.destination); n.start(t);
+  n.connect(f).connect(ng).connect(dest(c)); n.start(t);
 }
 /** 던질 때 달그락 소리 */
 export function rattle() {
@@ -46,7 +60,7 @@ export function rattle() {
     const n = c.createBufferSource(); n.buffer = noiseBuffer(c, 0.025);
     const f = c.createBiquadFilter(); f.type = "bandpass"; f.frequency.value = 1800 + Math.random() * 1500; f.Q.value = 4;
     const g = c.createGain(); g.gain.value = 0.18;
-    n.connect(f).connect(g).connect(c.destination); n.start(t);
+    n.connect(f).connect(g).connect(dest(c)); n.start(t);
   }
 }
 /** 대성공 종소리 */
@@ -57,7 +71,7 @@ export function chime() {
     const o = c.createOscillator(), g = c.createGain();
     o.type = "triangle"; o.frequency.value = fr;
     g.gain.setValueAtTime(0.0001, t); g.gain.exponentialRampToValueAtTime(0.18, t + 0.01); g.gain.exponentialRampToValueAtTime(0.0001, t + 0.9);
-    o.connect(g).connect(c.destination); o.start(t); o.stop(t + 1);
+    o.connect(g).connect(dest(c)); o.start(t); o.stop(t + 1);
   });
 }
 /** 대실패 낮은 울림 */
@@ -68,13 +82,13 @@ export function doom() {
   o.type = "sawtooth"; o.frequency.setValueAtTime(90, t); o.frequency.exponentialRampToValueAtTime(40, t + 0.7);
   const f = c.createBiquadFilter(); f.type = "lowpass"; f.frequency.value = 400;
   g.gain.setValueAtTime(0.0001, t); g.gain.exponentialRampToValueAtTime(0.25, t + 0.03); g.gain.exponentialRampToValueAtTime(0.0001, t + 0.8);
-  o.connect(f).connect(g).connect(c.destination); o.start(t); o.stop(t + 0.85);
+  o.connect(f).connect(g).connect(dest(c)); o.start(t); o.stop(t + 0.85);
 }
 export function tick() {
   const c = ac(); if (!c) return;
   const t = c.currentTime, o = c.createOscillator(), g = c.createGain();
   o.type = "square"; o.frequency.value = 1400;
   g.gain.setValueAtTime(0.04, t); g.gain.exponentialRampToValueAtTime(0.0001, t + 0.03);
-  o.connect(g).connect(c.destination); o.start(t); o.stop(t + 0.04);
+  o.connect(g).connect(dest(c)); o.start(t); o.stop(t + 0.04);
 }
 export function buzz(ms = 10) { try { navigator.vibrate?.(ms); } catch { /* 미지원 */ } }

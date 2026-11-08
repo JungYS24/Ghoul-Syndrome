@@ -22,7 +22,7 @@ export const ENDINGS: EndingDef[] = [
   { id: "d-morale", type: "defeat", factions: K, title: "민심의 붕괴", text: "굶주린 군중이 곡창 문을 부수고 들어왔습니다. 왕의 초상은 광장의 모닥불에서 마지막으로 웃었습니다." },
   { id: "d-order", type: "defeat", factions: K, title: "질서의 붕괴", text: "야경대는 사라지고 성문은 아무도 지키지 않습니다. 구울과 약탈자가 같은 거리를 나눠 씁니다." },
   { id: "d-finance", type: "defeat", factions: K, title: "재정의 붕괴", text: "금고의 마지막 실링이 용병의 품으로 들어갔습니다. 다음 날 아침, 용병들은 반대편 깃발을 들고 있었습니다." },
-  { id: "d-legit", type: "defeat", factions: K, title: "정통성의 붕괴", text: "귀족 의회가 왕관을 탁자 위에 내려놓았습니다. 누구도 그것을 다시 집어 들려 하지 않았습니다." },
+  { id: "d-legit", type: "defeat", factions: K, title: "신앙도의 붕괴", text: "성전의 종이 멎었습니다. 백성은 더 이상 왕의 이름으로 기도하지 않았고, 왕관은 빈 제단 위에 남았습니다." },
   { id: "d-faith", type: "defeat", factions: ["voodoo"], title: "신앙의 붕괴", text: "제단의 불이 꺼졌습니다. 신도들은 하나둘 늪을 떠났고, 남은 구울만이 빈 예배당을 서성입니다." },
   { id: "d-control", type: "defeat", factions: ["voodoo"], title: "제어의 붕괴", text: "사슬이 끊겼습니다. 은총이라 부르던 것들이 처음으로 교단의 사제들을 먹었습니다." },
   { id: "d-offering", type: "defeat", factions: ["voodoo"], title: "제물의 붕괴", text: "바칠 것이 남지 않은 제단 앞에서, 대사제는 마지막 제물로 자신을 올렸습니다. 아무 일도 일어나지 않았습니다." },

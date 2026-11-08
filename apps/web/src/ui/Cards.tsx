@@ -1,8 +1,9 @@
 import {
-  FACTIONS, REGION_NAME, canAfford, checkModifiers, labelOf, mapKey, successChance,
+  FACTIONS, REGION_NAME, canAfford, checkModifiers, choiceImpact, labelOf, mapKey, successChance,
   type Card, type Choice, type EffectKey, type GameState,
 } from "@guul/engine";
 import { Illus } from "../art/Art";
+import { useGame } from "../store/store";
 import { HEADER_IDS, headerUrl } from "../art/headers";
 
 // 헤더 일러스트: 제미나이 시트에서 자른 이미지가 있으면 쓰고, 없으면 SVG 심볼 조합으로 폴백
@@ -23,7 +24,7 @@ function isBad(s: GameState, k: EffectKey): boolean {
   return false;
 }
 function fmt(k: EffectKey, v: number) {
-  const unit = k === "pop" || k === "army" ? "만" : "";
+  const unit = k === "pop" || k === "army" || k === "silver" ? "만" : k === "food" || k === "strat" || k === "stone" ? "t" : "";
   const n = k === "pop" || k === "army" ? Math.abs(v).toFixed(1) : String(Math.abs(Math.round(v)));
   return (v > 0 ? "+" : "−") + n + unit;
 }
@@ -49,6 +50,7 @@ function Chips({ s, choice, target }: { s: GameState; choice: Choice; target?: s
 
 export function ChoiceButton({ s, choice, onPick, disabled }: { s: GameState; choice: Choice; onPick: () => void; disabled?: boolean }) {
   const afford = canAfford(s, choice);
+  const setPreview = useGame((z) => z.setPreview);
   const m = checkModifiers(s, choice);
   const sign = (n: number) => (n >= 0 ? "+" : "−") + Math.abs(n);
   // 자기 세력과의 "협상"은 내부 회의로 표기 (아이루스=가문회, 아르칸달=제후 회의)
@@ -56,11 +58,14 @@ export function ChoiceButton({ s, choice, onPick, disabled }: { s: GameState; ch
   const label = choice.target === s.faction ? `${FACTIONS[s.faction].short} 내 ${COUNCIL[s.faction] ?? "가문회"}` : choice.label;
   return (
     <button onClick={onPick} disabled={disabled || !afford}
+      onMouseEnter={() => setPreview(choiceImpact(s, choice))} onMouseLeave={() => setPreview(null)}
+      onFocus={() => setPreview(choiceImpact(s, choice))} onBlur={() => setPreview(null)}
+      onTouchStart={() => setPreview(choiceImpact(s, choice))}
       className="seal-btn p-3 grid grid-cols-[1fr_auto] gap-x-3 gap-y-1.5 items-center disabled:opacity-55 disabled:cursor-not-allowed">
-      <span className="font-body text-[16px] font-bold col-start-1">{label}</span>
+      <span className="font-body text-[17px] font-bold col-start-1">{label}</span>
       {choice.art && <span className="row-span-2 col-start-2 w-12 h-12 shrink-0"><Illus keys={choice.art} faction={s.faction} /></span>}
       <span className="col-start-1 grid gap-1.5">
-        <span className="font-ui text-[12px] text-muted flex flex-wrap gap-x-2.5 gap-y-0.5">
+        <span className="font-ui text-[13px] text-muted flex flex-wrap gap-x-2.5 gap-y-0.5">
           <span>판정 {m.statLabel} {sign(m.statMod)}</span>
           {m.choiceMod ? <span>난이도 {sign(m.choiceMod)}</span> : null}
           {m.stateMod ? <span>상태 {sign(m.stateMod)}</span> : null}
@@ -81,7 +86,7 @@ export function CardView({ s, card, kind, onPick, disabled, children }: { s: Gam
       <HeaderArt card={card} faction={s.faction} />
 
       <h2 className="font-display text-[clamp(24px,4.5vw,32px)] leading-tight">{card.title}</h2>
-      <p className="m-0 max-w-[62ch] text-[#d9cdb6]">{card.text}</p>
+      <p className="m-0 max-w-[62ch] text-[18px] leading-[1.8] font-medium text-[#ece2c8]">{card.text}</p>
       <div className="grid gap-2.5">{card.choices.map((c, i) => <ChoiceButton key={i} s={s} choice={c} onPick={() => onPick(i)} disabled={disabled} />)}</div>
       {children}
     </article>

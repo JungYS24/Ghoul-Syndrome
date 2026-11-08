@@ -1,8 +1,10 @@
 import {
   FACTIONS, GAUGE_LABEL, PRESETS, REGION_NAME, SEASON_KO, SEASON_MOD, ci, foodUseOf, infStage, otherFactions, preyUse,
-  gaugeInfluences, ownedRelics, progressOf, seasonOf, type GameState, type GaugeKey, type PresetId, type RegionId,
+  gaugeInfluences, ownedRelics, progressOf, seasonOf, type GameState, type ImpactDot, type GaugeKey, type PresetId, type RegionId,
 } from "@guul/engine";
 import { useState } from "react";
+import { GaugeIcon } from "./GaugeIcon";
+import { useImpactDot } from "./Impact";
 import { content, useGame } from "../store/store";
 import { ResourcePanel } from "./ResourcePanel";
 import { TerritoryPanel } from "./TerritoryPanel";
@@ -10,10 +12,11 @@ import { TerritoryPanel } from "./TerritoryPanel";
 function GaugeRow({ s, k }: { s: GameState; k: GaugeKey }) {
   const [open, setOpen] = useState(false);
   const inf = gaugeInfluences(s, k, content);
+  const dot = useImpactDot(k);
   return (
     <div className="grid gap-1">
       <button type="button" aria-expanded={open} onClick={() => setOpen(!open)} title="눌러서 이 수치를 움직이는 규칙 보기" className="text-left">
-        <Gauge label={GAUGE_LABEL[k]} v={s.gauges[k]} hostile={false} />
+        <Gauge label={GAUGE_LABEL[k]} v={s.gauges[k]} hostile={false} icon={<GaugeIcon k={k} />} dot={dot} />
       </button>
       {open && (
         <ul className="m-0 pl-3.5 grid gap-0.5 font-ui text-[11px] text-muted list-none" data-testid={`influences-${k}`}>
@@ -25,15 +28,22 @@ function GaugeRow({ s, k }: { s: GameState; k: GaugeKey }) {
     </div>
   );
 }
-function Gauge({ label, v, hostile }: { label: string; v: number; hostile?: boolean }) {
+const ARROW = { 1: ["▲", "▲▲", "▲▲▲"], "-1": ["▼", "▼▼", "▼▼▼"] } as const;
+function Gauge({ label, v, hostile, icon, dot }: { label: string; v: number; hostile?: boolean; icon?: React.ReactNode; dot?: ImpactDot | null }) {
   const danger = hostile ? v >= 70 : v <= 20;
   const warn = hostile ? v >= 50 : v <= 35;
   const cls = danger ? "bg-blood" : warn ? "bg-[#b8873c]" : "bg-gold";
+  const span = dot ? dot.size * 6 : 0;
+  const ghost = dot ? (dot.dir > 0 ? { left: `${v}%`, width: `${Math.min(100 - v, span)}%` } : { left: `${Math.max(0, v - span)}%`, width: `${Math.min(v, span)}%` }) : null;
   return (
-    <div className="grid grid-cols-[46px_1fr_28px] items-center gap-2 text-[13px]">
-      <span className="font-ui text-[12px] text-muted">{label}</span>
-      <span className="h-2 bg-[#100d0b] border border-line rounded-[1px] overflow-hidden"><i className={`block h-full ${cls} transition-[width] duration-500`} style={{ width: `${v}%` }} /></span>
-      <span className={`text-right font-ui tabular-nums text-[13px] ${danger ? "text-blood" : ""}`}>{v}</span>
+    <div className={`grid ${icon ? "grid-cols-[16px_44px_1fr_46px]" : "grid-cols-[46px_1fr_28px]"} items-center gap-2 text-[13px] ${dot ? (dot.dir > 0 ? "row-up" : "row-down") : ""}`} data-preview={dot ? (dot.dir > 0 ? "up" : "down") : undefined}>
+      {icon && <span className="text-gold-dim" style={dot ? { color: "inherit" } : undefined}>{icon}</span>}
+      <span className="font-ui text-[13px] text-muted" style={dot ? { color: "inherit" } : undefined}>{label}</span>
+      <span className="relative h-2.5 bg-[#100d0b] border border-line rounded-[1px] overflow-hidden">
+        <i className={`block h-full ${cls} transition-[width] duration-500`} style={{ width: `${v}%` }} />
+        {ghost && <i className={dot!.dir > 0 ? "ghost-up" : "ghost-down"} style={ghost} />}
+      </span>
+      <span className={`text-right num text-[14px] ${danger ? "text-blood" : ""}`}>{dot && <small className="mr-1 text-[10px] align-middle" title={dot.fail ? "실패했을 때만" : "성공 시 대략"}>{ARROW[dot.dir > 0 ? 1 : "-1"][dot.size - 1]}{dot.fail ? "?" : ""}</small>}{v}</span>
     </div>
   );
 }
@@ -47,6 +57,7 @@ function Bar({ label, v, cls }: { label: string; v: number; cls: string }) {
   );
 }
 
+function useWrathDot() { return useImpactDot("wrath"); }
 export function Dashboard({ s }: { s: GameState }) {
   const setPreset = useGame((z) => z.setPreset);
   const F = FACTIONS[s.faction];
@@ -77,7 +88,7 @@ export function Dashboard({ s }: { s: GameState }) {
       )}
       <ResourcePanel s={s} />
       {/* 진노 */}
-      <div className="grid gap-2"><h3 className="eyebrow">여신의 진노</h3><Gauge label="진노" v={s.wrath} hostile /></div>
+      <div className="grid gap-2"><h3 className="eyebrow">여신의 진노</h3><Gauge label="진노" v={s.wrath} hostile dot={useWrathDot()} /></div>
       {/* 승리 진척 */}
       <div className="grid gap-2"><h3 className="eyebrow">승리 진척 · {F.victory}</h3>
         <Bar label={V ? "CI" : F.victory} v={V ? ci(s) : prog} cls="bg-frost" />

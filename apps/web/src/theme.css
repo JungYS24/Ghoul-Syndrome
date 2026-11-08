@@ -94,7 +94,7 @@ body {
   background: linear-gradient(90deg, #1a120c, #4a3626 40%, #1a120c); border-bottom: 1px solid #000;
 }
 .nameplate small { display: block; font-family: "Gowun Batang", serif; font-size: 11px; letter-spacing: .08em; color: #c5b690; text-shadow: 0 1px 0 #000; }
-.nameplate b { display: block; font-family: "IM Fell English SC", "Cinzel", serif; font-weight: 400; font-size: 19px; line-height: 1.15; color: #e0cf9b; text-shadow: 0 1px 0 #000, 0 0 6px rgba(0, 0, 0, .8); font-variant-numeric: tabular-nums; }
+.nameplate b { display: block; font-family: "IBM Plex Sans KR", system-ui, sans-serif; font-weight: 600; font-size: 18px; line-height: 1.2; color: #ecdcaa; text-shadow: 0 1px 0 #000; font-variant-numeric: tabular-nums; }
 .nameplate.low { background-color: #4a2a22; background-image: radial-gradient(circle at 5px 5px, #a58f68 0 1.2px, #3a3128 2px, transparent 2.6px), radial-gradient(circle at calc(100% - 5px) 5px, #a58f68 0 1.2px, #3a3128 2px, transparent 2.6px), var(--tex-grain), linear-gradient(180deg, #6a3328 0%, #4a1f18 60%, #36140f 100%); }
 .nameplate.low b { color: #d9806a; }
 .nameplate.low::after { /* 흘러내린 피 */
@@ -209,3 +209,16 @@ html[data-blight="3"] .rot-layer { animation: rotpulse 3s ease-in-out infinite; 
 .letter .chip[class*="text-[#d98a74]"] { color: #7a1f14; border-color: #7a3a2a; }
 .letter .seal-btn:disabled { filter: grayscale(.5) brightness(.9); }
 .letter .illus { filter: sepia(.35) contrast(1.05); mix-blend-mode: multiply; }
+
+/* 숫자 전용 — 깔끔한 산세리프, 고정폭 숫자 */
+.num { font-family: "IBM Plex Sans KR", system-ui, sans-serif; font-weight: 600; font-variant-numeric: tabular-nums; letter-spacing: 0; text-shadow: 0 1px 0 #000; }
+
+/* 선택지 호버 미리보기 — 게이지 막대 위의 유령 구간과 화살표 */
+.ghost-up, .ghost-down { position: absolute; top: 0; bottom: 0; animation: ghostpulse .9s ease-in-out infinite alternate; }
+.ghost-up { background: repeating-linear-gradient(45deg, #9db497 0 3px, #5d7358 3px 6px); }
+.ghost-down { background: repeating-linear-gradient(45deg, #c4503f 0 3px, #6e2a22 3px 6px); }
+@keyframes ghostpulse { from { opacity: .55; } to { opacity: 1; } }
+.row-up { color: #a9c0a2; } .row-down { color: #d9806a; }
+.plate-up { box-shadow: 0 0 0 2px #7f9a78, 0 3px 5px -2px #000 !important; }
+.plate-down { box-shadow: 0 0 0 2px #b8473a, 0 3px 5px -2px #000 !important; }
+@media (prefers-reduced-motion: reduce) { .ghost-up, .ghost-down { animation: none; } }

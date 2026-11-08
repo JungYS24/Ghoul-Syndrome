@@ -1,4 +1,6 @@
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
+import { getBgmVolume, setBgmVolume } from "../audio/bgm";
+import { getSfxVolume, isMuted, onMuteChange, setMuted, setSfxVolume, thud } from "../audio/sfx";
 import { GAUGE_LABEL, gradeTable, infStage, type GameState } from "@guul/engine";
 
 /** 판정 등급표 (grades.json 자동 생성). compact = 온보딩 말풍선용 소형. */
@@ -65,8 +67,56 @@ export function RulesSheet({ onClose }: { onClose: () => void }) {
         <table className="border-collapse font-ui text-[12px] w-full">{stages.map(([a, b]) => <tr key={a}><td className="border-b border-line py-1 pr-1.5">{a}</td><td className="border-b border-line py-1 pl-1.5">{b}</td></tr>)}</table>
         <h3 className="font-ui text-[12px] tracking-[0.1em] text-gold-dim font-medium mt-1">게이지 · 진노</h3>
         <p className="m-0">게이지({Object.values(GAUGE_LABEL).slice(0, 4).join("·")} 등)가 0이면 패배, 100이면 과잉 후유증 카드. 진노는 소각·처형·모독으로 오르고 30·60·90·100에서 생산이 줄며 100은 되돌릴 수 없습니다.</p>
+        <h3 className="font-ui text-[12px] tracking-[0.1em] text-gold-dim font-medium mt-1">자원 단위</h3>
+        <p className="m-0">식량·광석·정화석은 t, 실링·인구·병력은 만 단위입니다. 광석은 무구 제작과 방벽에, 정화석은 오염 정화(격리벽·정화 의식 등)에 쓰입니다. 부두교는 정화석 대신 먹이를 쓰고, 광석 자리는 재입니다.</p>
         <h3 className="font-ui text-[12px] tracking-[0.1em] text-gold-dim font-medium mt-1">승리</h3>
         <p className="m-0">아르칸달: 방벽 100 + 감염도 20 미만 · 아이루스: 공유 연구 100(치료제) · 부두교: 대륙 감염 진척(CI) 85를 2턴 연속. 부두교가 이기면 다른 둘은 함께 패배합니다. 40턴 종료 시 생존 등급으로 점수를 매깁니다.</p>
+      </div>
+    </Sheet>
+  );
+}
+
+function Slider({ label, value, onChange, onCommit }: { label: string; value: number; onChange: (v: number) => void; onCommit?: () => void }) {
+  return (
+    <label className="grid gap-1 font-ui text-[13px] text-muted">
+      <span className="flex justify-between"><span>{label}</span><span className="num tabular-nums text-ink">{Math.round(value * 100)}%</span></span>
+      <input type="range" min={0} max={100} step={5} value={Math.round(value * 100)} onChange={(e) => onChange(Number(e.target.value) / 100)}
+        onPointerUp={onCommit} onKeyUp={onCommit} className="w-full accent-[#8b7355]" aria-label={label} />
+    </label>
+  );
+}
+
+/** 설정 — 전체 화면, 소리 켜기/끄기, 배경음·효과음 음량 */
+export function SettingsSheet({ onClose }: { onClose: () => void }) {
+  const [fs, setFs] = useState(typeof document !== "undefined" && !!document.fullscreenElement);
+  const [bgm, setBgm] = useState(getBgmVolume());
+  const [sfx, setSfx] = useState(getSfxVolume());
+  const [muted, setM] = useState(isMuted());
+  const canFs = typeof document !== "undefined" && !!document.fullscreenEnabled;
+  useEffect(() => {
+    const h = () => setFs(!!document.fullscreenElement);
+    document.addEventListener("fullscreenchange", h);
+    const off = onMuteChange(setM);
+    return () => { document.removeEventListener("fullscreenchange", h); off(); };
+  }, []);
+  const toggleFs = async () => {
+    try { if (document.fullscreenElement) await document.exitFullscreen(); else await document.documentElement.requestFullscreen(); } catch { /* 브라우저가 거부 */ }
+  };
+  return (
+    <Sheet title="설정" onClose={onClose}>
+      <div className="grid gap-5" data-testid="settings">
+        <section className="grid gap-2">
+          <h3 className="eyebrow">화면</h3>
+          <button className="btn !py-2" onClick={toggleFs} disabled={!canFs} aria-pressed={fs}>{fs ? "전체 화면 끝내기" : "전체 화면으로 보기"}</button>
+          {!canFs && <p className="m-0 font-ui text-[12px] text-faint">이 브라우저는 전체 화면 전환을 지원하지 않습니다(iPhone 등). 주소창 공유 메뉴의 "홈 화면에 추가"를 쓰면 전체 화면처럼 열립니다.</p>}
+        </section>
+        <section className="grid gap-3">
+          <h3 className="eyebrow">소리</h3>
+          <button className="btn !py-2" aria-pressed={muted} onClick={() => setMuted(!muted)}>{muted ? "소리 꺼짐 — 눌러서 켜기" : "소리 켜짐 — 눌러서 끄기"}</button>
+          <Slider label="배경음" value={bgm} onChange={(v) => { setBgm(v); setBgmVolume(v); }} />
+          <Slider label="효과음" value={sfx} onChange={(v) => { setSfx(v); setSfxVolume(v); }} onCommit={() => thud(0.6)} />
+          <p className="m-0 font-ui text-[12px] text-faint">설정은 이 브라우저에 저장됩니다.</p>
+        </section>
       </div>
     </Sheet>
   );

@@ -1275,7 +1275,7 @@
      "effects": {
       "rel": 10,
       "infection": -6,
-      "strat": -15
+      "stone": -15
      }
     },
     {
@@ -2245,7 +2245,7 @@
      },
      "effects": {
       "infection": -8,
-      "strat": -6
+      "stone": -6
      }
     },
     {
@@ -2863,8 +2863,8 @@
      },
      "effects": {
       "infection": -7,
-      "strat": -8,
-      "research": 3
+      "research": 3,
+      "stone": -8
      }
     },
     {
@@ -3082,7 +3082,7 @@
      "effects": {
       "infection": -6,
       "silver": -10,
-      "strat": -4
+      "stone": -4
      }
     },
     {
@@ -3429,8 +3429,8 @@
       "stat": "finance"
      },
      "effects": {
-      "strat": -8,
-      "infection": -3
+      "infection": -3,
+      "stone": -8
      }
     },
     {
@@ -3592,9 +3592,9 @@
       "stat": "finance"
      },
      "effects": {
-      "strat": -10,
       "legit": 4,
-      "infection": -3
+      "infection": -3,
+      "stone": -10
      }
     },
     {
@@ -8753,7 +8753,7 @@
       },
       "effects": {
        "infection": -10,
-       "strat": -5
+       "stone": -5
       }
      },
      {
@@ -9389,6 +9389,58 @@
        "stealth": 11,
        "faith": -3,
        "wrath": 2
+      }
+     }
+    ]
+   }
+  },
+  {
+   "id": "purify",
+   "name": "정화 의식",
+   "desc": "정화석으로 오염을 씻어냅니다",
+   "factions": [
+    "arkandal",
+    "iruth"
+   ],
+   "card": {
+    "id": "purify",
+    "faction": "common",
+    "title": "정화 의식",
+    "text": "성직자들이 정화석을 오염 구역에 묻고 기도를 올립니다. 돌이 검게 변할수록 땅은 맑아집니다.",
+    "art": [
+     "crystal",
+     "bell"
+    ],
+    "choices": [
+     {
+      "label": "대정화 의식",
+      "art": [
+       "crystal",
+       "fire"
+      ],
+      "check": {
+       "stat": "legit",
+       "mod": 2
+      },
+      "effects": {
+       "infection": -9,
+       "stone": -7
+      },
+      "onFail": {
+       "morale": -3
+      }
+     },
+     {
+      "label": "우물가에만 묻는다",
+      "art": [
+       "well"
+      ],
+      "check": {
+       "stat": "order"
+      },
+      "effects": {
+       "infection": -4,
+       "stone": -3
       }
      }
     ]

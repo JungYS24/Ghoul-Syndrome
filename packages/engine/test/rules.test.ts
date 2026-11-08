@@ -43,4 +43,12 @@ describe("생산·능력치", () => {
     const q = production("arkandal", 140, 8, "balance", 70, 100);
     expect(q.food).toBeCloseTo(21 * 0.8 * 0.5, 1);
   });
+  it("광업 생산은 광석과 정화석으로 나뉘고 부두교는 전부 재", () => {
+    const a = production("arkandal", 140, 8, "balance", 10, 0);
+    expect(a.strat + a.stone).toBeCloseTo(140 * 0.2 * 0.35 * 0.15, 0);
+    expect(a.stone).toBeGreaterThan(0);
+    const v = production("voodoo", 40, 12, "balance", 10, 0);
+    expect(v.stone).toBe(0);
+    expect(v.strat).toBeGreaterThan(0);
+  });
 });

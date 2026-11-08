@@ -29,9 +29,9 @@ export const FACTIONS: Record<FactionId, FactionDef> = {
   arkandal: {
     id: "arkandal", name: "아르칸달 군국", short: "아르칸달", ruler: "영웅왕 '전운'", tagline: "전 국민 병영화, 철벽 요새망",
     gauges: ["morale", "order", "finance", "legit"], start: { morale: 58, order: 65, finance: 45, legit: 55 },
-    res: { pop: 140, army: 8, food: 90, silver: 30, strat: 190, prey: 0 }, infection: 28,
+    res: { pop: 140, army: 8, food: 90, silver: 30, strat: 170, stone: 20, prey: 0 }, infection: 28,
     eff: { agri: 0.30, comm: 0.6, mine: 0.35 }, resEff: 0.45,
-    popName: "인구", armyName: "병력", stratName: "미스릴",
+    popName: "인구", armyName: "병력", stratName: "광석",
     victory: "방벽", victoryText: "방벽 진척 100 + 감염도 20 미만",
     strength: "병력·징집·요새", weakness: "병영 밀집 집단감염, 외교 판정 −10", system: "철벽의 방벽망 — 진척이 오를수록 감염 확산 감소",
     colors: { main: "#6d7f8c", sub: "#2f3a42" },
@@ -39,9 +39,9 @@ export const FACTIONS: Record<FactionId, FactionDef> = {
   iruth: {
     id: "iruth", name: "아이루스 공국", short: "아이루스", ruler: "대공 겸 벨로링크 최고 의장", tagline: "무역·금융·빙철, 인공신 스틱스",
     gauges: ["morale", "order", "finance", "legit"], start: { morale: 55, order: 50, finance: 65, legit: 55 },
-    res: { pop: 85, army: 3, food: 70, silver: 120, strat: 20, prey: 0 }, infection: 22,
+    res: { pop: 85, army: 3, food: 70, silver: 120, strat: 8, stone: 12, prey: 0 }, infection: 22,
     eff: { agri: 0.16, comm: 1.0, mine: 0.3 }, resEff: 0.27,
-    popName: "인구", armyName: "병력", stratName: "빙철",
+    popName: "인구", armyName: "병력", stratName: "광석",
     victory: "치료", victoryText: "공유 연구 트랙 100 (치료제 완성)",
     strength: "자금, 한랭 지대(겨울 −3), 스틱스 수호", weakness: "식량 자급 불가, 무역 허브가 전염 경로, 병력 적음", system: "황금 저울 — 환전·검역 수수료, 빙철 격리벽",
     colors: { main: "#7fa8bd", sub: "#24414f" },
@@ -49,7 +49,7 @@ export const FACTIONS: Record<FactionId, FactionDef> = {
   voodoo: {
     id: "voodoo", name: "구울 부두교", short: "부두교", ruler: "대사제", tagline: "구울은 재앙이 아니라 은총이다",
     gauges: ["faith", "control", "offering", "stealth"], start: { faith: 60, control: 55, offering: 50, stealth: 60 },
-    res: { pop: 40, army: 12, food: 30, silver: 10, strat: 30, prey: 35 }, infection: 35,
+    res: { pop: 40, army: 12, food: 30, silver: 10, strat: 30, stone: 0, prey: 35 }, infection: 35,
     eff: { agri: 0.30, comm: 0.4, mine: 0.2 }, resEff: 0.3,
     popName: "신도", armyName: "구울 무리", stratName: "재",
     victory: "대륙 구울화", victoryText: "대륙 감염 진척(CI) 85 이상 2턴 연속",
@@ -63,7 +63,7 @@ export const REGION_NAME: Record<RegionId, string> = { arkandal: "아르칸달",
 export const NEUTRAL_START = 40;
 
 export const GAUGE_LABEL: Record<GaugeKey, string> = {
-  morale: "민심", order: "질서", finance: "재정", legit: "정통성",
+  morale: "민심", order: "질서", finance: "재정", legit: "신앙도",
   faith: "신앙", control: "제어", offering: "제물", stealth: "은닉",
 };
 /** 공통 카드 게이지 → 부두교 게이지 */

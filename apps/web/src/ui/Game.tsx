@@ -5,7 +5,7 @@ import { content, useGame } from "../store/store";
 import { Dashboard } from "./Dashboard";
 import { CardView } from "./Cards";
 import { Illus } from "../art/Art";
-import { ChronicleSheet, RulesSheet } from "./Sheets";
+import { ChronicleSheet, RulesSheet, SettingsSheet } from "./Sheets";
 import { ImpactMark } from "./Impact";
 import { Onboarding } from "./Onboarding";
 import { DecreePanel } from "./Decrees";
@@ -50,7 +50,7 @@ function TargetPicker({ s }: { s: GameState }) {
 
 export function Game({ s }: { s: GameState }) {
   const { goEvents, chooseEvent, openActionCard, closeActionCard, chooseAction, chooseNpc, finishTurn, advance, toTitle, openAction } = useGame();
-  const [sheet, setSheet] = useState<null | "chron" | "rules">(null);
+  const [sheet, setSheet] = useState<null | "chron" | "rules" | "settings">(null);
   const F = FACTIONS[s.faction];
   const V = s.faction === "voodoo";
   const last = s.chronicle[s.chronicle.length - 1];
@@ -64,6 +64,7 @@ export function Game({ s }: { s: GameState }) {
         <div className="flex gap-1.5 w-full justify-end lg:w-auto">
           <button className="btn !px-2.5 !text-[12px]" onClick={() => setSheet("chron")}>연대기</button>
           <button className="btn !px-2.5 !text-[12px]" onClick={() => setSheet("rules")}>규칙</button>
+          <button className="btn !px-2.5 !text-[12px]" onClick={() => setSheet("settings")}>설정</button>
           <button className="btn !px-2.5 !text-[12px]" onClick={toTitle}>처음으로</button>
         </div>
       </header>
@@ -138,6 +139,7 @@ export function Game({ s }: { s: GameState }) {
 
       {sheet === "chron" && <ChronicleSheet s={s} onClose={() => setSheet(null)} />}
       {sheet === "rules" && <RulesSheet onClose={() => setSheet(null)} />}
+      {sheet === "settings" && <SettingsSheet onClose={() => setSheet(null)} />}
     </section>
   );
 }

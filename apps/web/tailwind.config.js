@@ -6,13 +6,13 @@ export default {
     extend: {
       colors: {
         soot: "#1a1512", panel: "#2b221b", panel2: "#3d3126", line: "#4a4439", line2: "#6e5b4b",
-        ink: "#e3d8bd", muted: "#a99a7a", faint: "#7a6d59",
+        ink: "#e3d8bd", muted: "#c4b692", faint: "#9a8c72",
         gold: { DEFAULT: "#b8995a", dim: "#8b7355", hi: "#d4bd7e" },
         blight: "#566b3a", blood: "#b8473a", frost: "#93a889",
         parch: { DEFAULT: "#c2b280", lo: "#a8996a", ink: "#2a2118" }, rot: "#1c2b18", clot: "#590909",
       },
       fontFamily: {
-        display: ['"IM Fell English SC"', '"Song Myung"', '"Nanum Myeongjo"', "serif"],
+        display: ['"Song Myung"', '"Nanum Myeongjo"', "serif"],
         body: ['"Gowun Batang"', '"Nanum Myeongjo"', "Batang", "serif"],
         ui: ['"IBM Plex Sans KR"', '"Apple SD Gothic Neo"', '"Malgun Gothic"', "system-ui", "sans-serif"],
       },

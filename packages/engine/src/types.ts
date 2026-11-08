@@ -5,7 +5,8 @@ export type Season = "spring" | "summer" | "autumn" | "winter";
 
 /** 아르칸달·아이루스: morale/order/finance/legit, 부두교: faith/control/offering/stealth */
 export type GaugeKey = "morale" | "order" | "finance" | "legit" | "faith" | "control" | "offering" | "stealth";
-export type ResourceKey = "pop" | "army" | "food" | "silver" | "strat" | "prey";
+/** strat = 광석(무구 제작·방벽), stone = 정화석(오염 정화) — 부두교는 stone 을 쓰지 않음 */
+export type ResourceKey = "pop" | "army" | "food" | "silver" | "strat" | "stone" | "prey";
 /**
  * infection: 자기 세력 감염도 / target: (부두교) 현재 대상 세력 감염도 / neutral: 중립지 감염도
  * rel: 모든 타 세력 관계 / relTo: 선택지 target 세력과의 관계 / voodooPower: (AI 부두교) 세력 규모
