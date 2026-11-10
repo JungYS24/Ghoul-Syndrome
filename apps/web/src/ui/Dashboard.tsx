@@ -58,7 +58,7 @@ function Bar({ label, v, cls }: { label: string; v: number; cls: string }) {
 }
 
 function useWrathDot() { return useImpactDot("wrath"); }
-export function Dashboard({ s }: { s: GameState }) {
+export function Dashboard({ s, className = "" }: { s: GameState; className?: string }) {
   const setPreset = useGame((z) => z.setPreset);
   const F = FACTIONS[s.faction];
   const V = s.faction === "voodoo";
@@ -77,7 +77,7 @@ export function Dashboard({ s }: { s: GameState }) {
   ];
   const prog = Math.round(progressOf(s));
   return (
-    <aside className="panel-iron grid gap-3.5 p-5 self-start lg:sticky lg:top-3">
+    <aside className={`panel-iron grid gap-3.5 p-4 sm:p-5 self-start lg:sticky lg:top-3 ${className}`}>
       <span className="rot-layer" aria-hidden="true" />
       <TerritoryPanel s={s} />
       {/* 게이지 */}

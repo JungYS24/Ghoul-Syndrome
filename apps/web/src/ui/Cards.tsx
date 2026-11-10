@@ -11,10 +11,10 @@ function HeaderArt({ card, faction }: { card: Card; faction: GameState["faction"
   if (HEADER_IDS.has(card.id)) {
     return (
       <img src={headerUrl(card.id)} alt="" loading="lazy" width={512} height={512}
-        className="w-full max-w-[460px] mx-auto aspect-square object-contain rounded-[4px] border border-line2 shadow-[0_10px_28px_-12px_#000]" />
+        className="w-full max-w-[460px] max-h-[30vh] lg:max-h-none mx-auto aspect-square object-contain rounded-[4px] shadow-[0_10px_28px_-12px_#000]" />
     );
   }
-  return card.art ? <div className="w-full h-[clamp(150px,34vw,230px)] grid place-items-center opacity-95"><Illus keys={card.art} faction={faction} accent /></div> : null;
+  return card.art ? <div className="w-full h-[clamp(120px,30vw,230px)] grid place-items-center opacity-95"><Illus keys={card.art} faction={faction} accent /></div> : null;
 }
 
 // 효과 미리보기 칩
@@ -80,13 +80,13 @@ export function ChoiceButton({ s, choice, onPick, disabled }: { s: GameState; ch
 
 export function CardView({ s, card, kind, onPick, disabled, children }: { s: GameState; card: Card; kind?: string; onPick: (i: number) => void; disabled?: boolean; children?: React.ReactNode }) {
   return (
-    <article className="letter relative p-[26px_24px_24px] grid gap-3.5 card-deal">
+    <article className="letter relative p-[18px_14px_16px] sm:p-[26px_24px_24px] grid gap-3 sm:gap-3.5 card-deal">
       <span className="pointer-events-none absolute inset-1.5 border border-[#3e3328] rounded-[2px]" aria-hidden="true" />
       <div className="flex justify-between gap-2 font-ui text-[12px] text-gold-dim"><span>{kind ?? card.kind ?? ""}</span><span>{REGION_NAME[s.faction]}</span></div>
       <HeaderArt card={card} faction={s.faction} />
 
-      <h2 className="font-display text-[clamp(24px,4.5vw,32px)] leading-tight">{card.title}</h2>
-      <p className="m-0 max-w-[62ch] text-[18px] leading-[1.8] font-medium text-[#ece2c8]">{card.text}</p>
+      <h2 className="font-display text-[clamp(22px,4.5vw,32px)] leading-tight">{card.title}</h2>
+      <p className="m-0 max-w-[62ch] text-[16px] leading-[1.7] sm:text-[18px] sm:leading-[1.8] font-medium text-[#ece2c8]">{card.text}</p>
       <div className="grid gap-2.5">{card.choices.map((c, i) => <ChoiceButton key={i} s={s} choice={c} onPick={() => onPick(i)} disabled={disabled} />)}</div>
       {children}
     </article>

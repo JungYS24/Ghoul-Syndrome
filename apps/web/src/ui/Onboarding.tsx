@@ -9,7 +9,7 @@ function TipBody({ id, s }: { id: TipId; s: GameState }) {
   const F = FACTIONS[s.faction];
   if (id === "gauges") return (
     <>
-      <p className="m-0">대시보드(모바일은 화면 위 요약 줄)의 게이지 넷이 나라의 체력입니다. <b>하나라도 0이 되면 패배</b>, 100이 되면 과잉 후유증 카드가 나옵니다.</p>
+      <p className="m-0">대시보드(모바일은 화면 맨 위 상태 줄, 지도·자원은 아래 "상황판")의 게이지 넷이 나라의 체력입니다. <b>하나라도 0이 되면 패배</b>, 100이 되면 과잉 후유증 카드가 나옵니다.</p>
       <ul className="m-0 pl-4 grid gap-0.5">{F.gauges.map((k) => <li key={k}><b className="text-ink">{GAUGE_LABEL[k]}</b> — {GAUGE_HELP[k]}</li>)}</ul>
     </>
   );

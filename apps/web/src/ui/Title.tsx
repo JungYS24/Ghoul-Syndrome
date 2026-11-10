@@ -19,19 +19,21 @@ export function Title() {
   const [diff, setDiff] = useState<Difficulty>(shared.difficulty ?? "normal");
   const [rules, setRules] = useState(false);
   const [settings, setSettings] = useState(false);
+  const [lore, setLore] = useState(false); // 모바일에서만 접어 둠 (데스크톱은 늘 펼침)
   const legacy = useGame((z) => z.legacy);
   const buyPerk = useGame((z) => z.buyPerk);
   return (
-    <section className="gutter max-w-[1120px] mx-auto py-5 pb-10">
+    <section className="gutter max-w-[1120px] mx-auto pb-10" style={{ paddingTop: "max(20px, env(safe-area-inset-top, 0px))" }}>
       <div className="flex justify-between items-start gap-3">
         <div className="eyebrow pt-1">The Game of Peace · 여신력 759년 봄</div>
         <div className="flex gap-1.5"><button className="btn" onClick={() => setSettings(true)}>설정</button><MuteToggle /></div>
       </div>
-      <div className="grid gap-2.5 max-w-[760px] py-5">
+      <div className="grid gap-2.5 max-w-[760px] py-4 lg:py-5">
         <h1 className="font-display text-[clamp(44px,9vw,84px)] leading-none">구울 <span className="text-gold">증후군</span></h1>
         <p className="text-muted max-w-[62ch] m-0">발푸르기스의 밤으로부터 10년. 시신이 다시 일어나 산 자를 먹는 대륙에서, 세 세력 중 하나를 골라 40계절 동안 나라를 이끄십시오. 모든 결정은 20면체 다섯 개로 판정됩니다.</p>
       </div>
-      <div className="grid gap-1.5 my-4 p-3.5 border-l-2 border-gold-dim bg-gradient-to-r from-[#1f1a14] to-transparent max-w-[760px] text-[14px] text-muted">
+      <button type="button" className="lg:hidden font-ui text-[13px] text-gold-dim underline underline-offset-4 mb-3" aria-expanded={lore} aria-controls="lore" onClick={() => setLore(!lore)}>{lore ? "배경 이야기 접기" : "배경 이야기 펼치기 (749~759년)"}</button>
+      <div id="lore" className={`grid gap-1.5 mb-4 lg:my-4 p-3.5 border-l-2 border-gold-dim bg-gradient-to-r from-[#1f1a14] to-transparent max-w-[760px] text-[14px] text-muted ${lore ? "" : "max-lg:hidden"}`}>
         <div><b className="text-ink font-bold">749년, 발푸르기스의 밤.</b> 마도왕 필립스 프리오는 재가 되고 불의 신 그니스는 소멸했습니다. 인공신 스틱스 아이루스가 아이루스 공국을 지키고, 여신 샤리아의 진노는 0으로 돌아왔습니다.</div>
         <div><b className="text-ink font-bold">752년, 라벤 폐허.</b> 몰락한 마도왕국의 옛 영토에서 구울 증후군이 처음 발병했습니다. 물린 사람은 한 계절 뒤 같은 것이 됩니다.</div>
         <div><b className="text-ink font-bold">759년 봄.</b> 세 세력은 서로를 구원자이자 감염원으로 의심합니다. 여신은 침묵하지만, 무고한 피는 여전히 셈하고 있습니다.</div>

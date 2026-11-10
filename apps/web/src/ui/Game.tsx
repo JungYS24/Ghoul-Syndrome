@@ -1,12 +1,12 @@
 import { RelicBar } from "./RelicBar";
-import { useState } from "react";
-import { DIFFICULTIES, FACTIONS, GAUGE_LABEL, REGION_NAME, SEASON_KO, actionsFor, npcVisit, seasonOf, yearOf, type GameState, type RegionId } from "@guul/engine";
+import { useEffect, useState } from "react";
+import { DIFFICULTIES, FACTIONS, REGION_NAME, SEASON_KO, actionsFor, npcVisit, seasonOf, yearOf, type GameState, type RegionId } from "@guul/engine";
 import { content, useGame } from "../store/store";
 import { Dashboard } from "./Dashboard";
 import { CardView } from "./Cards";
 import { Illus } from "../art/Art";
-import { ChronicleSheet, RulesSheet, SettingsSheet } from "./Sheets";
-import { ImpactMark } from "./Impact";
+import { ChronicleSheet, RulesSheet, SettingsSheet, Sheet } from "./Sheets";
+import { MobileHud, MobileNav, type MobileTab } from "./Mobile";
 import { Onboarding } from "./Onboarding";
 import { DecreePanel } from "./Decrees";
 
@@ -22,19 +22,6 @@ function Phases({ s }: { s: GameState }) {
     </div>
   );
 }
-function QuickStrip({ s }: { s: GameState }) {
-  const F = FACTIONS[s.faction];
-  const inf = s.infection[s.faction];
-  return (
-    <div className="relative z-10 flex flex-wrap gap-1.5 font-ui text-[12px] lg:hidden">
-      <span className={`inline-flex items-center gap-1 bg-panel border rounded-[2px] px-2 py-0.5 tabular-nums ${inf >= 61 ? "text-blood border-[#5a3328]" : "border-line"}`}>감염도 {inf}<ImpactMark k="infection" /></span>
-      {F.gauges.map((k) => <span key={k} className={`inline-flex items-center gap-1 bg-panel border rounded-[2px] px-2 py-0.5 tabular-nums ${s.gauges[k] <= 20 ? "text-blood border-[#5a3328]" : "border-line"}`}>{GAUGE_LABEL[k]} {s.gauges[k]}<ImpactMark k={k} /></span>)}
-      <span className="inline-flex items-center gap-1 bg-panel border border-line rounded-[2px] px-2 py-0.5 tabular-nums">식량 {Math.round(s.res.food)}<ImpactMark k="food" /></span>
-      <span className="inline-flex items-center gap-1 bg-panel border border-line rounded-[2px] px-2 py-0.5 tabular-nums">진노 {s.wrath}<ImpactMark k="wrath" /></span>
-    </div>
-  );
-}
-
 function TargetPicker({ s }: { s: GameState }) {
   const setTarget = useGame((z) => z.setTarget);
   if (s.faction !== "voodoo") return null;
@@ -50,14 +37,23 @@ function TargetPicker({ s }: { s: GameState }) {
 
 export function Game({ s }: { s: GameState }) {
   const { goEvents, chooseEvent, openActionCard, closeActionCard, chooseAction, chooseNpc, finishTurn, advance, toTitle, openAction } = useGame();
-  const [sheet, setSheet] = useState<null | "chron" | "rules" | "settings">(null);
+  const [sheet, setSheet] = useState<null | "chron" | "rules" | "settings" | "board">(null);
+  const openTab = (t: MobileTab) => { if (t === "title") toTitle(); else setSheet(sheet === t ? null : t); };
+  // 모바일: 새 카드·단계가 나오면 맨 위로 (데스크톱은 대시보드가 옆에 있어 그대로 둠)
+  useEffect(() => {
+    if (typeof window === "undefined" || window.innerWidth >= 1024) return;
+    const reduce = window.matchMedia?.("(prefers-reduced-motion: reduce)").matches;
+    window.scrollTo({ top: 0, behavior: reduce ? "auto" : "smooth" });
+  }, [s.turn, s.phase, s.eventIdx, openAction]);
   const F = FACTIONS[s.faction];
   const V = s.faction === "voodoo";
   const last = s.chronicle[s.chronicle.length - 1];
 
   return (
-    <section className="gutter max-w-[1120px] mx-auto py-5 pb-10">
-      <header className="flex flex-wrap items-center gap-x-4 gap-y-2.5 pb-3.5 border-b border-line mb-4">
+    <>
+    <MobileHud s={s} />
+    <section className="gutter max-w-[1120px] mx-auto pt-3 lg:pt-5 pb-28 lg:pb-10">
+      <header className="hidden lg:flex flex-wrap items-center gap-x-4 gap-y-2.5 pb-3.5 border-b border-line mb-4">
         <div className="flex items-center gap-2.5 min-w-0"><span className="w-7 h-7 shrink-0"><Illus keys={CREST[s.faction]} faction={s.faction} accent /></span>
           <div><h2 className="font-display text-[22px] leading-none">{F.name}</h2><div className="font-ui text-[12px] text-muted">{F.ruler} · 시드 {s.seed}{s.difficulty !== "normal" ? ` · ${DIFFICULTIES[s.difficulty].name}` : ""}</div></div></div>
         <div className="ml-auto text-right"><div className="font-display text-[22px] leading-none">{yearOf(s.turn)}년 {SEASON_KO[seasonOf(s.turn)]}</div><div className="font-ui text-[12px] text-muted">{s.turn} / 40턴</div></div>
@@ -70,14 +66,13 @@ export function Game({ s }: { s: GameState }) {
       </header>
 
       <div className="grid gap-[18px] lg:grid-cols-[340px_minmax(0,1fr)] lg:items-start">
-        <Dashboard s={s} />
+        <Dashboard s={s} className="hidden lg:grid" />
         <main className="grid gap-3.5 min-w-0 order-first lg:order-none">
-          <QuickStrip s={s} />
           <Onboarding key={s.seed} s={s} />
-          <Phases s={s} />
+          <div className="hidden lg:block"><Phases s={s} /></div>
 
           {s.phase === "start" && (
-            <section className="bg-panel border border-line rounded p-[18px] grid gap-2.5">
+            <section className="bg-panel border border-line rounded p-3.5 sm:p-[18px] grid gap-2.5">
               <div className="eyebrow">{yearOf(s.turn)}년 {SEASON_KO[seasonOf(s.turn)]} · 시작 결산</div>
               <h2 className="font-display text-[26px]">{s.turn === 1 ? "759년 봄, 통치가 시작됩니다" : "새 계절이 밝았습니다"}</h2>
               <ul className="m-0 pl-[18px] grid gap-1 text-[14px] text-[#d9cdb6]">{s.startReport.map((l, i) => <li key={i}>{l}</li>)}</ul>
@@ -90,22 +85,22 @@ export function Game({ s }: { s: GameState }) {
           )}
 
           {s.phase === "action" && !openAction && (
-            <section className="bg-panel border border-line rounded p-[18px] grid gap-3">
+            <section className="bg-panel border border-line rounded p-3.5 sm:p-[18px] grid gap-3">
               <div className="flex justify-between items-center gap-2.5 flex-wrap">
                 <h2 className="font-display text-[26px]">행동권</h2>
                 <div className="flex gap-1.5 items-center font-ui text-[13px] text-muted">{[0, 1, 2].map((i) => <i key={i} className={`w-3.5 h-3.5 rotate-45 border border-gold inline-block ${i < s.ap ? "bg-gold" : ""}`} />)}<span>{s.ap}개 남음</span></div>
               </div>
               <TargetPicker s={s} />
               <p className="m-0 text-muted text-[14px]">{V ? "확산 행동은 성공할수록 은닉이 더 깎입니다. 남긴 행동권은 다음 계절로 이월됩니다." : "남긴 행동권은 다음 계절로 이월됩니다(최대 3)."}</p>
-              <div className="grid [grid-template-columns:repeat(auto-fill,minmax(150px,1fr))] gap-2">
+              <div className="grid grid-cols-2 sm:[grid-template-columns:repeat(auto-fill,minmax(150px,1fr))] gap-2">
                 {actionsFor(s, content).map((a) => (
                   <button key={a.id} onClick={() => openActionCard(a.id)} disabled={s.ap <= 0}
-                    className="text-left bg-[#17130f] border border-line rounded-[3px] p-3 grid gap-0.5 hover:border-gold transition-colors disabled:opacity-40 disabled:cursor-not-allowed">
-                    <b className="font-display text-[20px] font-normal">{a.name}</b><span className="font-ui text-[12px] text-muted">{a.desc}</span></button>
+                    className="text-left bg-[#17130f] border border-line rounded-[3px] p-2.5 sm:p-3 grid gap-0.5 content-start hover:border-gold transition-colors disabled:opacity-40 disabled:cursor-not-allowed">
+                    <b className="font-display text-[18px] sm:text-[20px] font-normal">{a.name}</b><span className="font-ui text-[11.5px] sm:text-[12px] text-muted leading-snug">{a.desc}</span></button>
                 ))}
               </div>
               <DecreePanel s={s} />
-              <div className="flex gap-2 flex-wrap"><button className="btn-gold" onClick={finishTurn}>계절을 마친다</button></div>
+              <div className="end-dock flex gap-2 flex-wrap"><button className="btn-gold max-lg:w-full" onClick={finishTurn}>계절을 마친다{s.ap > 0 ? ` (행동권 ${s.ap} 이월)` : ""}</button></div>
             </section>
           )}
 
@@ -119,7 +114,7 @@ export function Game({ s }: { s: GameState }) {
           {(s.phase === "end" || s.phase === "over") && (() => {
             const visit = s.phase === "end" ? npcVisit(s) : null;
             return (
-              <section className="bg-panel border border-line rounded p-[18px] grid gap-2.5">
+              <section className="bg-panel border border-line rounded p-3.5 sm:p-[18px] grid gap-2.5">
                 <div className="eyebrow">{yearOf(s.turn)}년 {SEASON_KO[seasonOf(s.turn)]} · 종료 결산</div>
                 <h2 className="font-display text-[26px]">계절 결산</h2>
                 <ul className="m-0 pl-[18px] grid gap-1 text-[14px] text-[#d9cdb6]">{s.endReport.map((l, i) => <li key={i}>{l}</li>)}</ul>
@@ -140,6 +135,9 @@ export function Game({ s }: { s: GameState }) {
       {sheet === "chron" && <ChronicleSheet s={s} onClose={() => setSheet(null)} />}
       {sheet === "rules" && <RulesSheet onClose={() => setSheet(null)} />}
       {sheet === "settings" && <SettingsSheet onClose={() => setSheet(null)} />}
+      {sheet === "board" && <Sheet title="상황판" onClose={() => setSheet(null)}><Dashboard s={s} className="!p-3" /></Sheet>}
     </section>
+    <MobileNav onOpen={openTab} active={sheet} />
+    </>
   );
 }

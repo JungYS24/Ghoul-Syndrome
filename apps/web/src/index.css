@@ -39,3 +39,15 @@ button[data-faction] h2{color:var(--f-main)}
 .art-sway{animation:artsway 4s ease-in-out infinite;transform-origin:50% 90%}
 @keyframes artsway{0%,100%{transform:rotate(-2deg)}50%{transform:rotate(2deg)}}
 @media (prefers-reduced-motion:reduce){.art-sway{animation:none}}
+
+/* ── 모바일 크롬 (lg 미만) ── */
+.btn,.btn-gold{white-space:nowrap}
+.mobile-hud{background:linear-gradient(180deg,rgba(26,21,18,.97),rgba(26,21,18,.92));border-bottom:1px solid #3b3229;box-shadow:0 6px 14px -8px #000;backdrop-filter:blur(3px)}
+.mobile-nav{background:linear-gradient(180deg,#2b221b,#1a1512);border-top:1px solid #54473a;box-shadow:0 -6px 16px -8px #000}
+.mobile-nav button[aria-pressed="true"]{box-shadow:inset 0 2px 0 #cfa752}
+@media (max-width:1023px){ html{scroll-padding-top:84px} }
+@media (max-width:1023px){
+  /* 행동 단계: "계절을 마친다"를 탭 막대 바로 위에 붙임 */
+  .end-dock{position:sticky;bottom:calc(60px + env(safe-area-inset-bottom,0px));z-index:5;margin:0 -14px -14px;padding:10px 14px 12px;
+    background:linear-gradient(180deg,rgba(29,25,21,0),rgba(29,25,21,.96) 30%)}
+}
