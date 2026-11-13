@@ -3,6 +3,7 @@ import {
   gaugeInfluences, ownedRelics, progressOf, seasonOf, type GameState, type ImpactDot, type GaugeKey, type PresetId, type RegionId,
 } from "@guul/engine";
 import { useState } from "react";
+import { useFlash } from "./useFlash";
 import { GaugeIcon } from "./GaugeIcon";
 import { useImpactDot } from "./Impact";
 import { content, useGame } from "../store/store";
@@ -30,20 +31,21 @@ function GaugeRow({ s, k }: { s: GameState; k: GaugeKey }) {
 }
 const ARROW = { 1: ["▲", "▲▲", "▲▲▲"], "-1": ["▼", "▼▼", "▼▼▼"] } as const;
 function Gauge({ label, v, hostile, icon, dot }: { label: string; v: number; hostile?: boolean; icon?: React.ReactNode; dot?: ImpactDot | null }) {
+  const flash = useFlash(v, !hostile);
   const danger = hostile ? v >= 70 : v <= 20;
   const warn = hostile ? v >= 50 : v <= 35;
   const cls = danger ? "bg-blood" : warn ? "bg-[#b8873c]" : "bg-gold";
   const span = dot ? dot.size * 6 : 0;
   const ghost = dot ? (dot.dir > 0 ? { left: `${v}%`, width: `${Math.min(100 - v, span)}%` } : { left: `${Math.max(0, v - span)}%`, width: `${Math.min(v, span)}%` }) : null;
   return (
-    <div className={`grid ${icon ? "grid-cols-[16px_44px_1fr_46px]" : "grid-cols-[46px_1fr_28px]"} items-center gap-2 text-[13px] ${dot ? (dot.dir > 0 ? "row-up" : "row-down") : ""}`} data-preview={dot ? (dot.dir > 0 ? "up" : "down") : undefined}>
+    <div className={`grid ${icon ? "grid-cols-[16px_44px_1fr_46px]" : "grid-cols-[46px_1fr_28px]"} items-center gap-2 text-[13px] ${danger ? "danger-row" : ""} ${dot ? (dot.dir > 0 ? "row-up" : "row-down") : ""}`} data-danger={danger || undefined} data-preview={dot ? (dot.dir > 0 ? "up" : "down") : undefined}>
       {icon && <span className="text-gold-dim" style={dot ? { color: "inherit" } : undefined}>{icon}</span>}
-      <span className="font-ui text-[13px] text-muted" style={dot ? { color: "inherit" } : undefined}>{label}</span>
+      <span className="font-ui text-[13px] text-muted" style={dot ? { color: "inherit" } : undefined}>{label}{danger && <span className="warn-glyph" aria-label="위험">⚠</span>}</span>
       <span className="relative h-2.5 bg-[#100d0b] border border-line rounded-[1px] overflow-hidden">
         <i className={`block h-full ${cls} transition-[width] duration-500`} style={{ width: `${v}%` }} />
         {ghost && <i className={dot!.dir > 0 ? "ghost-up" : "ghost-down"} style={ghost} />}
       </span>
-      <span className={`text-right num text-[14px] ${danger ? "text-blood" : ""}`}>{dot && <small className="mr-1 text-[10px] align-middle" title={dot.fail ? "실패했을 때만" : "성공 시 대략"}>{ARROW[dot.dir > 0 ? 1 : "-1"][dot.size - 1]}{dot.fail ? "?" : ""}</small>}{v}</span>
+      <span className={`text-right num text-[14px] ${danger ? "text-blood" : ""} ${flash ? `flash-${flash}` : ""}`}>{dot && <small className="mr-1 text-[10px] align-middle" title={dot.fail ? "실패했을 때만" : "성공 시 대략"}>{ARROW[dot.dir > 0 ? 1 : "-1"][dot.size - 1]}{dot.fail ? "?" : ""}</small>}{v}</span>
     </div>
   );
 }
@@ -57,6 +59,14 @@ function Bar({ label, v, cls }: { label: string; v: number; cls: string }) {
   );
 }
 
+function Fold({ title, open = false, children }: { title: string; open?: boolean; children: React.ReactNode }) {
+  return (
+    <details className="group grid gap-2" open={open}>
+      <summary className="eyebrow cursor-pointer select-none list-none flex justify-between"><h3 className="eyebrow">{title}</h3><span aria-hidden="true"><span className="group-open:hidden">▸</span><span className="hidden group-open:inline">▾</span></span></summary>
+      <div className="grid gap-2 mt-2">{children}</div>
+    </details>
+  );
+}
 function useWrathDot() { return useImpactDot("wrath"); }
 export function Dashboard({ s, className = "" }: { s: GameState; className?: string }) {
   const setPreset = useGame((z) => z.setPreset);
@@ -88,14 +98,14 @@ export function Dashboard({ s, className = "" }: { s: GameState; className?: str
       )}
       <ResourcePanel s={s} />
       {/* 진노 */}
-      <div className="grid gap-2"><h3 className="eyebrow">여신의 진노</h3><Gauge label="진노" v={s.wrath} hostile dot={useWrathDot()} /></div>
+      <Fold title="여신의 진노" open={s.wrath >= 30}><Gauge label="진노" v={s.wrath} hostile dot={useWrathDot()} /></Fold>
       {/* 승리 진척 */}
-      <div className="grid gap-2"><h3 className="eyebrow">승리 진척 · {F.victory}</h3>
+      <Fold open title={`승리 진척 · ${F.victory}`}>
         <Bar label={V ? "CI" : F.victory} v={V ? ci(s) : prog} cls="bg-frost" />
         <span className="font-ui text-[11px] text-faint">{F.victoryText}{V ? ` · CI ${ci(s)} (85×2턴) · 연속 ${s.ciStreak}/2` : ""}</span>
-      </div>
+      </Fold>
       {/* 타 세력 */}
-      <div className="grid gap-2"><h3 className="eyebrow">대륙 정세</h3>
+      <Fold title="대륙 정세">
         <div className="font-ui text-[12px] text-muted grid gap-1">
           {(["iruth", "arkandal", "neutral"] as RegionId[]).filter((r) => r !== s.faction).map((r) => (
             <div key={r} className="flex justify-between gap-2"><span>{REGION_NAME[r]} · 감염도 {s.infection[r]}</span>
@@ -105,7 +115,7 @@ export function Dashboard({ s, className = "" }: { s: GameState; className?: str
           {V && <div className="flex justify-between gap-2"><span>부두교 (본교단)</span><span>은닉 {s.gauges.stealth}</span></div>}
           {!V && <div className="flex justify-between gap-2"><span>구울 부두교 세력</span><span>{s.voodooPower}</span></div>}
         </div>
-      </div>
+      </Fold>
     </aside>
   );
 }

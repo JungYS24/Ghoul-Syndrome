@@ -5,16 +5,17 @@ import {
 import { Illus } from "../art/Art";
 import { useGame } from "../store/store";
 import { HEADER_IDS, headerUrl } from "../art/headers";
+import { arrowOf, impactText } from "./Impact";
 
 // 헤더 일러스트: 제미나이 시트에서 자른 이미지가 있으면 쓰고, 없으면 SVG 심볼 조합으로 폴백
 function HeaderArt({ card, faction }: { card: Card; faction: GameState["faction"] }) {
   if (HEADER_IDS.has(card.id)) {
     return (
       <img src={headerUrl(card.id)} alt="" loading="lazy" width={512} height={512}
-        className="w-full max-w-[460px] max-h-[30vh] lg:max-h-none mx-auto aspect-square object-contain rounded-[4px] shadow-[0_10px_28px_-12px_#000]" />
+        className="w-full aspect-[16/7] max-h-[210px] object-cover object-[50%_38%] rounded-[4px] border border-line2 shadow-[0_10px_28px_-12px_#000]" />
     );
   }
-  return card.art ? <div className="w-full h-[clamp(120px,30vw,230px)] grid place-items-center opacity-95"><Illus keys={card.art} faction={faction} accent /></div> : null;
+  return card.art ? <div className="w-full h-[clamp(110px,22vw,160px)] grid place-items-center opacity-95"><Illus keys={card.art} faction={faction} accent /></div> : null;
 }
 
 // 효과 미리보기 칩
@@ -48,6 +49,17 @@ function Chips({ s, choice, target }: { s: GameState; choice: Choice; target?: s
   );
 }
 
+/** 이 선택지가 건드리는 수치를 화살표로 상시 표시 (모바일에서도 보임). ▲ 오름 ▼ 내림, 개수가 규모. */
+function ImpactLine({ s, choice }: { s: GameState; choice: Choice }) {
+  const dots = choiceImpact(s, choice);
+  if (!dots.length) return null;
+  return (
+    <span className="impact-line" aria-label="영향 요약">
+      {dots.map((d, i) => <span key={i} className={d.dir > 0 ? "impact-up" : "impact-down"} title={impactText(d)}>{labelOf(s, d.key)} {arrowOf(d)}{d.fail ? "?" : ""}</span>)}
+    </span>
+  );
+}
+
 export function ChoiceButton({ s, choice, onPick, disabled }: { s: GameState; choice: Choice; onPick: () => void; disabled?: boolean }) {
   const afford = canAfford(s, choice);
   const setPreview = useGame((z) => z.setPreview);
@@ -61,10 +73,9 @@ export function ChoiceButton({ s, choice, onPick, disabled }: { s: GameState; ch
       onMouseEnter={() => setPreview(choiceImpact(s, choice))} onMouseLeave={() => setPreview(null)}
       onFocus={() => setPreview(choiceImpact(s, choice))} onBlur={() => setPreview(null)}
       onTouchStart={() => setPreview(choiceImpact(s, choice))}
-      className="seal-btn p-3 grid grid-cols-[1fr_auto] gap-x-3 gap-y-1.5 items-center disabled:opacity-55 disabled:cursor-not-allowed">
-      <span className="font-body text-[17px] font-bold col-start-1">{label}</span>
-      {choice.art && <span className="row-span-2 col-start-2 w-12 h-12 shrink-0"><Illus keys={choice.art} faction={s.faction} /></span>}
-      <span className="col-start-1 grid gap-1.5">
+      className="seal-btn p-3 grid gap-1.5 items-center disabled:opacity-55 disabled:cursor-not-allowed">
+      <span className="font-body text-[17px] font-bold">{label}</span>
+      <span className="grid gap-1.5">
         <span className="font-ui text-[13px] text-muted flex flex-wrap gap-x-2.5 gap-y-0.5">
           <span>판정 {m.statLabel} {sign(m.statMod)}</span>
           {m.choiceMod ? <span>난이도 {sign(m.choiceMod)}</span> : null}
@@ -72,6 +83,7 @@ export function ChoiceButton({ s, choice, onPick, disabled }: { s: GameState; ch
           <span className="text-gold">성공 약 {successChance(s, choice)}%</span>
           {!afford && <span className="text-blood">자원 부족</span>}
         </span>
+        <ImpactLine s={s} choice={choice} />
         <Chips s={s} choice={choice} />
       </span>
     </button>

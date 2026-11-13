@@ -9,6 +9,9 @@ import { playBgm } from "./audio/bgm";
 import "./index.css";
 import "./theme.css";
 import { Atmosphere } from "./ui/Atmosphere";
+import { applyPrefs } from "./prefs";
+
+applyPrefs();
 
 function App() {
   const screen = useGame((z) => z.screen);
@@ -16,6 +19,10 @@ function App() {
   const init = useGame((z) => z.init);
   const faction = state?.faction;
   useEffect(() => { void init(); }, [init]);
+  useEffect(() => {
+    const el = document.documentElement;
+    if (faction && screen !== "title") el.dataset.faction = faction; else delete el.dataset.faction;
+  }, [faction, screen]);
   useEffect(() => {
     if (screen === "title") playBgm("lobby");
     else if (faction) playBgm(faction);

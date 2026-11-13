@@ -17,9 +17,17 @@ function Phases({ s }: { s: GameState }) {
   const cur = s.phase === "over" ? "end" : s.phase;
   const idx = steps.findIndex((x) => x[0] === cur);
   return (
-    <div className="flex gap-1 font-ui text-[12px] text-faint flex-wrap">
+    <div className="sticky-bar -mx-1 px-1 py-1.5 flex gap-1 items-center font-ui text-[12px] text-faint flex-wrap">
       {steps.map(([k, n], i) => <span key={k} className={`px-2 py-0.5 border rounded-[2px] ${i === idx ? "border-gold text-gold" : i < idx ? "border-line text-muted" : "border-line"}`}>{i + 1}. {n}{k === "event" && cur === "event" ? ` ${s.eventIdx + 1}/${s.events.length}` : ""}</span>)}
+      <ApDiamonds s={s} />
     </div>
+  );
+}
+function ApDiamonds({ s }: { s: GameState }) {
+  return (
+    <span className="ml-auto inline-flex items-center gap-1.5 font-ui text-[12px] text-muted shrink-0" data-testid="ap-bar" title="행동권 — 미사용 시 이월, 최대 3">
+      행동권{[0, 1, 2].map((i) => <i key={i} className={`w-3 h-3 rotate-45 border border-gold inline-block ${i < s.ap ? "bg-gold" : ""}`} />)}<b className="font-normal text-ink tabular-nums">{s.ap}</b>
+    </span>
   );
 }
 function TargetPicker({ s }: { s: GameState }) {

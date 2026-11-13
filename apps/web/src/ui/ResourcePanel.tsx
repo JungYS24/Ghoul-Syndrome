@@ -1,6 +1,7 @@
 import { useRef, useState } from "react";
 import { FACTIONS, PRESETS, foodUseOf, preyUse, type EffectKey, type GameState, type PresetId } from "@guul/engine";
-import { useImpactDot } from "./Impact";
+import { useImpactDot, arrowOf, impactText } from "./Impact";
+import { useFlash } from "./useFlash";
 import { useGame } from "../store/store";
 
 /** 징수 칙령 — 4단 레버. 상태는 s.preset 하나이며 종료 결산에서 인구 배분이 이 값으로 적용됩니다. */
@@ -53,13 +54,15 @@ function LeverEdict({ s }: { s: GameState }) {
   );
 }
 
-const ARROW = { 1: ["▲", "▲▲", "▲▲▲"], "-1": ["▼", "▼▼", "▼▼▼"] } as const;
-function Plate({ name, value, low, k }: { name: string; value: string; low: boolean; k: EffectKey }) {
+const GLYPH: Partial<Record<EffectKey, string>> = { pop: "人", army: "兵", food: "穀", prey: "肉", silver: "銀", strat: "鑛", stone: "石" };
+function Plate({ name, value, low, k, num }: { name: string; value: string; low: boolean; k: EffectKey; num: number }) {
   const m = /^(.*?)(t|만)$/.exec(value);
   const dot = useImpactDot(k);
+  const flash = useFlash(num);
   return (
-    <div className={`nameplate ${low ? "low" : ""} ${dot ? (dot.dir > 0 ? "plate-up" : "plate-down") : ""}`} data-res={k}>
-      <small>{name}{dot && <span className={`ml-1 text-[10px] ${dot.dir > 0 ? "text-[#a9c0a2]" : "text-[#e0907a]"}`}>{ARROW[dot.dir > 0 ? 1 : "-1"][dot.size - 1]}</span>}</small><b>{m ? <>{m[1]}<span className="unit">{m[2]}</span></> : value}</b>
+    <div className={`nameplate ${low ? "low" : ""} ${dot ? (dot.dir > 0 ? "plate-up" : "plate-down") : ""}`} data-res={k} title={low ? `${name} 부족 — 곧 바닥납니다` : undefined}>
+      <small><span className="glyph" aria-hidden="true">{GLYPH[k] ?? "·"}</span>{name}{low && <span className="warn-glyph" aria-label="위험">⚠</span>}{dot && <span className={`ml-1 text-[11px] ${dot.dir > 0 ? "row-up" : "row-down"}`} title={impactText(dot)}>{arrowOf(dot)}</span>}</small>
+      <b className={flash ? `flash-${flash}` : ""}>{m ? <>{m[1]}<span className="unit">{m[2]}</span></> : value}</b>
     </div>
   );
 }
@@ -70,22 +73,22 @@ export function ResourcePanel({ s }: { s: GameState }) {
   const V = s.faction === "voodoo";
   const fu = foodUseOf(s);
   const t = (n: number) => `${Math.round(n)}t`;
-  const plates: [string, string, boolean, EffectKey][] = V
+  const plates: [string, string, boolean, EffectKey, number][] = V
     ? [
-        [F.popName, s.res.pop.toFixed(1) + "만", s.res.pop <= s.startPop * 0.3, "pop"],
-        [F.armyName, s.res.army.toFixed(1) + "만", false, "army"],
-        ["식량", t(s.res.food), s.res.food < fu * 2.5, "food"],
-        ["먹이", t(s.res.prey), s.res.prey < preyUse(s.res.army) * 2.5, "prey"],
-        ["실링", `${Math.round(s.res.silver)}만`, s.res.silver < 10, "silver"],
-        [F.stratName, t(s.res.strat), false, "strat"],
+        [F.popName, s.res.pop.toFixed(1) + "만", s.res.pop <= s.startPop * 0.3, "pop", s.res.pop],
+        [F.armyName, s.res.army.toFixed(1) + "만", false, "army", s.res.army],
+        ["식량", t(s.res.food), s.res.food < fu * 2.5, "food", s.res.food],
+        ["먹이", t(s.res.prey), s.res.prey < preyUse(s.res.army) * 2.5, "prey", s.res.prey],
+        ["실링", `${Math.round(s.res.silver)}만`, s.res.silver < 10, "silver", s.res.silver],
+        [F.stratName, t(s.res.strat), false, "strat", s.res.strat],
       ]
     : [
-        [F.popName, s.res.pop.toFixed(1) + "만", s.res.pop <= s.startPop * 0.3, "pop"],
-        [F.armyName, s.res.army.toFixed(1) + "만", false, "army"],
-        ["식량", t(s.res.food), s.res.food < fu * 2.5, "food"],
-        ["실링", `${Math.round(s.res.silver)}만`, s.res.silver < 10, "silver"],
-        ["광석", t(s.res.strat), false, "strat"],
-        ["정화석", t(s.res.stone), s.res.stone < 4, "stone"],
+        [F.popName, s.res.pop.toFixed(1) + "만", s.res.pop <= s.startPop * 0.3, "pop", s.res.pop],
+        [F.armyName, s.res.army.toFixed(1) + "만", false, "army", s.res.army],
+        ["식량", t(s.res.food), s.res.food < fu * 2.5, "food", s.res.food],
+        ["실링", `${Math.round(s.res.silver)}만`, s.res.silver < 10, "silver", s.res.silver],
+        ["광석", t(s.res.strat), false, "strat", s.res.strat],
+        ["정화석", t(s.res.stone), s.res.stone < 4, "stone", s.res.stone],
       ];
   return (
     <div className="grid gap-3.5" data-testid="resource-panel">
@@ -93,7 +96,7 @@ export function ResourcePanel({ s }: { s: GameState }) {
         <h3 className="eyebrow">비축 자원</h3>
         <div className="plank pt-[18px]">
           <div className="grid grid-cols-3 gap-x-2 gap-y-3.5">
-            {plates.map(([n, v, low, k]) => <Plate key={n} name={n} value={v} low={low} k={k} />)}
+            {plates.map(([n, v, low, k, num]) => <Plate key={n} name={n} value={v} low={low} k={k} num={Math.round(num * 10) / 10} />)}
           </div>
         </div>
         <span className="font-ui text-[11px] text-faint tabular-nums">계절마다 식량 {fu.toFixed(1)}t{V ? ` · 먹이 ${preyUse(s.res.army).toFixed(1)}t` : ""} 소비{V ? "" : " · 광석은 무구·방벽, 정화석은 오염 정화에 씁니다"}</span>

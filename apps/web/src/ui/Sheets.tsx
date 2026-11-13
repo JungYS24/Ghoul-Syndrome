@@ -1,3 +1,4 @@
+import { getColorblind, getFontScale, setColorblind, setFontScale, type FontScale } from "../prefs";
 import { useEffect, useState } from "react";
 import { getBgmVolume, setBgmVolume } from "../audio/bgm";
 import { getSfxVolume, isMuted, onMuteChange, setMuted, setSfxVolume, thud } from "../audio/sfx";
@@ -92,6 +93,8 @@ export function SettingsSheet({ onClose }: { onClose: () => void }) {
   const [bgm, setBgm] = useState(getBgmVolume());
   const [sfx, setSfx] = useState(getSfxVolume());
   const [muted, setM] = useState(isMuted());
+  const [fscale, setFscale] = useState<FontScale>(getFontScale());
+  const [cb, setCb] = useState(getColorblind());
   const canFs = typeof document !== "undefined" && !!document.fullscreenEnabled;
   useEffect(() => {
     const h = () => setFs(!!document.fullscreenElement);
@@ -109,6 +112,15 @@ export function SettingsSheet({ onClose }: { onClose: () => void }) {
           <h3 className="eyebrow">화면</h3>
           <button className="btn !py-2" onClick={toggleFs} disabled={!canFs} aria-pressed={fs}>{fs ? "전체 화면 끝내기" : "전체 화면으로 보기"}</button>
           {!canFs && <p className="m-0 font-ui text-[12px] text-faint">이 브라우저는 전체 화면 전환을 지원하지 않습니다(iPhone 등). 주소창 공유 메뉴의 "홈 화면에 추가"를 쓰면 전체 화면처럼 열립니다.</p>}
+        </section>
+        <section className="grid gap-2">
+          <h3 className="eyebrow">글자 크기 · 접근성</h3>
+          <div className="flex gap-1.5" role="radiogroup" aria-label="글자 크기">
+            {([["m", "보통"], ["l", "크게"], ["xl", "아주 크게"]] as const).map(([k, n]) => (
+              <button key={k} type="button" role="radio" aria-checked={fscale === k} className={`btn !py-2 flex-1 ${fscale === k ? "!border-gold !text-gold" : ""}`} onClick={() => { setFscale(k); setFontScale(k); }}>{n}</button>
+            ))}
+          </div>
+          <button className="btn !py-2" aria-pressed={cb} onClick={() => { setCb(!cb); setColorblind(!cb); }}>{cb ? "색약 모드 켜짐 — 파랑/주황 · 눌러서 끄기" : "색약 모드 — 초록/빨강 대신 파랑/주황 쓰기"}</button>
         </section>
         <section className="grid gap-3">
           <h3 className="eyebrow">소리</h3>

@@ -225,3 +225,56 @@ html[data-blight="3"] .rot-layer { animation: rotpulse 3s ease-in-out infinite; 
 
 /* 자원 단위(t, 만)는 회색으로 가라앉혀 숫자가 먼저 읽히게 */
 .nameplate b .unit { color: #8f8672; font-weight: 500; font-size: .72em; margin-left: 1px; text-shadow: none; }
+
+/* ── HUD 개선 ── */
+.nameplate small { font-size: 13px; color: #e3d8bd; letter-spacing: .04em; }
+.nameplate small .glyph { display: inline-block; margin-right: 3px; color: #d4bd7e; font-family: "Song Myung", serif; }
+.nameplate.low small { color: #f0b9a8; }
+
+/* 숫자 변화 깜빡임: 오르면 금빛, 내리면 붉게 */
+@keyframes flashup { 0% { color: #fff2b8; text-shadow: 0 0 10px #d4bd7e; transform: scale(1.18); } 100% { transform: scale(1); } }
+@keyframes flashdown { 0% { color: #ff9a85; text-shadow: 0 0 10px #b8473a; transform: scale(1.18); } 100% { transform: scale(1); } }
+.flash-up { animation: flashup 1.2s ease-out; display: inline-block; }
+.flash-down { animation: flashdown 1.2s ease-out; display: inline-block; }
+
+/* 상시 위험 경고 */
+@keyframes dangerpulse { 0%, 100% { box-shadow: 0 0 0 0 rgba(184, 71, 58, 0); } 50% { box-shadow: 0 0 0 3px rgba(184, 71, 58, .55); } }
+.nameplate.low { animation: dangerpulse 1.8s ease-in-out infinite; }
+.warn-glyph { color: #e0907a; margin-left: 3px; font-size: .85em; }
+.danger-row .num { color: #e0907a; }
+
+/* 선택지 영향 요약 */
+.impact-line { display: flex; flex-wrap: wrap; gap: 2px 10px; font-family: "IBM Plex Sans KR", system-ui, sans-serif; font-size: 12px; }
+.impact-up { color: #a9c0a2; } .impact-down { color: #d9806a; }
+.letter .impact-up { color: #2f4a2c; } .letter .impact-down { color: #7a1f14; }
+
+/* 글자 크기 (설정) */
+html[data-fs="l"] body { zoom: 1.12; }
+html[data-fs="xl"] body { zoom: 1.25; }
+
+/* 색약 모드: 초록/빨강 대신 파랑/주황 */
+html[data-cb] .text-frost, html[data-cb] .row-up, html[data-cb] .impact-up { color: #7fb2e5; }
+html[data-cb] .text-blood, html[data-cb] .row-down, html[data-cb] .impact-down, html[data-cb] .warn-glyph { color: #f0a63c; }
+html[data-cb] .letter .impact-up, html[data-cb] .letter .text-frost { color: #1f4f8a; }
+html[data-cb] .letter .impact-down, html[data-cb] .letter .text-blood { color: #8a4a05; }
+html[data-cb] .ghost-up { background: repeating-linear-gradient(45deg, #7fb2e5 0 3px, #2f5f94 3px 6px); }
+html[data-cb] .ghost-down { background: repeating-linear-gradient(45deg, #f0a63c 0 3px, #8a5a14 3px 6px); }
+html[data-cb] .plate-up { box-shadow: 0 0 0 2px #7fb2e5, 0 3px 5px -2px #000 !important; }
+html[data-cb] .plate-down { box-shadow: 0 0 0 2px #f0a63c, 0 3px 5px -2px #000 !important; }
+html[data-cb] .chip[class*="d98a74"] { color: #f0a63c; border-color: #8a5a14; }
+html[data-cb] .chip.text-frost { border-color: #2f5f94; }
+
+/* 세력별 HUD 스킨: 패널 테두리와 꺾쇠, 소제목 색 */
+html[data-faction="arkandal"] { --c-accent: #8fa6c4; }
+html[data-faction="iruth"] { --c-accent: #9cc3cf; }
+html[data-faction="voodoo"] { --c-accent: #9a6fb0; }
+html[data-faction] .panel-iron::before, html[data-faction] .panel-iron::after { border-color: var(--c-accent); opacity: .9; }
+html[data-faction] .panel-iron .eyebrow { color: var(--c-accent); }
+html[data-faction="arkandal"] .panel-iron { box-shadow: inset 0 0 0 1px #0d0a08, inset 0 0 0 3px #3a4a62, inset 0 0 0 4px #0d0a08, inset 0 6px 14px -6px rgba(0,0,0,.75), 0 10px 18px -10px #000; }
+html[data-faction="iruth"] .panel-iron { box-shadow: inset 0 0 0 1px #0d0a08, inset 0 0 0 3px #3a5a64, inset 0 0 0 4px #0d0a08, inset 0 6px 14px -6px rgba(0,0,0,.75), 0 10px 18px -10px #000; }
+html[data-faction="voodoo"] .panel-iron { box-shadow: inset 0 0 0 1px #0d0a08, inset 0 0 0 3px #4d2f5c, inset 0 0 0 4px #0d0a08, inset 0 6px 14px -6px rgba(0,0,0,.75), 0 10px 18px -10px #000; }
+
+/* 고정 상단 상태 바 */
+.sticky-bar { position: sticky; top: 0; z-index: 25; background: rgba(26, 21, 18, .94); backdrop-filter: blur(3px); border-bottom: 1px solid var(--c-rust, #4a4439); }
+
+@media (prefers-reduced-motion: reduce) { .flash-up, .flash-down, .nameplate.low { animation: none; } }

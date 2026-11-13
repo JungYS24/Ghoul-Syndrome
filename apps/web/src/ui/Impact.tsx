@@ -20,15 +20,18 @@ export function useImpactDot(keys: EffectKey | EffectKey[]): ImpactDot | null {
   for (const d of preview) if (ks.includes(d.key) && (!best || d.size > best.size)) best = d;
   return best;
 }
-const SIZE = ["", "w-1.5 h-1.5", "w-2.5 h-2.5", "w-3.5 h-3.5"];
-const LABEL = ["", "작은 영향", "영향", "큰 영향"];
+const ARROWS = { 1: ["▲", "▲▲", "▲▲▲"], "-1": ["▼", "▼▼", "▼▼▼"] } as const;
+export const arrowOf = (d: ImpactDot) => ARROWS[d.dir > 0 ? 1 : "-1"][d.size - 1]!;
+const LABEL = ["", "조금", "보통", "크게"];
+export const impactText = (d: ImpactDot) => `${LABEL[d.size]} ${d.dir > 0 ? "오름" : "내림"}${d.fail ? " (실패 시)" : ""}`;
 
-/** 영향 표시 점 — 정확한 숫자 없이 크기로만 규모를 알려 줍니다. */
+/** 영향 표시 — 정확한 숫자 없이 화살표 개수로 규모를 알려 줍니다 (▲ 오름 / ▼ 내림). */
 export function ImpactMark({ k, className = "" }: { k: EffectKey | EffectKey[]; className?: string }) {
-  const size = useImpact(k);
+  const dot = useImpactDot(k);
   return (
-    <span className={`inline-grid place-items-center w-3.5 h-3.5 shrink-0 align-middle ${className}`} aria-hidden={!size}>
-      {size ? <i className={`impact-dot block rounded-full bg-gold ${SIZE[size]}`} title={LABEL[size]} role="img" aria-label={LABEL[size]} /> : null}
+    <span className={`inline-block min-w-[1.4em] text-[10px] leading-none align-middle ${dot ? (dot.dir > 0 ? "impact-up" : "impact-down") : ""} ${className}`}
+      title={dot ? impactText(dot) : undefined} aria-label={dot ? impactText(dot) : undefined} aria-hidden={!dot}>
+      {dot ? arrowOf(dot) : ""}
     </span>
   );
 }

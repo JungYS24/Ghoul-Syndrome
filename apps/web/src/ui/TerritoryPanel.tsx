@@ -1,5 +1,8 @@
 import { REGION_NAME, SEASON_KO, SEASON_MOD, infStage, seasonOf, type GameState, type RegionId } from "@guul/engine";
+import { useState } from "react";
+import { createPortal } from "react-dom";
 import { useGame } from "../store/store";
+import { useFlash } from "./useFlash";
 import { regionCollapsed } from "./mapShade";
 
 type Zone = "arkandal" | "iruth" | "neutral";
@@ -13,7 +16,7 @@ const ZONES: Record<Zone, { d: string; cap: [number, number]; name: string; vein
     veins: ["M142 142 C132 122 138 104 150 84", "M142 142 C164 150 184 146 204 142", "M142 142 C120 158 110 168 100 180"] },
 };
 const stageLine = (stage: string, V: boolean, streak: number) =>
-  `${stage === "소강" ? "효과 없음" : stage === "확산" ? "식량 생산 −10%" : stage === "창궐" ? "모든 판정 −5 · 식량 −20%" : "매 턴 붕괴 카드 추가"}${!V && streak ? ` · 감염도 100 연속 ${streak}/3` : ""}`;
+  `경계 단계 ${stage} — ${stage === "소강" ? "아직 페널티 없음" : stage === "확산" ? "식량 생산 −10%" : stage === "창궐" ? "모든 판정 −5 · 식량 −20%" : "매 턴 붕괴 카드 추가"}${!V && streak ? ` · 감염도 100 연속 ${streak}/3` : ""}`;
 const veinColor = (inf: number) => (inf >= 91 ? "#590909" : inf >= 61 ? "#3e1111" : inf >= 31 ? "#4b5a2c" : "#2f4326");
 
 /** 혈관 게이지 — 가지 친 혈관이 감염도만큼 썩어 들어갑니다 (막대바 대신). */
@@ -47,20 +50,10 @@ export function TerritoryPanel({ s }: { s: GameState }) {
   const stage = infStage(inf);
   const next = seasonOf(s.turn + 1);
   const zones = Object.keys(ZONES) as Zone[];
-  return (
-    <div className="grid gap-2.5" data-testid="territory-panel">
-      <div className="flex justify-between items-center"><span className="eyebrow">감염도 · 오염</span>
-        <span className={`rune text-[13px] px-2 py-px border ${stage === "붕괴" ? "border-[#590909] text-[#d9806a]" : stage === "창궐" ? "border-[#5a3328] text-[#c98a5a]" : "border-[#4a4439]"}`}>{stage}</span></div>
-      <div className="flex justify-between items-baseline gap-2">
-        <span className="num text-[40px] leading-none" style={{ color: inf >= 61 ? "#c0705a" : "#d4bd7e" }}>{inf}</span>
-        <span className="font-ui text-[11px] text-faint">다음 {SEASON_KO[next]} 보정 {SEASON_MOD[next] >= 0 ? "+" : ""}{SEASON_MOD[next]}</span>
-      </div>
-      <VeinGauge value={inf} label={`${REGION_NAME[s.faction]} 감염도`} />
-      <span className="font-ui text-[11px] text-faint">{stageLine(stage, V, s.streak[s.faction])}</span>
-
-      <figure className="m-0 grid gap-1.5">
-        <div className="parchment torn p-1.5">
-          <svg viewBox="0 0 320 210" className="w-full h-auto block" role="group"
+  const [big, setBig] = useState(false);
+  const flash = useFlash(inf, false);
+  const mapSvg = (
+    <svg viewBox="0 0 320 210" className="w-full h-auto block" role="group"
             aria-label={`대륙 지도: ${zones.map((z) => `${ZONES[z].name} 감염도 ${s.infection[z]}`).join(", ")}`}>
             <defs>
               <pattern id="hatch" width="6" height="6" patternUnits="userSpaceOnUse" patternTransform="rotate(35)"><path d="M0 0 V6" stroke="#6a5636" strokeOpacity=".35" strokeWidth="1" /></pattern>
@@ -97,12 +90,40 @@ export function TerritoryPanel({ s }: { s: GameState }) {
             })}
             <g aria-hidden="true" transform="translate(128 196)"><path d="M0 0 L5 -7 L10 0 Z" fill="#3e1111" /><text x="14" y="-1" fontSize="9" fill="#3e1111" fontFamily="Song Myung, serif">교단의 늪</text></g>
           </svg>
+  );
+  return (
+    <div className="grid gap-2.5" data-testid="territory-panel">
+      <div className="flex justify-between items-center"><span className="eyebrow">감염도 · 오염</span>
+        <span className={`rune text-[13px] px-2 py-px border ${stage === "붕괴" ? "border-[#590909] text-[#d9806a]" : stage === "창궐" ? "border-[#5a3328] text-[#c98a5a]" : "border-[#4a4439]"}`}>{stage}</span></div>
+      <div className="flex justify-between items-baseline gap-2">
+        <span className={`num text-[40px] leading-none ${flash ? `flash-${flash}` : ""}`} style={{ color: inf >= 61 ? "#c0705a" : "#d4bd7e" }}>{inf}</span>
+        <span className="font-ui text-[11px] text-faint">다음 {SEASON_KO[next]} 보정 {SEASON_MOD[next] >= 0 ? "+" : ""}{SEASON_MOD[next]}</span>
+      </div>
+      <VeinGauge value={inf} label={`${REGION_NAME[s.faction]} 감염도`} />
+      <span className="font-ui text-[11px] text-faint">{stageLine(stage, V, s.streak[s.faction])}</span>
+
+      <details className="group" data-testid="map-fold">
+      <summary className="eyebrow cursor-pointer select-none list-none flex justify-between"><span>대륙 지도</span><span className="group-open:hidden">▸ 펼치기</span><span className="hidden group-open:inline">▾ 접기</span></summary>
+      <figure className="m-0 grid gap-1.5 mt-2">
+        <div className="parchment torn p-1.5 relative">
+          <button type="button" onClick={() => setBig(true)} className="absolute right-2 top-2 z-10 font-ui text-[11px] px-1.5 py-0.5 border border-[#6a5636] bg-[#c2b280] text-[#2a2118] rounded-[2px] hover:bg-[#d4c48f]" aria-label="지도 크게 보기">확대 ⤢</button>
+          {mapSvg}
         </div>
         <figcaption className="font-ui text-[11px] text-faint flex flex-wrap gap-x-3">
           <span>{V ? "◆ 핏빛 핀: 확산 대상" : "황동 핀: 우리 땅"}</span>
           <span>혈관이 뻗을수록 오염이 깊음{canPick ? " · 지도의 땅을 눌러 핀을 옮기기" : ""}</span>
         </figcaption>
       </figure>
+      </details>
+      {big && createPortal(
+        <div className="fixed inset-0 z-[60] grid place-items-center bg-black/80 p-4" role="dialog" aria-modal="true" aria-label="대륙 지도" onClick={() => setBig(false)}>
+          <div className="parchment torn p-3 w-full max-w-[860px] relative" onClick={(e) => e.stopPropagation()}>
+            <button type="button" onClick={() => setBig(false)} className="absolute right-3 top-3 z-10 font-ui text-[12px] px-2 py-1 border border-[#6a5636] bg-[#c2b280] text-[#2a2118] rounded-[2px]">닫기 ✕</button>
+            {mapSvg}
+          </div>
+        </div>,
+        document.body,
+      )}
     </div>
   );
 }
