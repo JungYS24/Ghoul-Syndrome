@@ -1,8 +1,8 @@
 import { create } from "zustand";
 import { get as idbGet, set as idbSet, del as idbDel } from "idb-keyval";
 import {
-  LEGACY_PERKS, legacyPointsFor, relicById, useRelic, actionsFor, endTurn, enactDecree, migrateState, newGame, npcVisit, repealDecree, resolveNpc, nextTurn, openEvents, resolveAction, resolveEvent, setPreset, setTarget, startTurn,
-  type Difficulty, type FactionId, type GameState, type ImpactDot, type PresetId, type RegionId, type RollOutcome,
+  LEGACY_PERKS, legacyPointsFor, relicById, useRelic, actionsFor, endTurn, enactDecree, migrateState, newGame, npcVisit, repealDecree, resolveNpc, nextTurn, openEvents, resolveAction, resolveEvent, skipEvent, setPreset, setTarget, startTurn,
+  type Boost, type Difficulty, type FactionId, type GameState, type ImpactDot, type PresetId, type RegionId, type RollOutcome,
 } from "@guul/engine";
 import { content } from "@guul/content";
 import { addEnding, type EndingBook } from "./share";
@@ -41,11 +41,11 @@ interface Store {
   continueSave: () => Promise<void>;
   toTitle: () => void;
   goEvents: () => void;
-  chooseEvent: (i: number) => void;
+  chooseEvent: (i: number, boost?: Boost) => void;
   openActionCard: (id: string) => void;
   closeActionCard: () => void;
-  chooseAction: (id: string, i: number) => void;
-  chooseNpc: (i: number) => void;
+  chooseAction: (id: string, i: number, boost?: Boost) => void;
+  chooseNpc: (i: number, boost?: Boost) => void;
   finishTurn: () => void;
   enact: (id: string) => void;
   repeal: (id: string) => void;
@@ -53,6 +53,29 @@ interface Store {
   setPreset: (p: PresetId) => void;
   setTarget: (t: RegionId) => void;
   dismissDice: () => void;
+  // ───────── 실시간 모드 ─────────
+  /** 실시간 모드로 플레이 중인지 */
+  realtime: boolean;
+  /** 시간 배속 (1·2·5·10) */
+  speed: number;
+  /** 일시정지 */
+  paused: boolean;
+  /** 자동 진행(관전) */
+  auto: boolean;
+  /** 판정 결과 잠깐 표시 (실시간: 모달 대신 토스트) */
+  flash: { grade: string; tone: string } | null;
+  clearFlash: () => void;
+  startRealtime: (f: FactionId, seed: number, difficulty?: Difficulty) => void;
+  setSpeed: (n: number) => void;
+  togglePause: () => void;
+  toggleAuto: () => void;
+  rtGoEvents: () => void;
+  rtEvent: (i: number, boost?: Boost) => void;
+  rtSkip: () => void;
+  rtAction: (id: string, i: number, boost?: Boost) => void;
+  rtNpc: (i: number, boost?: Boost) => void;
+  rtFinishTurn: () => void;
+  rtAdvance: () => void;
 }
 
 function persist(s: GameState | null) {
@@ -61,6 +84,7 @@ function persist(s: GameState | null) {
 
 export const useGame = create<Store>((set, get) => ({
   screen: "title", state: null, dice: null, hasSave: false, actedThisAp: false, openAction: null, preview: null, book: {}, legacy: { points: 0, perks: [] }, lastGain: 0,
+  realtime: false, speed: 1, paused: false, auto: false, flash: null,
   setPreview(p) { set({ preview: p }); },
 
   async init() {
@@ -87,14 +111,54 @@ export const useGame = create<Store>((set, get) => ({
   async continueSave() {
     try { const raw = await idbGet<unknown>(SAVE_KEY); if (raw) { const saved = migrateState(raw); set({ state: saved, screen: saved.ended ? "ending" : "game" }); } } catch { /* ignore */ }
   },
-  toTitle() { set({ screen: "title", openAction: null }); void get().init(); },
+  toTitle() { set({ screen: "title", openAction: null, realtime: false, paused: false, auto: false, flash: null }); void get().init(); },
+
+  // ───────── 실시간 모드 ─────────
+  clearFlash() { set({ flash: null }); },
+  startRealtime(f, seed, difficulty = "normal") {
+    const s = startTurn(newGame(f, seed, { difficulty, legacy: get().legacy.perks }), content);
+    persist(s);
+    set({ state: s, screen: s.ended ? "ending" : "game", openAction: null, realtime: true, speed: 1, paused: false, auto: false, flash: null, dice: null });
+  },
+  setSpeed(n) { set({ speed: n }); },
+  togglePause() { set({ paused: !get().paused }); },
+  toggleAuto() { set({ auto: !get().auto }); },
+  rtGoEvents() { const s = get().state; if (s && s.phase === "start") { const n = openEvents(s); persist(n); set({ state: n }); } },
+  rtEvent(i, boost) {
+    const s = get().state; if (!s || get().dice) return;
+    const card = s.events[s.eventIdx]; if (!card || !card.choices[i]) return;
+    const { state: next, outcome } = resolveEvent(s, i, boost);
+    persist(next); set({ state: next, flash: { grade: outcome.grade.name, tone: outcome.grade.tone }, screen: next.ended ? "ending" : "game" });
+  },
+  rtSkip() {
+    const s = get().state; if (!s || s.phase !== "event" || get().dice) return;
+    const n = skipEvent(s); persist(n); set({ state: n, flash: { grade: "방치", tone: "fail" }, screen: n.ended ? "ending" : "game" });
+  },
+  rtAction(id, i, boost) {
+    const s = get().state; if (!s || s.ap <= 0 || get().dice) return;
+    const act = content.actions.find((a) => a.id === id); if (!act || !act.card.choices[i]) return;
+    const { state: next, outcome } = resolveAction(s, content, id, i, boost);
+    persist(next); set({ state: next, openAction: null, flash: { grade: outcome.grade.name, tone: outcome.grade.tone }, screen: next.ended ? "ending" : "game" });
+  },
+  rtNpc(i, boost) {
+    const s = get().state; if (!s || get().dice) return;
+    const visit = npcVisit(s); if (!visit || !visit.card.choices[i]) return;
+    const { state: next, outcome } = resolveNpc(s, i, boost);
+    persist(next); set({ state: next, flash: { grade: outcome.grade.name, tone: outcome.grade.tone }, screen: next.ended ? "ending" : "game" });
+  },
+  rtFinishTurn() { const s = get().state; if (!s || s.phase !== "action") return; const n = endTurn(s, content); persist(n); set({ state: n, openAction: null, screen: n.ended ? "ending" : "game" }); },
+  rtAdvance() {
+    const s = get().state; if (!s) return;
+    if (s.ended) { set({ screen: "ending" }); return; }
+    const n = nextTurn(s, content); persist(n); set({ state: n, screen: n.ended ? "ending" : "game" });
+  },
 
   goEvents() { const s = get().state; if (s && s.phase === "start") { const n = openEvents(s); persist(n); set({ state: n }); } },
 
-  chooseEvent(i) {
+  chooseEvent(i, boost) {
     const s = get().state; if (!s) return;
     const card = s.events[s.eventIdx]; if (!card) return;
-    const { state: next, outcome } = resolveEvent(s, i);
+    const { state: next, outcome } = resolveEvent(s, i, boost);
     set({ preview: null, dice: { outcome, cardTitle: card.title, choiceLabel: card.choices[i]!.label, onClose: () => { persist(next); set({ state: next, dice: null, screen: next.ended ? "ending" : "game" }); } } });
   },
 
@@ -114,17 +178,17 @@ export const useGame = create<Store>((set, get) => ({
   },
   openActionCard(id) { set({ openAction: id }); },
   closeActionCard() { set({ openAction: null }); },
-  chooseAction(id, i) {
+  chooseAction(id, i, boost) {
     const s = get().state; if (!s || s.ap <= 0) return;
     const act = content.actions.find((a) => a.id === id); if (!act) return;
-    const { state: next, outcome } = resolveAction(s, content, id, i);
+    const { state: next, outcome } = resolveAction(s, content, id, i, boost);
     set({ preview: null, dice: { outcome, cardTitle: act.name, choiceLabel: act.card.choices[i]!.label, onClose: () => { persist(next); set({ state: next, dice: null, openAction: null, screen: next.ended ? "ending" : "game" }); } } });
   },
 
-  chooseNpc(i) {
+  chooseNpc(i, boost) {
     const s = get().state; if (!s) return;
     const visit = npcVisit(s); if (!visit) return;
-    const { state: next, outcome } = resolveNpc(s, i);
+    const { state: next, outcome } = resolveNpc(s, i, boost);
     set({ preview: null, dice: { outcome, cardTitle: visit.npc.name, choiceLabel: visit.card.choices[i]!.label, onClose: () => { persist(next); set({ state: next, dice: null, screen: next.ended ? "ending" : "game" }); } } });
   },
 

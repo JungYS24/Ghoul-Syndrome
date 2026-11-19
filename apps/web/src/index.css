@@ -39,6 +39,9 @@ button[data-faction] h2{color:var(--f-main)}
 .art-sway{animation:artsway 4s ease-in-out infinite;transform-origin:50% 90%}
 @keyframes artsway{0%,100%{transform:rotate(-2deg)}50%{transform:rotate(2deg)}}
 @media (prefers-reduced-motion:reduce){.art-sway{animation:none}}
+.quick-pop{animation:quickpop .18s ease-out}
+@keyframes quickpop{from{transform:scale(.92);opacity:0}to{transform:scale(1);opacity:1}}
+@media (prefers-reduced-motion:reduce){.quick-pop{animation:none}}
 
 /* ── 모바일 크롬 (lg 미만) ── */
 .btn,.btn-gold{white-space:nowrap}

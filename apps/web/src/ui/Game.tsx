@@ -9,6 +9,7 @@ import { ChronicleSheet, RulesSheet, SettingsSheet, Sheet } from "./Sheets";
 import { MobileHud, MobileNav, type MobileTab } from "./Mobile";
 import { Onboarding } from "./Onboarding";
 import { DecreePanel } from "./Decrees";
+import { RealtimeBar } from "./Realtime";
 
 const CREST: Record<string, string[]> = { arkandal: ["shield"], iruth: ["snowflake"], voodoo: ["eye"] };
 
@@ -30,6 +31,25 @@ function ApDiamonds({ s }: { s: GameState }) {
     </span>
   );
 }
+// F3: 결산에서 실제로 변한 수치 — 큰 변동 순, 가장 큰 항목 강조
+function DeltaStrip({ s }: { s: GameState }) {
+  const d = s.settleDelta;
+  if (!d || !Object.keys(d).length) return null;
+  const entries = Object.entries(d).sort((a, b) => Math.abs(b[1]) - Math.abs(a[1]));
+  return (
+    <div className="flex flex-wrap gap-1.5 font-ui text-[12px]" aria-label="이번 결산 변동">
+      {entries.map(([k, v]) => {
+        const up = v > 0;
+        const bad = (k === "감염도" || k === "진노") ? up : !up;
+        const col = bad ? "text-[#d98a74] border-[#5a3328]" : "text-frost border-[#3d5560]";
+        const hot = k === s.settleHighlight;
+        const n = Math.abs(v) % 1 === 0 ? String(Math.abs(v)) : Math.abs(v).toFixed(1);
+        return <span key={k} className={`chip ${col} ${hot ? "ring-1 ring-gold font-bold" : ""}`}>{k} {up ? "▲" : "▼"}{up ? "+" : "−"}{n}</span>;
+      })}
+    </div>
+  );
+}
+
 function TargetPicker({ s }: { s: GameState }) {
   const setTarget = useGame((z) => z.setTarget);
   if (s.faction !== "voodoo") return null;
@@ -44,7 +64,10 @@ function TargetPicker({ s }: { s: GameState }) {
 }
 
 export function Game({ s }: { s: GameState }) {
-  const { goEvents, chooseEvent, openActionCard, closeActionCard, chooseAction, chooseNpc, finishTurn, advance, toTitle, openAction } = useGame();
+  const { goEvents, chooseEvent, openActionCard, closeActionCard, chooseAction, chooseNpc, finishTurn, advance, toTitle, openAction, realtime, rtEvent, rtAction, rtNpc } = useGame();
+  const pickEvent = realtime ? rtEvent : chooseEvent;
+  const pickNpc = realtime ? rtNpc : chooseNpc;
+  const pickAction = (id: string) => (i: number, b?: Parameters<typeof chooseAction>[2]) => (realtime ? rtAction(id, i, b) : chooseAction(id, i, b));
   const [sheet, setSheet] = useState<null | "chron" | "rules" | "settings" | "board">(null);
   const openTab = (t: MobileTab) => { if (t === "title") toTitle(); else setSheet(sheet === t ? null : t); };
   // 모바일: 새 카드·단계가 나오면 맨 위로 (데스크톱은 대시보드가 옆에 있어 그대로 둠)
@@ -76,6 +99,7 @@ export function Game({ s }: { s: GameState }) {
       <div className="grid gap-[18px] lg:grid-cols-[340px_minmax(0,1fr)] lg:items-start">
         <Dashboard s={s} className="hidden lg:grid" />
         <main className="grid gap-3.5 min-w-0 order-first lg:order-none">
+          <RealtimeBar />
           <Onboarding key={s.seed} s={s} />
           <div className="hidden lg:block"><Phases s={s} /></div>
 
@@ -84,12 +108,13 @@ export function Game({ s }: { s: GameState }) {
               <div className="eyebrow">{yearOf(s.turn)}년 {SEASON_KO[seasonOf(s.turn)]} · 시작 결산</div>
               <h2 className="font-display text-[26px]">{s.turn === 1 ? "759년 봄, 통치가 시작됩니다" : "새 계절이 밝았습니다"}</h2>
               <ul className="m-0 pl-[18px] grid gap-1 text-[14px] text-[#d9cdb6]">{s.startReport.map((l, i) => <li key={i}>{l}</li>)}</ul>
+              <DeltaStrip s={s} />
               <div className="flex gap-2 flex-wrap"><button className="btn-gold" onClick={goEvents}>사건 카드 {s.events.length}장 펼치기</button></div>
             </section>
           )}
 
           {s.phase === "event" && s.events[s.eventIdx] && (
-            <CardView key={`${s.turn}-${s.eventIdx}`} s={s} card={s.events[s.eventIdx]!} onPick={chooseEvent}><RelicBar s={s} /></CardView>
+            <CardView key={`${s.turn}-${s.eventIdx}`} s={s} card={s.events[s.eventIdx]!} onPick={pickEvent}><RelicBar s={s} /></CardView>
           )}
 
           {s.phase === "action" && !openAction && (
@@ -114,7 +139,7 @@ export function Game({ s }: { s: GameState }) {
 
           {s.phase === "action" && openAction && (() => {
             const act = actionsFor(s, content).find((a) => a.id === openAction) ?? content.actions.find((a) => a.id === openAction)!;
-            return <CardView key={act.id} s={s} card={{ ...act.card, kind: `행동 · ${act.name}` }} onPick={(i) => chooseAction(act.id, i)}>
+            return <CardView key={act.id} s={s} card={{ ...act.card, kind: `행동 · ${act.name}` }} onPick={pickAction(act.id)}>
               <div className="flex gap-2 flex-wrap"><button className="btn" onClick={closeActionCard}>다른 행동 고르기</button></div>
             </CardView>;
           })()}
@@ -126,12 +151,13 @@ export function Game({ s }: { s: GameState }) {
                 <div className="eyebrow">{yearOf(s.turn)}년 {SEASON_KO[seasonOf(s.turn)]} · 종료 결산</div>
                 <h2 className="font-display text-[26px]">계절 결산</h2>
                 <ul className="m-0 pl-[18px] grid gap-1 text-[14px] text-[#d9cdb6]">{s.endReport.map((l, i) => <li key={i}>{l}</li>)}</ul>
+                <DeltaStrip s={s} />
                 {s.aiReport.length > 0 && <div className="grid gap-1 text-[13px] text-muted border-t border-line pt-2.5"><span className="eyebrow">소식</span>{s.aiReport.map((l, i) => <div key={i}>· {l}</div>)}</div>}
                 {last && <div className="text-[15px] border-l-2 border-gold-dim pl-3 text-ink"><span className="eyebrow">연대기</span><br />{last.year}년 {last.season} — {last.text}</div>}
                 {visit
                   ? (<div className="grid gap-2.5 border-t border-gold-dim pt-3 mt-1">
                       <div className="eyebrow text-gold">연말 알현 · {visit.npc.name} ({visit.npc.role})</div>
-                      <CardView key={`npc-${s.turn}`} s={s} card={visit.card} onPick={chooseNpc} />
+                      <CardView key={`npc-${s.turn}`} s={s} card={visit.card} onPick={pickNpc} />
                     </div>)
                   : (<div className="flex gap-2 flex-wrap"><button className="btn-gold" onClick={advance}>{s.ended ? "결말 보기" : `${yearOf(s.turn + 1)}년 ${SEASON_KO[seasonOf(s.turn + 1)]}으로`}</button></div>)}
               </section>

@@ -1,7 +1,8 @@
 import {
-  FACTIONS, REGION_NAME, canAfford, checkModifiers, choiceImpact, labelOf, mapKey, successChance,
-  type Card, type Choice, type EffectKey, type GameState,
+  FACTIONS, REGION_NAME, boostOptions, canAfford, checkModifiers, choiceImpact, labelOf, mapKey, successChance, successChanceWith,
+  type Boost, type Card, type Choice, type EffectKey, type GameState,
 } from "@guul/engine";
+import { useState } from "react";
 import { Illus } from "../art/Art";
 import { useGame } from "../store/store";
 import { HEADER_IDS, headerUrl } from "../art/headers";
@@ -60,37 +61,55 @@ function ImpactLine({ s, choice }: { s: GameState; choice: Choice }) {
   );
 }
 
-export function ChoiceButton({ s, choice, onPick, disabled }: { s: GameState; choice: Choice; onPick: () => void; disabled?: boolean }) {
+export function ChoiceButton({ s, choice, onPick, disabled }: { s: GameState; choice: Choice; onPick: (boost?: Boost) => void; disabled?: boolean }) {
   const afford = canAfford(s, choice);
   const setPreview = useGame((z) => z.setPreview);
+  const [boost, setBoost] = useState<Boost | null>(null);
+  const opts = boostOptions(s, choice);
   const m = checkModifiers(s, choice);
   const sign = (n: number) => (n >= 0 ? "+" : "−") + Math.abs(n);
+  const chance = boost ? successChanceWith(s, choice, boost.mod) : successChance(s, choice);
   // 자기 세력과의 "협상"은 내부 회의로 표기 (아이루스=가문회, 아르칸달=제후 회의)
   const COUNCIL: Record<string, string> = { arkandal: "제후 회의", iruth: "가문회", voodoo: "비밀 회합" };
   const label = choice.target === s.faction ? `${FACTIONS[s.faction].short} 내 ${COUNCIL[s.faction] ?? "가문회"}` : choice.label;
   return (
-    <button onClick={onPick} disabled={disabled || !afford}
-      onMouseEnter={() => setPreview(choiceImpact(s, choice))} onMouseLeave={() => setPreview(null)}
-      onFocus={() => setPreview(choiceImpact(s, choice))} onBlur={() => setPreview(null)}
-      onTouchStart={() => setPreview(choiceImpact(s, choice))}
-      className="seal-btn p-3 grid gap-1.5 items-center disabled:opacity-55 disabled:cursor-not-allowed">
-      <span className="font-body text-[17px] font-bold">{label}</span>
-      <span className="grid gap-1.5">
-        <span className="font-ui text-[13px] text-muted flex flex-wrap gap-x-2.5 gap-y-0.5">
-          <span>판정 {m.statLabel} {sign(m.statMod)}</span>
-          {m.choiceMod ? <span>난이도 {sign(m.choiceMod)}</span> : null}
-          {m.stateMod ? <span>상태 {sign(m.stateMod)}</span> : null}
-          <span className="text-gold">성공 약 {successChance(s, choice)}%</span>
-          {!afford && <span className="text-blood">자원 부족</span>}
+    <div className="grid gap-1">
+      <button onClick={() => onPick(boost ?? undefined)} disabled={disabled || !afford}
+        onMouseEnter={() => setPreview(choiceImpact(s, choice))} onMouseLeave={() => setPreview(null)}
+        onFocus={() => setPreview(choiceImpact(s, choice))} onBlur={() => setPreview(null)}
+        onTouchStart={() => setPreview(choiceImpact(s, choice))}
+        className="seal-btn p-3 grid gap-1.5 items-center disabled:opacity-55 disabled:cursor-not-allowed">
+        <span className="font-body text-[17px] font-bold">{label}</span>
+        <span className="grid gap-1.5">
+          <span className="font-ui text-[13px] text-muted flex flex-wrap gap-x-2.5 gap-y-0.5">
+            <span>판정 {m.statLabel} {sign(m.statMod)}</span>
+            {m.choiceMod ? <span>난이도 {sign(m.choiceMod)}</span> : null}
+            {m.stateMod ? <span>상태 {sign(m.stateMod)}</span> : null}
+            {boost ? <span className="text-frost">투입 +{boost.mod}</span> : null}
+            <span className="text-gold">성공 약 {chance}%</span>
+            {!afford && <span className="text-blood">자원 부족</span>}
+          </span>
+          <ImpactLine s={s} choice={choice} />
+          <Chips s={s} choice={choice} />
         </span>
-        <ImpactLine s={s} choice={choice} />
-        <Chips s={s} choice={choice} />
-      </span>
-    </button>
+      </button>
+      {opts.length > 0 && !disabled && afford && (
+        <div className="flex flex-wrap items-center gap-1 pl-1 font-ui text-[11px]">
+          <span className="text-faint">판정에 투입:</span>
+          <button type="button" aria-pressed={!boost} onClick={() => setBoost(null)}
+            className={`px-1.5 py-0.5 rounded-[2px] border ${!boost ? "border-gold text-gold" : "border-line text-muted"}`}>없음</button>
+          {opts.map((o, i) => (
+            <button key={i} type="button" aria-pressed={boost?.cost === o.cost} onClick={() => setBoost(o)}
+              className={`px-1.5 py-0.5 rounded-[2px] border ${boost?.cost === o.cost ? "border-gold text-gold bg-[#2a2216]" : "border-line text-muted"}`}>
+              {o.label} {o.cost} → 판정 +{o.mod}</button>
+          ))}
+        </div>
+      )}
+    </div>
   );
 }
 
-export function CardView({ s, card, kind, onPick, disabled, children }: { s: GameState; card: Card; kind?: string; onPick: (i: number) => void; disabled?: boolean; children?: React.ReactNode }) {
+export function CardView({ s, card, kind, onPick, disabled, children }: { s: GameState; card: Card; kind?: string; onPick: (i: number, boost?: Boost) => void; disabled?: boolean; children?: React.ReactNode }) {
   return (
     <article className="letter relative p-[18px_14px_16px] sm:p-[26px_24px_24px] grid gap-3 sm:gap-3.5 card-deal">
       <span className="pointer-events-none absolute inset-1.5 border border-[#3e3328] rounded-[2px]" aria-hidden="true" />
@@ -99,7 +118,7 @@ export function CardView({ s, card, kind, onPick, disabled, children }: { s: Gam
 
       <h2 className="font-display text-[clamp(22px,4.5vw,32px)] leading-tight">{card.title}</h2>
       <p className="m-0 max-w-[62ch] text-[16px] leading-[1.7] sm:text-[18px] sm:leading-[1.8] font-medium text-[#ece2c8]">{card.text}</p>
-      <div className="grid gap-2.5">{card.choices.map((c, i) => <ChoiceButton key={i} s={s} choice={c} onPick={() => onPick(i)} disabled={disabled} />)}</div>
+      <div className="grid gap-2.5">{card.choices.map((c, i) => <ChoiceButton key={i} s={s} choice={c} onPick={(b) => onPick(i, b)} disabled={disabled} />)}</div>
       {children}
     </article>
   );

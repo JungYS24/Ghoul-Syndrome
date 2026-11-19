@@ -22,7 +22,7 @@ export function DiceOverlay() {
       <div className="w-[min(480px,100%)] bg-panel border border-line2 rounded p-4 max-h-full overflow-auto">
         <DiceRoller
           autoRoll
-          roll={{ dice: o.dice, sum: o.sum, modifier: o.statMod + o.choiceMod + o.stateMod, final: o.final, gradeName: o.grade.name, tone: o.grade.tone, mult: o.mult }}
+          roll={{ dice: o.dice, sum: o.sum, modifier: o.statMod + o.choiceMod + o.stateMod + (o.boostMod ?? 0), final: o.final, gradeName: o.grade.name, tone: o.grade.tone, mult: o.mult }}
           title={`${dice.cardTitle} · ${dice.choiceLabel}`}
           onDone={dismiss}>
           <div className="grid gap-2 justify-items-center">

@@ -12,7 +12,7 @@ import { newsLines, type AiFacts } from "./news";
 import { applyLegacy } from "./legacy";
 import { MAX_RELICS } from "./relics";
 import type {
-  ActionDef, AppliedEffect, Card, Choice, EffectKey, Effects, Ending, FactionId, GameContent, GameState, GaugeKey,
+  ActionDef, AppliedEffect, Boost, Card, Choice, EffectKey, Effects, Ending, FactionId, GameContent, GameState, GaugeKey,
   RegionId, ResourceKey, RollOutcome, When,
 } from "./types";
 
@@ -172,15 +172,37 @@ export function checkModifiers(s: GameState, choice: Choice) {
 /** 성공(반쪽 성공 이상) 확률 % */
 export function successChance(s: GameState, choice: Choice): number { return chanceAtLeast(checkModifiers(s, choice).total); }
 
+/** 보정을 더했을 때의 성공 확률 % (F2: 투입 미리보기) */
+export function successChanceWith(s: GameState, choice: Choice, extraMod: number): number {
+  return chanceAtLeast(checkModifiers(s, choice).total + extraMod);
+}
+/**
+ * 판정 직전 투입 가능한 자원·보정 (F2). 세력별 여유 자원(실링/재)을 쓰고,
+ * 이미 거의 확실히 성공(≥95%)이면 선택지를 주지 않습니다. 감당 가능한 단계만 돌려줍니다.
+ */
+export function boostOptions(s: GameState, choice: Choice): Boost[] {
+  if (successChance(s, choice) >= 95) return [];
+  const res: ResourceKey = s.faction === "voodoo" ? "strat" : "silver";
+  if (!mapKey(s, res)) return [];
+  const label = labelOf(s, res);
+  const tiers = s.faction === "voodoo" ? [{ cost: 4, mod: 4 }, { cost: 10, mod: 8 }] : [{ cost: 10, mod: 4 }, { cost: 25, mod: 8 }];
+  return tiers.filter((t) => s.res[res] >= t.cost).map((t) => ({ res, cost: t.cost, mod: t.mod, label }));
+}
+
 /**
  * 핵심 판정: 입력 state 는 바꾸지 않고 새 state 와 결과를 돌려줍니다.
  * 주사위는 rng 로 여기서 확정되며, 화면 애니메이션은 이 결과를 보여 주기만 합니다.
  */
-export function resolveChoice(state: GameState, card: Card, choice: Choice, rng: Rng): { state: GameState; outcome: RollOutcome } {
+export function resolveChoice(state: GameState, card: Card, choice: Choice, rng: Rng, boost?: Boost): { state: GameState; outcome: RollOutcome } {
   const s = clone(state);
   const m = checkModifiers(s, choice);
+  let boostMod = 0;
+  if (boost && mapKey(s, boost.res) && s.res[boost.res] >= boost.cost) {
+    s.res[boost.res] = Math.round(s.res[boost.res] - boost.cost);
+    boostMod = boost.mod;
+  }
   const dice = roll5d20(rng);
-  const j = judge(dice, m.total);
+  const j = judge(dice, m.total + boostMod);
   const applied = applyEffects(s, choice.effects, j.mult, { withSuccess: choice.withSuccess, target: choice.target });
   const failApplied = j.final < ON_FAIL_BELOW && choice.onFail ? applyEffects(s, choice.onFail, null, { target: choice.target }) : [];
   const aftermath = j.final <= AFTERMATH_AT_OR_BELOW;
@@ -198,7 +220,7 @@ export function resolveChoice(state: GameState, card: Card, choice: Choice, rng:
   s.rng = rng.state;
   return {
     state: s,
-    outcome: { dice, sum: j.sum, statMod: m.statMod, choiceMod: m.choiceMod, stateMod: m.stateMod, final: j.final, rank: j.rank, mult: j.mult, grade: j.grade, stat: m.statLabel, applied, failApplied, aftermath },
+    outcome: { dice, sum: j.sum, statMod: m.statMod, choiceMod: m.choiceMod, stateMod: m.stateMod, boostMod, final: j.final, rank: j.rank, mult: j.mult, grade: j.grade, stat: m.statLabel, applied, failApplied, aftermath },
   };
 }
 
@@ -282,9 +304,30 @@ function drawEventsInto(s: GameState, content: GameContent, rng: Rng) {
   s.events = cards; s.eventIdx = 0;
 }
 
+// ───────── 결산 변동 추적 (F3) ─────────
+function snap(s: GameState): Record<string, number> {
+  const F = FACTIONS[s.faction];
+  const o: Record<string, number> = { 감염도: s.infection[s.faction], 진노: s.wrath };
+  for (const k of F.gauges) o[GAUGE_LABEL[k]] = s.gauges[k];
+  o[F.popName] = s.res.pop;
+  o["식량"] = s.res.food;
+  return o;
+}
+function diffSnap(before: Record<string, number>, after: Record<string, number>): Record<string, number> {
+  const d: Record<string, number> = {};
+  for (const k of Object.keys(after)) { const v = r1((after[k] ?? 0) - (before[k] ?? 0)); if (v) d[k] = v; }
+  return d;
+}
+function topKey(d: Record<string, number>): string | undefined {
+  let best: string | undefined, m = 0;
+  for (const [k, v] of Object.entries(d)) if (Math.abs(v) > m) { m = Math.abs(v); best = k; }
+  return best;
+}
+
 // ───────── 턴: 시작 결산 ─────────
 export function startTurn(state: GameState, content: GameContent): GameState {
   const s = clone(state); const rng = createRng(s.rng);
+  const before = snap(state);
   const F = FACTIONS[s.faction], season = seasonOf(s.turn), rep: string[] = [];
   s.turnLog = []; s.aiReport = [];
   const V = s.faction === "voodoo";
@@ -333,6 +376,7 @@ export function startTurn(state: GameState, content: GameContent): GameState {
   }
   s.streak[s.faction] = s.infection[s.faction] >= 100 ? s.streak[s.faction] + 1 : 0;
   s.startReport = rep;
+  s.settleDelta = diffSnap(before, snap(s)); s.settleHighlight = topKey(s.settleDelta);
   drawEventsInto(s, content, rng);
   s.phase = "start"; // 시작 결산 화면을 보여 준 뒤 goEvents 로 사건 단계로
   s.rng = rng.state;
@@ -347,12 +391,12 @@ export function openEvents(state: GameState): GameState {
 }
 
 /** 현재 사건 카드의 선택지를 판정합니다. */
-export function resolveEvent(state: GameState, choiceIndex: number): { state: GameState; outcome: RollOutcome } {
+export function resolveEvent(state: GameState, choiceIndex: number, boost?: Boost): { state: GameState; outcome: RollOutcome } {
   const card = state.events[state.eventIdx];
   if (!card) throw new Error("사건 카드가 없습니다");
   const choice = card.choices[choiceIndex];
   if (!choice) throw new Error("선택지가 없습니다");
-  const r = resolveChoice(state, card, choice, createRng(state.rng));
+  const r = resolveChoice(state, card, choice, createRng(state.rng), boost);
   const s = r.state;
   s.eventIdx += 1;
   if (s.eventIdx >= s.events.length) s.phase = "action";
@@ -360,17 +404,32 @@ export function resolveEvent(state: GameState, choiceIndex: number): { state: Ga
   return { state: s, outcome: r.outcome };
 }
 
+/** 현재 사건을 판정 없이 넘깁니다 (실시간 시간초과 등). 방치 대가로 민심/신앙이 깎입니다. */
+export function skipEvent(state: GameState): GameState {
+  const s = clone(state);
+  if (s.phase !== "event") return s;
+  const card = s.events[s.eventIdx];
+  if (!card) return s;
+  if (s.faction === "voodoo") addG(s, "faith", -3);
+  else { addG(s, "morale", -3); addG(s, "order", -2); }
+  s.turnLog.push({ title: card.title, label: "방치했다", grade: "방치", tone: "fail", final: 0 });
+  s.eventIdx += 1;
+  if (s.eventIdx >= s.events.length) s.phase = "action";
+  finishCheck(s);
+  return s;
+}
+
 // ───────── 행동 ─────────
 export function actionsFor(s: GameState, content: GameContent): ActionDef[] {
   return content.actions.filter((a) => a.factions.includes(s.faction) && condOk(s, a.when));
 }
-export function resolveAction(state: GameState, content: GameContent, actionId: string, choiceIndex: number): { state: GameState; outcome: RollOutcome } {
+export function resolveAction(state: GameState, content: GameContent, actionId: string, choiceIndex: number, boost?: Boost): { state: GameState; outcome: RollOutcome } {
   if (state.ap <= 0) throw new Error("행동권이 없습니다");
   const act = content.actions.find((a) => a.id === actionId);
   if (!act) throw new Error(`행동 없음: ${actionId}`);
   const choice = act.card.choices[choiceIndex];
   if (!choice) throw new Error("선택지가 없습니다");
-  const r = resolveChoice(state, act.card, choice, createRng(state.rng));
+  const r = resolveChoice(state, act.card, choice, createRng(state.rng), boost);
   r.state.ap -= 1;
   finishCheck(r.state);
   return r;
@@ -434,6 +493,7 @@ function runAi(s: GameState, rng: Rng): AiFacts {
 // ───────── 종료 결산 ─────────
 export function endTurn(state: GameState, content: Pick<GameContent, "decrees">): GameState {
   const s = clone(state); const rng = createRng(s.rng);
+  const before = snap(state);
   const F = FACTIONS[s.faction], rep: string[] = [];
   const V = s.faction === "voodoo";
   const P = production(s.faction, s.res.pop, s.res.army, s.preset, s.infection[s.faction], s.wrath);
@@ -473,6 +533,7 @@ export function endTurn(state: GameState, content: Pick<GameContent, "decrees">)
   const best = s.turnLog.find((l) => l.tone === "crit" || l.tone === "great") ?? s.turnLog.find((l) => l.tone === "after" || l.tone === "fumble") ?? s.turnLog[0];
   s.chronicle.push(chron(s, best ? `「${best.title}」 — ${best.label}, ${best.grade}.` : "조용한 계절이 지나갔다."));
   s.endReport = rep;
+  s.settleDelta = diffSnap(before, snap(s)); s.settleHighlight = topKey(s.settleDelta);
   s.rng = rng.state;
   const end = checkDefeat(s) ?? checkVictory(s) ?? (s.turn >= 40 ? finalScore(s) : null);
   if (end) { s.ended = end; s.phase = "over"; } else s.phase = "end";

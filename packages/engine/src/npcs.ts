@@ -3,7 +3,7 @@
 // 선택지는 일반 사건처럼 5d20 으로 판정하는 일회성 큰 사건입니다.
 import { createRng } from "./rng";
 import { checkDefeat, resolveChoice } from "./game";
-import type { Card, Choice, FactionId, GameState, RollOutcome } from "./types";
+import type { Boost, Card, Choice, FactionId, GameState, RollOutcome } from "./types";
 
 interface NpcVariant { title: string; text: string; choices: Choice[] }
 export interface Npc {
@@ -201,12 +201,12 @@ export function npcVisit(s: GameState): { npc: Npc; card: Card; same: boolean } 
 }
 
 /** 연말 알현 선택지를 판정합니다(입력 불변). 해결 후 올해 재등장하지 않도록 표시합니다. */
-export function resolveNpc(state: GameState, choiceIndex: number): { state: GameState; outcome: RollOutcome } {
+export function resolveNpc(state: GameState, choiceIndex: number, boost?: Boost): { state: GameState; outcome: RollOutcome } {
   const visit = npcVisit(state);
   if (!visit) throw new Error("연말 알현이 없습니다");
   const choice = visit.card.choices[choiceIndex];
   if (!choice) throw new Error("선택지가 없습니다");
-  const r = resolveChoice(state, visit.card, choice, createRng(state.rng));
+  const r = resolveChoice(state, visit.card, choice, createRng(state.rng), boost);
   if (!r.state.flags.includes(doneFlag(state.turn))) r.state.flags.push(doneFlag(state.turn));
   const d = checkDefeat(r.state);
   if (d) { r.state.ended = d; r.state.phase = "over"; }

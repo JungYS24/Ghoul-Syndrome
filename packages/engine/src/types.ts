@@ -49,6 +49,8 @@ export interface Choice {
   grantRelic?: string;
 }
 export interface FollowUp { cardId: string; afterTurns: number }
+/** 판정 직전 자원 투입 — 비용(res)을 치르고 판정 보정(mod)을 올립니다. */
+export interface Boost { res: ResourceKey; cost: number; mod: number; label: string }
 /** 연쇄로 나온 카드가 이전 판정 등급에 따라 바뀌는 갈래 */
 export interface CardBranch {
   prevTones: Tone[];
@@ -182,6 +184,10 @@ export interface GameState {
   startReport: string[];
   endReport: string[];
   aiReport: string[];
+  /** 결산에서 실제로 변한 수치 (F3: 증감 표시). 결산 단계에서만 채워집니다 */
+  settleDelta?: Record<string, number>;
+  /** 결산에서 가장 크게 움직인 항목 라벨 (F3: 강조) */
+  settleHighlight?: string;
   turnLog: LogEntry[];
   chronicle: ChronicleEntry[];
   maxInfection: number;
@@ -208,6 +214,8 @@ export interface RollOutcome {
   statMod: number;
   choiceMod: number;
   stateMod: number;
+  /** 판정 직전 자원 투입으로 더해진 보정 (F2) */
+  boostMod?: number;
   final: number;
   rank: number;
   mult: number;

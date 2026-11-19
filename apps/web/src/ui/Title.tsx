@@ -13,10 +13,13 @@ const CREST: Record<FactionId, string[]> = { arkandal: ["shield"], iruth: ["snow
 
 export function Title() {
   const start = useGame((z) => z.start);
+  const startRealtime = useGame((z) => z.startRealtime);
   const hasSave = useGame((z) => z.hasSave);
   const cont = useGame((z) => z.continueSave);
   const [seed, setSeed] = useState(() => String(shared.seed ?? Math.floor(Math.random() * 900000) + 100000));
   const [diff, setDiff] = useState<Difficulty>(shared.difficulty ?? "normal");
+  const [mode, setMode] = useState<"turn" | "realtime">("turn");
+  const begin = (id: FactionId) => { const sd = (parseInt(seed, 10) || 1) >>> 0; if (mode === "realtime") startRealtime(id, sd, diff); else start(id, sd, diff); };
   const [rules, setRules] = useState(false);
   const [settings, setSettings] = useState(false);
   const [lore, setLore] = useState(false); // 모바일에서만 접어 둠 (데스크톱은 늘 펼침)
@@ -39,6 +42,15 @@ export function Title() {
         <div><b className="text-ink font-bold">759년 봄.</b> 세 세력은 서로를 구원자이자 감염원으로 의심합니다. 여신은 침묵하지만, 무고한 피는 여전히 셈하고 있습니다.</div>
       </div>
       {shared.seed !== undefined && <p className="font-ui text-[13px] text-gold m-0 mb-3">공유 링크로 열었습니다 — 시드 {shared.seed}{shared.difficulty ? ` · ${DIFFICULTIES[shared.difficulty].name}` : ""}. 같은 세력·시드·난이도면 같은 주사위가 굴러갑니다.</p>}
+      <fieldset className="border-0 p-0 m-0 mb-3 flex flex-wrap items-center gap-2 font-ui text-[13px]">
+        <legend className="sr-only">진행 방식</legend>
+        <span className="text-muted mr-1">진행 방식</span>
+        <button type="button" aria-pressed={mode === "turn"} onClick={() => setMode("turn")}
+          className={`px-3 py-1.5 rounded-[3px] border ${mode === "turn" ? "border-gold text-gold bg-[#2a2216]" : "border-line text-muted"}`}>턴제</button>
+        <button type="button" aria-pressed={mode === "realtime"} onClick={() => setMode("realtime")}
+          className={`px-3 py-1.5 rounded-[3px] border ${mode === "realtime" ? "border-gold text-gold bg-[#2a2216]" : "border-line text-muted"}`}>실시간</button>
+        <span className="text-faint text-[12px]">{mode === "realtime" ? "시간이 흐르고 제한시간 안에 선택 (배속·일시정지 가능)" : "한 단계씩 천천히"}</span>
+      </fieldset>
       <fieldset className="border-0 p-0 m-0 mb-3.5 flex flex-wrap items-center gap-2 font-ui text-[13px]">
         <legend className="sr-only">난이도</legend>
         <span className="text-muted mr-1">난이도</span>
@@ -52,7 +64,7 @@ export function Title() {
         {FACTION_IDS.map((id) => {
           const F = FACTIONS[id];
           return (
-            <button key={id} onClick={() => start(id, (parseInt(seed, 10) || 1) >>> 0, diff)}
+            <button key={id} onClick={() => begin(id)}
               className={`text-left bg-panel border rounded p-[18px] grid gap-2.5 content-start hover:border-gold-dim hover:-translate-y-0.5 transition-all ${shared.faction === id ? "border-gold" : "border-line"}`} data-faction={id}>
               <div className="flex items-center gap-2.5"><span className="w-11 h-11 shrink-0"><Illus keys={CREST[id]} faction={id} accent /></span>
                 <div><h2 className="font-display text-[26px] leading-tight">{F.name}</h2><div className="font-ui text-[12px] text-muted">{F.ruler}</div></div></div>
