@@ -1,11 +1,23 @@
 import { create } from "zustand";
 import { get as idbGet, set as idbSet, del as idbDel } from "idb-keyval";
 import {
-  LEGACY_PERKS, legacyPointsFor, relicById, useRelic, actionsFor, endTurn, enactDecree, migrateState, newGame, npcVisit, repealDecree, resolveNpc, nextTurn, openEvents, resolveAction, resolveEvent, skipEvent, setPreset, setTarget, startTurn,
+  LEGACY_PERKS, SEASON_KO, legacyPointsFor, relicById, seasonOf, useRelic, actionsFor, endTurn, enactDecree, migrateState, newGame, npcVisit, repealDecree, resolveNpc, nextTurn, openEvents, resolveAction, resolveEvent, skipEvent, setPreset, setTarget, startTurn, yearOf,
   type Boost, type Difficulty, type FactionId, type GameState, type ImpactDot, type PresetId, type RegionId, type RollOutcome,
 } from "@guul/engine";
 import { content } from "@guul/content";
 import { addEnding, type EndingBook } from "./share";
+
+// ───────── 실시간 달력 (1초 = 1일) ─────────
+export const DAYS_PER_SEASON = 90; // 3개월 × 30일
+const SEASON_MONTH = [1, 4, 7, 10]; // 봄·여름·가을·겨울 시작월
+export function rtDate(turn: number, dayOffset: number): { year: number; month: number; day: number; season: string } {
+  const si = ((turn - 1) % 4 + 4) % 4;
+  const d = Math.max(0, Math.min(DAYS_PER_SEASON - 1, Math.floor(dayOffset)));
+  return { year: yearOf(turn), month: SEASON_MONTH[si]! + Math.floor(d / 30), day: (d % 30) + 1, season: SEASON_KO[seasonOf(turn)] };
+}
+export const rtDateStr = (turn: number, dayOffset: number) => { const x = rtDate(turn, dayOffset); return `여신력 ${x.year}년 ${x.month}월 ${x.day}일`; };
+export interface LogEntry2 { id: number; date: string; text: string; tone?: string }
+let logSeq = 0;
 
 const SAVE_KEY = "guul-save-v2";
 const BOOK_KEY = "guul-endings-v1";
@@ -21,6 +33,8 @@ interface Store {
   state: GameState | null;
   dice: DicePayload | null;
   hasSave: boolean;
+  /** 저장된 게임 요약 (이어하기 버튼에 세력·턴 표시) */
+  saveInfo: { faction: FactionId; turn: number } | null;
   actedThisAp: boolean;
   // 액션 카드를 펼친 경우
   openAction: string | null;
@@ -65,6 +79,15 @@ interface Store {
   /** 판정 결과 잠깐 표시 (실시간: 모달 대신 토스트) */
   flash: { grade: string; tone: string } | null;
   clearFlash: () => void;
+  /** 현재 계절 내 경과 일수 (0~DAYS_PER_SEASON) */
+  dayOffset: number;
+  rtSetDay: (d: number) => void;
+  /** 현재 사건이 팝업으로 떠 있는지 (날짜 시계 멈춤) */
+  eventActive: boolean;
+  rtSetEventActive: (b: boolean) => void;
+  /** 사건 로그 (지도 아래) */
+  rtLog: LogEntry2[];
+  rtPushLog: (text: string, tone?: string) => void;
   startRealtime: (f: FactionId, seed: number, difficulty?: Difficulty) => void;
   setSpeed: (n: number) => void;
   togglePause: () => void;
@@ -83,12 +106,12 @@ function persist(s: GameState | null) {
 }
 
 export const useGame = create<Store>((set, get) => ({
-  screen: "title", state: null, dice: null, hasSave: false, actedThisAp: false, openAction: null, preview: null, book: {}, legacy: { points: 0, perks: [] }, lastGain: 0,
-  realtime: false, speed: 1, paused: false, auto: false, flash: null,
+  screen: "title", state: null, dice: null, hasSave: false, saveInfo: null, actedThisAp: false, openAction: null, preview: null, book: {}, legacy: { points: 0, perks: [] }, lastGain: 0,
+  realtime: false, speed: 1, paused: false, auto: false, flash: null, dayOffset: 0, eventActive: false, rtLog: [],
   setPreview(p) { set({ preview: p }); },
 
   async init() {
-    try { const saved = await idbGet<GameState>(SAVE_KEY); set({ hasSave: !!saved }); } catch { /* ignore */ }
+    try { const saved = await idbGet<GameState>(SAVE_KEY); set({ hasSave: !!saved, saveInfo: saved ? { faction: saved.faction, turn: saved.turn } : null }); } catch { /* ignore */ }
     try { const book = await idbGet<EndingBook>(BOOK_KEY); if (book) set({ book }); } catch { /* ignore */ }
     try { const lg = await idbGet<LegacyBook>(LEGACY_KEY); if (lg) set({ legacy: lg }); } catch { /* ignore */ }
   },
@@ -111,14 +134,23 @@ export const useGame = create<Store>((set, get) => ({
   async continueSave() {
     try { const raw = await idbGet<unknown>(SAVE_KEY); if (raw) { const saved = migrateState(raw); set({ state: saved, screen: saved.ended ? "ending" : "game" }); } } catch { /* ignore */ }
   },
-  toTitle() { set({ screen: "title", openAction: null, realtime: false, paused: false, auto: false, flash: null }); void get().init(); },
+  toTitle() { set({ screen: "title", openAction: null, realtime: false, paused: false, auto: false, flash: null, eventActive: false, rtLog: [], dayOffset: 0 }); void get().init(); },
 
   // ───────── 실시간 모드 ─────────
   clearFlash() { set({ flash: null }); },
+  rtSetDay(d) { set({ dayOffset: Math.max(0, Math.min(DAYS_PER_SEASON, d)) }); },
+  rtSetEventActive(b) { set({ eventActive: b }); },
+  rtPushLog(text, tone) {
+    const s = get().state; const date = s ? rtDateStr(s.turn, get().dayOffset) : "";
+    set({ rtLog: [...get().rtLog, { id: ++logSeq, date, text, tone }].slice(-120) });
+  },
   startRealtime(f, seed, difficulty = "normal") {
     const s = startTurn(newGame(f, seed, { difficulty, legacy: get().legacy.perks }), content);
     persist(s);
-    set({ state: s, screen: s.ended ? "ending" : "game", openAction: null, realtime: true, speed: 1, paused: false, auto: false, flash: null, dice: null });
+    logSeq = 0;
+    const d0 = rtDate(s.turn, 0);
+    set({ state: s, screen: s.ended ? "ending" : "game", openAction: null, realtime: true, speed: 1, paused: false, auto: false, flash: null, dice: null,
+      dayOffset: 0, eventActive: false, rtLog: [{ id: ++logSeq, date: rtDateStr(s.turn, 0), text: `${d0.season}, 통치가 시작되었습니다.` }] });
   },
   setSpeed(n) { set({ speed: n }); },
   togglePause() { set({ paused: !get().paused }); },
@@ -128,29 +160,43 @@ export const useGame = create<Store>((set, get) => ({
     const s = get().state; if (!s || get().dice) return;
     const card = s.events[s.eventIdx]; if (!card || !card.choices[i]) return;
     const { state: next, outcome } = resolveEvent(s, i, boost);
-    persist(next); set({ state: next, flash: { grade: outcome.grade.name, tone: outcome.grade.tone }, screen: next.ended ? "ending" : "game" });
+    persist(next); get().rtPushLog(`${card.title} — ${outcome.grade.name}`, outcome.grade.tone);
+    set({ state: next, eventActive: false, flash: { grade: outcome.grade.name, tone: outcome.grade.tone }, screen: next.ended ? "ending" : "game" });
   },
   rtSkip() {
     const s = get().state; if (!s || s.phase !== "event" || get().dice) return;
-    const n = skipEvent(s); persist(n); set({ state: n, flash: { grade: "방치", tone: "fail" }, screen: n.ended ? "ending" : "game" });
+    const card = s.events[s.eventIdx];
+    const n = skipEvent(s); persist(n); get().rtPushLog(`${card ? card.title : "사건"} — 방치했습니다`, "fail");
+    set({ state: n, eventActive: false, flash: { grade: "방치", tone: "fail" }, screen: n.ended ? "ending" : "game" });
   },
   rtAction(id, i, boost) {
     const s = get().state; if (!s || s.ap <= 0 || get().dice) return;
     const act = content.actions.find((a) => a.id === id); if (!act || !act.card.choices[i]) return;
     const { state: next, outcome } = resolveAction(s, content, id, i, boost);
-    persist(next); set({ state: next, openAction: null, flash: { grade: outcome.grade.name, tone: outcome.grade.tone }, screen: next.ended ? "ending" : "game" });
+    persist(next); get().rtPushLog(`${act.name} — ${outcome.grade.name}`, outcome.grade.tone);
+    set({ state: next, openAction: null, flash: { grade: outcome.grade.name, tone: outcome.grade.tone }, screen: next.ended ? "ending" : "game" });
   },
   rtNpc(i, boost) {
     const s = get().state; if (!s || get().dice) return;
     const visit = npcVisit(s); if (!visit || !visit.card.choices[i]) return;
     const { state: next, outcome } = resolveNpc(s, i, boost);
-    persist(next); set({ state: next, flash: { grade: outcome.grade.name, tone: outcome.grade.tone }, screen: next.ended ? "ending" : "game" });
+    persist(next); get().rtPushLog(`연말 알현 · ${visit.npc.name} — ${outcome.grade.name}`, outcome.grade.tone);
+    set({ state: next, eventActive: false, flash: { grade: outcome.grade.name, tone: outcome.grade.tone }, screen: next.ended ? "ending" : "game" });
   },
-  rtFinishTurn() { const s = get().state; if (!s || s.phase !== "action") return; const n = endTurn(s, content); persist(n); set({ state: n, openAction: null, screen: n.ended ? "ending" : "game" }); },
+  rtFinishTurn() {
+    const s = get().state; if (!s || s.phase !== "action") return;
+    const n = endTurn(s, content); persist(n);
+    if (n.settleHighlight && n.settleDelta) { const v = n.settleDelta[n.settleHighlight]!; get().rtPushLog(`계절 결산 — ${n.settleHighlight} ${v > 0 ? "+" : "−"}${Math.abs(v)}`); }
+    if (n.aiReport[0]) get().rtPushLog(`소식 — ${n.aiReport[0]}`);
+    set({ state: n, openAction: null, screen: n.ended ? "ending" : "game" });
+  },
   rtAdvance() {
     const s = get().state; if (!s) return;
     if (s.ended) { set({ screen: "ending" }); return; }
-    const n = nextTurn(s, content); persist(n); set({ state: n, screen: n.ended ? "ending" : "game" });
+    const n = nextTurn(s, content); persist(n);
+    set({ state: n, dayOffset: 0, eventActive: false, screen: n.ended ? "ending" : "game" });
+    const d = rtDate(n.turn, 0);
+    get().rtPushLog(`── ${d.year}년 ${d.season} ──`);
   },
 
   goEvents() { const s = get().state; if (s && s.phase === "start") { const n = openEvents(s); persist(n); set({ state: n }); } },

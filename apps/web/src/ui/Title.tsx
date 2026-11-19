@@ -15,6 +15,7 @@ export function Title() {
   const start = useGame((z) => z.start);
   const startRealtime = useGame((z) => z.startRealtime);
   const hasSave = useGame((z) => z.hasSave);
+  const saveInfo = useGame((z) => z.saveInfo);
   const cont = useGame((z) => z.continueSave);
   const [seed, setSeed] = useState(() => String(shared.seed ?? Math.floor(Math.random() * 900000) + 100000));
   const [diff, setDiff] = useState<Difficulty>(shared.difficulty ?? "normal");
@@ -35,6 +36,12 @@ export function Title() {
         <h1 className="font-display text-[clamp(44px,9vw,84px)] leading-none">구울 <span className="text-gold">증후군</span></h1>
         <p className="text-muted max-w-[62ch] m-0">발푸르기스의 밤으로부터 10년. 시신이 다시 일어나 산 자를 먹는 대륙에서, 세 세력 중 하나를 골라 40계절 동안 나라를 이끄십시오. 모든 결정은 20면체 다섯 개로 판정됩니다.</p>
       </div>
+      {hasSave && (
+        <div className="mb-4 flex flex-wrap items-center gap-2.5 p-3 border border-gold-dim rounded bg-[#1f1a14]" data-testid="continue-banner">
+          <span className="font-ui text-[13px] text-muted">저장된 통치가 있습니다{saveInfo ? ` — ${FACTIONS[saveInfo.faction].short} · ${saveInfo.turn}/40턴` : ""}.</span>
+          <button className="btn-gold !py-1.5 ml-auto" onClick={cont}>이어하기</button>
+        </div>
+      )}
       <button type="button" className="lg:hidden font-ui text-[13px] text-gold-dim underline underline-offset-4 mb-3" aria-expanded={lore} aria-controls="lore" onClick={() => setLore(!lore)}>{lore ? "배경 이야기 접기" : "배경 이야기 펼치기 (749~759년)"}</button>
       <div id="lore" className={`grid gap-1.5 mb-4 lg:my-4 p-3.5 border-l-2 border-gold-dim bg-gradient-to-r from-[#1f1a14] to-transparent max-w-[760px] text-[14px] text-muted ${lore ? "" : "max-lg:hidden"}`}>
         <div><b className="text-ink font-bold">749년, 발푸르기스의 밤.</b> 마도왕 필립스 프리오는 재가 되고 불의 신 그니스는 소멸했습니다. 인공신 스틱스 아이루스가 아이루스 공국을 지키고, 여신 샤리아의 진노는 0으로 돌아왔습니다.</div>
@@ -84,7 +91,6 @@ export function Title() {
           <input id="seed" inputMode="numeric" value={seed} onChange={(e) => setSeed(e.target.value.replace(/\D/g, ""))}
             className="bg-panel border border-line text-ink px-2.5 py-1.5 rounded-[3px] w-32 font-ui tabular-nums" /></label>
         <span>같은 시드는 같은 주사위를 굴립니다.</span>
-        {hasSave && <button className="btn" onClick={cont}>이어하기</button>}
         <button className="btn" onClick={() => setRules(true)}>규칙 보기</button>
       </div>
       <p className="font-ui text-[11px] text-faint mt-6">카드 {content.cards.length}장 · 일러스트 심볼 벡터 · 주사위 데모는 <a className="text-gold-dim underline" href="./dice.html">/dice.html</a>, 일러스트 갤러리는 <a className="text-gold-dim underline" href="./art.html">/art.html</a></p>

@@ -1,5 +1,5 @@
 import { RelicBar } from "./RelicBar";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { DIFFICULTIES, FACTIONS, REGION_NAME, SEASON_KO, actionsFor, npcVisit, seasonOf, yearOf, type GameState, type RegionId } from "@guul/engine";
 import { content, useGame } from "../store/store";
 import { Dashboard } from "./Dashboard";
@@ -9,7 +9,7 @@ import { ChronicleSheet, RulesSheet, SettingsSheet, Sheet } from "./Sheets";
 import { MobileHud, MobileNav, type MobileTab } from "./Mobile";
 import { Onboarding } from "./Onboarding";
 import { DecreePanel } from "./Decrees";
-import { RealtimeBar } from "./Realtime";
+import { RealtimeDriver, RealtimeTopBar, RealtimeDecision, RealtimeFlash, RealtimeActionHint, MapPanel, EventLog } from "./Realtime";
 
 const CREST: Record<string, string[]> = { arkandal: ["shield"], iruth: ["snowflake"], voodoo: ["eye"] };
 
@@ -70,15 +70,52 @@ export function Game({ s }: { s: GameState }) {
   const pickAction = (id: string) => (i: number, b?: Parameters<typeof chooseAction>[2]) => (realtime ? rtAction(id, i, b) : chooseAction(id, i, b));
   const [sheet, setSheet] = useState<null | "chron" | "rules" | "settings" | "board">(null);
   const openTab = (t: MobileTab) => { if (t === "title") toTitle(); else setSheet(sheet === t ? null : t); };
-  // 모바일: 새 카드·단계가 나오면 맨 위로 (데스크톱은 대시보드가 옆에 있어 그대로 둠)
+  // 단계가 바뀌면 그 단계의 제목(결산·사건 등)을 화면 맨 위로 올리고 키보드 초점을 옮깁니다.
+  // (교수 피드백: 아래로 내린 채 계절을 마치면 '다음 계절' 버튼부터 보이던 문제 — 노트북 포함 전 화면 대상)
+  const anchorRef = useRef<HTMLDivElement>(null);
   useEffect(() => {
-    if (typeof window === "undefined" || window.innerWidth >= 1024) return;
+    const el = anchorRef.current;
+    if (!el || typeof window === "undefined") return;
     const reduce = window.matchMedia?.("(prefers-reduced-motion: reduce)").matches;
-    window.scrollTo({ top: 0, behavior: reduce ? "auto" : "smooth" });
+    el.scrollIntoView({ block: "start", behavior: reduce ? "auto" : "smooth" });
+    try { el.focus({ preventScroll: true }); } catch { /* 일부 브라우저 */ }
   }, [s.turn, s.phase, s.eventIdx, openAction]);
   const F = FACTIONS[s.faction];
   const V = s.faction === "voodoo";
   const last = s.chronicle[s.chronicle.length - 1];
+
+  // ───────── 실시간 모드: 지도 중심 레이아웃 ─────────
+  if (realtime) {
+    return (
+      <>
+        <RealtimeDriver />
+        <section className="gutter max-w-[1180px] mx-auto pt-3 pb-10">
+          <RealtimeTopBar s={s} />
+          <div className="flex justify-end gap-1.5 mb-3">
+            <button className="btn !px-2.5 !text-[12px]" onClick={() => setSheet("chron")}>연대기</button>
+            <button className="btn !px-2.5 !text-[12px]" onClick={() => setSheet("rules")}>규칙</button>
+            <button className="btn !px-2.5 !text-[12px]" onClick={() => setSheet("settings")}>설정</button>
+            <button className="btn !px-2.5 !text-[12px]" onClick={toTitle}>처음으로</button>
+          </div>
+          <div className="grid gap-4 lg:grid-cols-[minmax(0,1fr)_minmax(0,540px)] items-start">
+            <div className="grid gap-3 order-last lg:order-none">
+              <RealtimeActionHint s={s} />
+              <Dashboard s={s} />
+            </div>
+            <div className="grid gap-3">
+              <MapPanel />
+              <EventLog />
+            </div>
+          </div>
+        </section>
+        <RealtimeDecision s={s} />
+        <RealtimeFlash />
+        {sheet === "chron" && <ChronicleSheet s={s} onClose={() => setSheet(null)} />}
+        {sheet === "rules" && <RulesSheet onClose={() => setSheet(null)} />}
+        {sheet === "settings" && <SettingsSheet onClose={() => setSheet(null)} />}
+      </>
+    );
+  }
 
   return (
     <>
@@ -99,9 +136,9 @@ export function Game({ s }: { s: GameState }) {
       <div className="grid gap-[18px] lg:grid-cols-[340px_minmax(0,1fr)] lg:items-start">
         <Dashboard s={s} className="hidden lg:grid" />
         <main className="grid gap-3.5 min-w-0 order-first lg:order-none">
-          <RealtimeBar />
           <Onboarding key={s.seed} s={s} />
           <div className="hidden lg:block"><Phases s={s} /></div>
+          <div ref={anchorRef} tabIndex={-1} aria-hidden="true" className="outline-none scroll-mt-28" />{/* 단계 제목 스크롤·초점 기준점 */}
 
           {s.phase === "start" && (
             <section className="bg-panel border border-line rounded p-3.5 sm:p-[18px] grid gap-2.5">
