@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import { DIFFICULTIES, FACTIONS, SEASON_KO, ci, epilogueOf, governanceTitle, infStage, scoreOf, seasonOf, yearOf, type GameState } from "@guul/engine";
 import { content, useGame } from "../store/store";
 import { shareUrl } from "../store/share";
+import { HEADER_IDS, headerUrl } from "../art/headers";
 
 function ShareLink({ s }: { s: GameState }) {
   const url = shareUrl(typeof window !== "undefined" ? window.location.href : "", s);
@@ -37,6 +38,10 @@ export function Ending({ s }: { s: GameState }) {
     <section className="gutter max-w-[1120px] mx-auto">
       <div className="grid gap-4 max-w-[720px] py-8">
         <div className={`font-ui text-[13px] tracking-[0.14em] ${tone}`}>{verdict} · {F.name} · {yearOf(s.turn)}년 {SEASON_KO[seasonOf(s.turn)]} · {DIFFICULTIES[s.difficulty].name}</div>
+        {HEADER_IDS.has(`end-${e.id}`) && (
+          <img src={headerUrl(`end-${e.id}`)} alt="" width={512} height={512} loading="lazy"
+            className="w-[min(260px,60vw)] aspect-square object-contain rounded border border-line2 shadow-[0_12px_30px_-14px_#000]" />
+        )}
         <h1 className="font-display text-[clamp(40px,8vw,72px)] leading-[1.05]">{e.title}</h1>
         <p className="text-muted max-w-[62ch] m-0 text-[16px]">{e.text}</p>
         <p className="m-0 text-[15px] text-gold" data-testid="gov-title">

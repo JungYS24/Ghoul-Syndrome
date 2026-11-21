@@ -53,6 +53,13 @@ export const HEADER_IDS = new Set<string>([
   "wall", "npc-franci", "npc-dio", "npc-yard",
   "npc-kshala", "npc-imis", "npc-milione", "npc-lapis",
   "npc-cruill", "npc-kobiko",
+  // 엔딩 배너 (24종)
+  "end-v-arkandal-wall", "end-v-iruth-cure", "end-v-voodoo-grace", "end-v-pact",
+  "end-d-morale", "end-d-order", "end-d-finance", "end-d-legit",
+  "end-d-faith", "end-d-control", "end-d-offering", "end-d-stealth",
+  "end-d-empty", "end-d-capital", "end-d-continent", "end-d-voodoo-cure", "end-d-voodoo-wall",
+  "end-s-iruth-led", "end-s-S", "end-s-A", "end-s-B", "end-s-C", "end-s-D",
+  "end-x-goddess",
 ]);
 
 export const headerUrl = (id: string) => `headers/${id}.webp`;

@@ -40,6 +40,9 @@ export const ENDINGS: EndingDef[] = [
   { id: "s-B", type: "survive", title: "생존 등급 B", text: "10년의 밤이 끝났습니다. 승리 조건을 이루지는 못했지만, 나라는 아직 서 있습니다." },
   { id: "s-C", type: "survive", title: "생존 등급 C", text: "10년의 밤이 끝났습니다. 살아남았다고 말하기엔 잃은 것이 너무 많습니다." },
   { id: "s-D", type: "survive", title: "생존 등급 D", text: "10년의 밤이 끝났습니다. 깃발은 아직 걸려 있지만, 그 아래 설 사람이 거의 남지 않았습니다." },
+  // 신규 — 특수 (배너 준비 완료, 발동 조건은 추후 연결)
+  { id: "v-pact", type: "victory", title: "세 깃발의 맹약", text: "세 세력이 서로의 깃발 아래 손을 맞잡았습니다. 역병은 끝나지 않았지만, 대륙은 처음으로 한목소리로 숨을 쉽니다." },
+  { id: "x-goddess", type: "survive", title: "여신의 눈을 뜨다", text: "침묵하던 샤리아가 돌아보았습니다. 제단이 갈라지고 빛이 쏟아졌지만, 그것이 구원인지 심판인지는 아무도 알지 못했습니다." },
 ];
 
 export function endingDef(id: string): EndingDef {
