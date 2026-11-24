@@ -2,7 +2,7 @@ import { useGame } from "../store/store";
 import { DiceRoller } from "../dice/DiceRoller";
 import { FACTIONS, REGION_NAME, labelOf, type AppliedEffect, type GameState } from "@guul/engine";
 
-function chip(s: GameState, a: AppliedEffect, fail: boolean) {
+export function chip(s: GameState, a: AppliedEffect, fail: boolean) {
   const unit = a.key === "pop" || a.key === "army" ? "만" : "";
   const n = a.key === "pop" || a.key === "army" ? Math.abs(a.delta).toFixed(1) : String(Math.abs(Math.round(a.delta)));
   const t = `${a.label} ${a.delta > 0 ? "+" : "−"}${n}${unit}`;

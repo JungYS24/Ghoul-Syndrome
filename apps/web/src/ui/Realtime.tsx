@@ -7,6 +7,7 @@ import { DAYS_PER_SEASON, content, rtDate, useGame } from "../store/store";
 import { clockFrozen, deadlineMs } from "../store/rtClock";
 import { BannerCard } from "./BannerCard";
 import { WorldMap } from "./WorldMap";
+import { RealtimeRoll } from "./D20Roll";
 import { Dashboard } from "./Dashboard";
 import { Illus } from "../art/Art";
 
@@ -94,6 +95,8 @@ function DeadlineBar({ onTimeout, onAuto }: { onTimeout: () => void; onAuto: () 
 // ───────── 사건/행동/알현 배너 (우측 배너 자리, 비모달) ─────────
 // 팝업으로 화면을 덮지 않아, 선택지에 마우스를 올리면 좌측 대시보드의 자원·게이지 변화가 그대로 보입니다.
 export function RealtimeSlot({ s }: { s: GameState }) {
+  const rolling = useGame((z) => !!z.rtRoll);
+  if (rolling) return <RealtimeRoll s={s} />;
   return <RealtimeDecision s={s} fallback={<WorldMap s={s} />} />;
 }
 function RealtimeDecision({ s, fallback }: { s: GameState; fallback: React.ReactNode }) {

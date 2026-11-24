@@ -41,7 +41,12 @@ button[data-faction] h2{color:var(--f-main)}
 @media (prefers-reduced-motion:reduce){.art-sway{animation:none}}
 .quick-pop{animation:quickpop .18s ease-out}
 @keyframes quickpop{from{transform:scale(.92);opacity:0}to{transform:scale(1);opacity:1}}
-@media (prefers-reduced-motion:reduce){.quick-pop{animation:none}}
+/* 실시간 판정 20면체 */
+.d20-spin{animation:d20spin .45s linear infinite}
+.d20-land{animation:d20land .35s cubic-bezier(.2,1.6,.4,1)}
+@keyframes d20spin{0%{transform:rotate(0) scale(.96)}50%{transform:rotate(180deg) scale(1.04)}100%{transform:rotate(360deg) scale(.96)}}
+@keyframes d20land{from{transform:rotate(-40deg) scale(1.15)}to{transform:rotate(0) scale(1)}}
+@media (prefers-reduced-motion:reduce){.quick-pop,.d20-spin,.d20-land{animation:none}}
 
 /* ── 모바일 크롬 (lg 미만) ── */
 .btn,.btn-gold{white-space:nowrap}

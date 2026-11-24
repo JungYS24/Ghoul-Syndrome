@@ -82,6 +82,9 @@ interface Store {
   /** 판정 결과 잠깐 표시 (실시간: 모달 대신 토스트) */
   flash: { grade: string; tone: string } | null;
   clearFlash: () => void;
+  /** 실시간 판정 주사위 연출 (배너 자리에 굴림 → 결과). 떠 있는 동안 시계 멈춤 */
+  rtRoll: { outcome: RollOutcome; title: string; label: string } | null;
+  clearRoll: () => void;
   /** 현재 계절 내 경과 일수 (0~DAYS_PER_SEASON) */
   dayOffset: number;
   rtSetDay: (d: number) => void;
@@ -113,7 +116,7 @@ function persist(s: GameState | null) {
 
 export const useGame = create<Store>((set, get) => ({
   screen: "title", state: null, dice: null, hasSave: false, saveInfo: null, actedThisAp: false, openAction: null, preview: null, book: {}, legacy: { points: 0, perks: [] }, lastGain: 0,
-  realtime: false, speed: 1, paused: false, auto: false, flash: null, dayOffset: 0, eventActive: false, rtLog: [], modalOpen: false,
+  realtime: false, speed: 1, paused: false, auto: false, flash: null, rtRoll: null, dayOffset: 0, eventActive: false, rtLog: [], modalOpen: false,
   setModalOpen(b) { if (get().modalOpen !== b) set({ modalOpen: b }); },
   setPreview(p) { set({ preview: p }); },
 
@@ -147,15 +150,16 @@ export const useGame = create<Store>((set, get) => ({
       if (mode === "realtime") {
         // 날짜는 계절 첫날부터 다시 흐릅니다(남은 사건은 그 계절 안에서 다시 예정일에 뜸).
         logSeq = 0;
-        set({ state: saved, screen: saved.ended ? "ending" : "game", openAction: null, realtime: true, speed: 1, paused: false, auto: false, flash: null, dice: null,
+        set({ state: saved, screen: saved.ended ? "ending" : "game", openAction: null, realtime: true, speed: 1, paused: false, auto: false, flash: null, rtRoll: null, dice: null,
           dayOffset: 0, eventActive: false, rtLog: [{ id: ++logSeq, date: rtDateStr(saved.turn, 0), text: "저장한 곳에서 다시 통치를 이어 갑니다." }] });
       } else set({ state: saved, screen: saved.ended ? "ending" : "game", realtime: false });
     } catch { /* ignore */ }
   },
-  toTitle() { set({ screen: "title", openAction: null, modalOpen: false, realtime: false, paused: false, auto: false, flash: null, eventActive: false, rtLog: [], dayOffset: 0 }); void get().init(); },
+  toTitle() { set({ screen: "title", openAction: null, modalOpen: false, realtime: false, paused: false, auto: false, flash: null, rtRoll: null, eventActive: false, rtLog: [], dayOffset: 0 }); void get().init(); },
 
   // ───────── 실시간 모드 ─────────
   clearFlash() { set({ flash: null }); },
+  clearRoll() { const s = get().state; set({ rtRoll: null, screen: s?.ended ? "ending" : get().screen }); },
   rtSetDay(d) { set({ dayOffset: Math.max(0, Math.min(DAYS_PER_SEASON, d)) }); },
   rtSetEventActive(b) { set({ eventActive: b }); },
   rtPushLog(text, tone) {
@@ -167,7 +171,7 @@ export const useGame = create<Store>((set, get) => ({
     persist(s); saveMode("realtime");
     logSeq = 0;
     const d0 = rtDate(s.turn, 0);
-    set({ state: s, screen: s.ended ? "ending" : "game", openAction: null, realtime: true, speed: 1, paused: false, auto: false, flash: null, dice: null,
+    set({ state: s, screen: s.ended ? "ending" : "game", openAction: null, realtime: true, speed: 1, paused: false, auto: false, flash: null, rtRoll: null, dice: null,
       dayOffset: 0, eventActive: false, rtLog: [{ id: ++logSeq, date: rtDateStr(s.turn, 0), text: `${d0.season}, 통치가 시작되었습니다.` }] });
   },
   setSpeed(n) { set({ speed: n }); },
@@ -175,11 +179,11 @@ export const useGame = create<Store>((set, get) => ({
   toggleAuto() { set({ auto: !get().auto }); },
   rtGoEvents() { const s = get().state; if (s && s.phase === "start") { const n = openEvents(s); persist(n); set({ state: n }); } },
   rtEvent(i, boost) {
-    const s = get().state; if (!s || get().dice) return;
+    const s = get().state; if (!s || get().dice || get().rtRoll) return;
     const card = s.events[s.eventIdx]; if (!card || !card.choices[i]) return;
     const { state: next, outcome } = resolveEvent(s, i, boost);
     persist(next); get().rtPushLog(`${card.title} — ${outcome.grade.name}`, outcome.grade.tone);
-    set({ state: next, eventActive: false, flash: { grade: outcome.grade.name, tone: outcome.grade.tone }, screen: next.ended ? "ending" : "game" });
+    set({ state: next, eventActive: false, preview: null, rtRoll: { outcome, title: card.title, label: card.choices[i]!.label } });
   },
   rtSkip() {
     const s = get().state; if (!s || s.phase !== "event" || get().dice) return;
@@ -188,18 +192,18 @@ export const useGame = create<Store>((set, get) => ({
     set({ state: n, eventActive: false, flash: { grade: "방치", tone: "fail" }, screen: n.ended ? "ending" : "game" });
   },
   rtAction(id, i, boost) {
-    const s = get().state; if (!s || s.ap <= 0 || get().dice) return;
+    const s = get().state; if (!s || s.ap <= 0 || get().dice || get().rtRoll) return;
     const act = content.actions.find((a) => a.id === id); if (!act || !act.card.choices[i]) return;
     const { state: next, outcome } = resolveAction(s, content, id, i, boost);
     persist(next); get().rtPushLog(`${act.name} — ${outcome.grade.name}`, outcome.grade.tone);
-    set({ state: next, openAction: null, flash: { grade: outcome.grade.name, tone: outcome.grade.tone }, screen: next.ended ? "ending" : "game" });
+    set({ state: next, openAction: null, preview: null, rtRoll: { outcome, title: act.name, label: act.card.choices[i]!.label } });
   },
   rtNpc(i, boost) {
-    const s = get().state; if (!s || get().dice) return;
+    const s = get().state; if (!s || get().dice || get().rtRoll) return;
     const visit = npcVisit(s); if (!visit || !visit.card.choices[i]) return;
     const { state: next, outcome } = resolveNpc(s, i, boost);
     persist(next); get().rtPushLog(`연말 알현 · ${visit.npc.name} — ${outcome.grade.name}`, outcome.grade.tone);
-    set({ state: next, eventActive: false, flash: { grade: outcome.grade.name, tone: outcome.grade.tone }, screen: next.ended ? "ending" : "game" });
+    set({ state: next, eventActive: false, preview: null, rtRoll: { outcome, title: visit.npc.name, label: visit.card.choices[i]!.label } });
   },
   rtFinishTurn() {
     const s = get().state; if (!s || s.phase !== "action") return;

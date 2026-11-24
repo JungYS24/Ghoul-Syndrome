@@ -14,6 +14,7 @@ describe("실시간 시간 규칙", () => {
     expect(clockFrozen({ paused: true, dice: null, modalOpen: false })).toBe(true);
     expect(clockFrozen({ paused: false, dice: {}, modalOpen: false })).toBe(true);
     expect(clockFrozen({ paused: false, dice: null, modalOpen: true })).toBe(true);
+    expect(clockFrozen({ paused: false, dice: null, modalOpen: false, rtRoll: {} })).toBe(true);
   });
   it("저장된 모드 값 검사", () => {
     expect(isPlayMode("realtime")).toBe(true); expect(isPlayMode("turn")).toBe(true);

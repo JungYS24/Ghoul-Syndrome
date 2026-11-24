@@ -3,12 +3,13 @@
 // - 상단(금색 점)은 육상 교역로를, 선박은 해상 항로를 따라 날짜가 흐를 때만 움직임
 // - 지나는 지역 감염도가 높으면 교역로가 끊겨(붉은 점선) 상단이 사라짐
 // - 우리 세력 영토로 확대해 보여 주고, 버튼으로 대륙 전체를 볼 수 있음
+// - 지도 위에서 휠(트랙패드 스크롤)로 확대·축소, 누른 채 끌면 이동
 import { useEffect, useRef, useState } from "react";
 import { infStage, seasonOf, type FactionId, type GameState, type RegionId } from "@guul/engine";
 import { useGame } from "../store/store";
 import { regionCollapsed } from "./mapShade";
+import { MAP_H as H, MAP_W as W, clampView, panBy, zoomAt, type View } from "./mapView";
 
-const W = 1000, H = 720;
 /** 지도에 그리는 세 땅 (부두교는 라벤 폐허=중립지에 숨어 있음) */
 type Zone = Extract<RegionId, "iruth" | "neutral" | "arkandal">;
 
@@ -83,18 +84,57 @@ const HOME: Record<FactionId, Zone> = { iruth: "iruth", arkandal: "arkandal", vo
 const FOCUS: Record<Zone, [number, number]> = { iruth: [190, 40], arkandal: [380, 250], neutral: [20, 240] };
 const ZW = 620;
 
+export function focusView(f: FactionId): View { const [x, y] = FOCUS[HOME[f]]; return clampView({ k: W / ZW, x, y }); }
+
 export function WorldMap({ s }: { s: GameState }) {
-  const [whole, setWhole] = useState(false);
+  const [view, setView] = useState<View>(() => focusView(s.faction));
+  const [animate, setAnimate] = useState(true);
+  const svgRef = useRef<SVGSVGElement>(null);
+  const drag = useRef<{ id: number; x: number; y: number; moved: boolean } | null>(null);
+  const justDragged = useRef(false);
+  const toSvg = (dx: number) => { const el = svgRef.current; return el ? (dx * W) / el.getBoundingClientRect().width : dx; };
+  const go = (v: View) => { setAnimate(true); setView(clampView(v)); };
+  // 휠 확대·축소 — 페이지 스크롤을 막아야 해서 passive: false 로 직접 등록
+  useEffect(() => {
+    const el = svgRef.current; if (!el) return;
+    const onWheel = (e: WheelEvent) => {
+      e.preventDefault();
+      const rc = el.getBoundingClientRect();
+      const sx = ((e.clientX - rc.left) * W) / rc.width, sy = ((e.clientY - rc.top) * H) / rc.height;
+      setAnimate(false);
+      setView((v) => zoomAt(v, Math.exp(-e.deltaY * 0.0015), sx, sy));
+    };
+    el.addEventListener("wheel", onWheel, { passive: false });
+    return () => el.removeEventListener("wheel", onWheel);
+  }, []);
+  const onPointerDown = (e: React.PointerEvent<SVGSVGElement>) => {
+    if (e.button !== 0) return;
+    drag.current = { id: e.pointerId, x: e.clientX, y: e.clientY, moved: false };
+  };
+  const onPointerMove = (e: React.PointerEvent<SVGSVGElement>) => {
+    const d = drag.current; if (!d || d.id !== e.pointerId) return;
+    const dx = e.clientX - d.x, dy = e.clientY - d.y;
+    if (!d.moved && Math.hypot(dx, dy) < 4) return;
+    if (!d.moved) { d.moved = true; e.currentTarget.setPointerCapture(e.pointerId); }
+    d.x = e.clientX; d.y = e.clientY;
+    setAnimate(false);
+    setView((v) => panBy(v, toSvg(dx), toSvg(dy)));
+  };
+  const onPointerUp = (e: React.PointerEvent<SVGSVGElement>) => {
+    const d = drag.current; if (!d || d.id !== e.pointerId) return;
+    justDragged.current = d.moved; drag.current = null;
+  };
+  const whole = view.k <= 1.001;
   const setTarget = useGame((z) => z.setTarget);
-  const home = HOME[s.faction];
   const V = s.faction === "voodoo";
   const canPick = V && s.phase === "action";
-  const k = whole ? 1 : W / ZW;
-  const [fx, fy] = whole ? [0, 0] : FOCUS[home];
   const season = seasonOf(s.turn);
   return (
     <figure className="m-0 relative rounded border border-line2 overflow-hidden bg-[#1a2a33] shadow-[0_10px_28px_-12px_#000]" data-testid="world-map">
-      <svg viewBox={`0 0 ${W} ${H}`} className="w-full h-auto block" role="img"
+      <svg ref={svgRef} viewBox={`0 0 ${W} ${H}`} className="w-full h-auto block select-none cursor-grab active:cursor-grabbing" role="img"
+        style={{ touchAction: view.k > 1.001 ? "none" : "pan-y" }}
+        onPointerDown={onPointerDown} onPointerMove={onPointerMove} onPointerUp={onPointerUp} onPointerCancel={onPointerUp}
+        onClickCapture={(e) => { if (justDragged.current) { e.stopPropagation(); e.preventDefault(); justDragged.current = false; } }}
         aria-label={`대륙 지도: ${ORDER.map((r) => `${REGION[r].name} 감염도 ${s.infection[r]}`).join(", ")}`}>
         <defs>
           <clipPath id="wm-coast"><path d={COAST} /></clipPath>
@@ -107,7 +147,7 @@ export function WorldMap({ s }: { s: GameState }) {
         <rect width={W} height={H} fill="#1a2a33" />
         <rect width={W} height={H} fill="url(#wm-wave)" />
 
-        <g style={{ transform: `scale(${k}) translate(${-fx}px, ${-fy}px)`, transition: "transform 900ms cubic-bezier(.2,.7,.2,1)" }}>
+        <g style={{ transform: `scale(${view.k}) translate(${-view.x}px, ${-view.y}px)`, transition: animate ? "transform 700ms cubic-bezier(.2,.7,.2,1)" : "none" }}>
           {/* 해상 항로 */}
           {SEA.map((r) => <path key={r.id} d={r.d} fill="none" stroke="#6f8fa0" strokeWidth="2" strokeDasharray="2 9" strokeLinecap="round" opacity=".7" />)}
 
@@ -178,15 +218,20 @@ export function WorldMap({ s }: { s: GameState }) {
         <rect width={W} height={H} fill="url(#wm-vig)" pointerEvents="none" />
       </svg>
 
-      <button type="button" onClick={() => setWhole((v) => !v)} className="absolute top-2 right-2 btn !py-1 !px-2.5 !text-[12px]" aria-pressed={whole}>
-        {whole ? "우리 영토 확대" : "대륙 전체 보기"}
-      </button>
+      <div className="absolute top-2 right-2 flex gap-1">
+        <button type="button" className="btn !py-1 !px-2 !text-[12px] min-w-[30px]" aria-label="확대" onClick={() => go(zoomAt(view, 1.4, W / 2, H / 2))}>+</button>
+        <button type="button" className="btn !py-1 !px-2 !text-[12px] min-w-[30px]" aria-label="축소" onClick={() => go(zoomAt(view, 1 / 1.4, W / 2, H / 2))}>−</button>
+        <button type="button" className="btn !py-1 !px-2.5 !text-[12px]" onClick={() => go(whole ? focusView(s.faction) : { k: 1, x: 0, y: 0 })}>
+          {whole ? "우리 영토 확대" : "대륙 전체 보기"}
+        </button>
+      </div>
       <figcaption className="absolute left-2 bottom-2 flex flex-wrap gap-x-3 gap-y-1 px-2 py-1 rounded-[3px] font-ui text-[11px] text-[#e6dcc6]" style={{ background: "rgba(20,15,11,.78)" }}>
         <span><i className="inline-block w-2.5 h-2.5 rounded-full align-middle mr-1" style={{ background: infColor(15) }} />오염</span>
         <span><i className="inline-block w-2.5 h-2.5 rounded-full align-middle mr-1" style={{ background: infColor(90) }} />심각</span>
         <span><i className="inline-block w-2 h-2 rounded-full align-middle mr-1 bg-[#f0d68d]" />상단</span>
         <span>⛵ 선박</span>
         <span className="text-[#e07a6a]">┄ 끊긴 길</span>
+        <span className="hidden sm:inline text-faint">휠: 확대·축소 · 끌기: 이동</span>
         {canPick && <span className="text-[#c9a2f2]">지역을 눌러 확산 대상 지정</span>}
       </figcaption>
     </figure>
