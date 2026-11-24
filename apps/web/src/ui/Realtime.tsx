@@ -4,13 +4,13 @@
 import { useEffect, useRef, useState } from "react";
 import { DIFFICULTIES, FACTIONS, actionsFor, canAfford, npcVisit, successChance, type Choice, type GameState } from "@guul/engine";
 import { DAYS_PER_SEASON, content, rtDate, useGame } from "../store/store";
+import { clockFrozen, deadlineMs } from "../store/rtClock";
 import { CardView } from "./Cards";
 import { Dashboard } from "./Dashboard";
 import { Illus } from "../art/Art";
 
 const SPEEDS = [1, 2, 5, 10];
 const EV_START = 5, EV_SPAN = 60;          // 사건은 5~65일에 분산
-const DEADLINE_MS = 10000, AUTO_MS = 800;  // 선택 제한시간(1배속), 자동은 빠르게
 const triggerDay = (i: number, n: number) => Math.round(EV_START + ((i + 0.5) / Math.max(1, n)) * EV_SPAN);
 const CREST: Record<string, string[]> = { arkandal: ["shield"], iruth: ["snowflake"], voodoo: ["eye"] };
 
@@ -35,7 +35,7 @@ export function RealtimeDriver() {
     const loop = () => {
       const now = performance.now(); const dt = now - lastRef.current; lastRef.current = now;
       const st = useGame.getState(); const s = st.state;
-      if (s && st.realtime && st.screen === "game" && !s.ended && !st.paused && !st.dice) {
+      if (s && st.realtime && st.screen === "game" && !s.ended && !clockFrozen(st)) {
         const npc = s.phase === "end" ? npcVisit(s) : null;
         const decision = st.eventActive || !!st.openAction || !!npc;
         if (!decision) {
@@ -63,13 +63,13 @@ function DeadlineBar({ onTimeout, onAuto }: { onTimeout: () => void; onAuto: () 
   const leftRef = useRef(0), lastRef = useRef(0), firedRef = useRef(false);
   useEffect(() => {
     const st0 = useGame.getState();
-    const bud = (st0.auto ? AUTO_MS : DEADLINE_MS) / Math.max(1, st0.speed);
+    const bud = deadlineMs(st0.auto, st0.speed);
     leftRef.current = bud; lastRef.current = performance.now(); firedRef.current = false;
     let raf = 0;
     const loop = () => {
       const now = performance.now(); const dt = now - lastRef.current; lastRef.current = now;
       const st = useGame.getState();
-      if (!st.paused) {
+      if (!clockFrozen(st)) {
         leftRef.current -= dt; setRemain(Math.max(0, leftRef.current / bud));
         if (leftRef.current <= 0 && !firedRef.current) { firedRef.current = true; (st.auto ? onAuto : onTimeout)(); return; }
       }
@@ -94,6 +94,7 @@ export function RealtimeDecision({ s }: { s: GameState }) {
   const rtAction = useGame((z) => z.rtAction);
   const rtNpc = useGame((z) => z.rtNpc);
   const closeActionCard = useGame((z) => z.closeActionCard);
+  const auto = useGame((z) => z.auto);
 
   const npc = s.phase === "end" ? npcVisit(s) : null;
   let kind: "event" | "action" | "npc" | null = null;
@@ -130,7 +131,8 @@ export function RealtimeDecision({ s }: { s: GameState }) {
         {kind === "npc" && <div className="eyebrow text-gold text-center">연말 알현 · {npc!.npc.name} ({npc!.npc.role})</div>}
         <CardView key={key} s={s} card={card!} onPick={onPick}>
           <div className="grid gap-2">
-            <DeadlineBar key={key} onTimeout={onTimeout} onAuto={onAuto} />
+            {/* 행동은 스스로 고르는 것이라 사람에게는 제한시간이 없습니다(카드가 열린 동안 날짜도 멈춤). 자동 진행만 타이머로 고름. */}
+            {(kind !== "action" || auto) && <DeadlineBar key={key} onTimeout={onTimeout} onAuto={onAuto} />}
             {extra && <div className="flex gap-2 flex-wrap">{extra}</div>}
           </div>
         </CardView>
@@ -147,20 +149,26 @@ export function RealtimeTopBar({ s }: { s: GameState }) {
   const d = rtDate(s.turn, dayOffset);
   const F = FACTIONS[s.faction];
   return (
-    <div className="rt-bar sticky top-0 z-30 flex items-center gap-2 flex-wrap bg-panel border border-line2 rounded px-3 py-2 mb-3">
-      <span className="w-6 h-6 shrink-0"><Illus keys={CREST[s.faction]} faction={s.faction} accent /></span>
-      <b className="font-display text-[17px] leading-none">{F.short}</b>
-      <span className="font-ui text-[12px] text-muted hidden sm:inline">{s.difficulty !== "normal" ? DIFFICULTIES[s.difficulty].name : ""}</span>
-      <div className="mx-auto text-center">
-        <div className="font-display text-[19px] leading-none text-gold tabular-nums">여신력 {d.year}년 {d.month}월 {d.day}일</div>
-        <div className="font-ui text-[11px] text-faint">{d.season} · {s.turn}/40계절</div>
+    <div className="rt-bar sticky z-30 bg-panel border border-line2 rounded px-3 py-2 mb-3 grid gap-2 lg:flex lg:items-center lg:gap-3" style={{ top: "env(safe-area-inset-top, 0px)" }}>
+      <div className="flex items-center gap-2 min-w-0 lg:flex-1">
+        <span className="w-6 h-6 shrink-0"><Illus keys={CREST[s.faction]} faction={s.faction} accent /></span>
+        <b className="font-display text-[17px] leading-none whitespace-nowrap">{F.short}</b>
+        <span className="font-ui text-[12px] text-muted hidden sm:inline">{s.difficulty !== "normal" ? DIFFICULTIES[s.difficulty].name : ""}</span>
+        <div className="ml-auto text-right lg:mx-auto lg:text-center">
+          <div className="font-display text-[17px] sm:text-[19px] leading-none text-gold tabular-nums whitespace-nowrap">여신력 {d.year}년 {d.month}월 {d.day}일</div>
+          <div className="font-ui text-[11px] text-faint">{d.season} · {s.turn}/40계절{paused ? " · 일시정지" : ""}</div>
+        </div>
       </div>
-      <button className="btn !px-2.5 !py-1 !text-[13px]" onClick={togglePause} aria-pressed={paused}>{paused ? "▶" : "⏸"}</button>
-      {SPEEDS.map((n) => (
-        <button key={n} className={`px-2 py-1 rounded-[2px] border font-ui text-[12px] tabular-nums ${speed === n ? "border-gold text-gold bg-[#2a2216]" : "border-line text-muted"}`}
-          aria-pressed={speed === n} onClick={() => setSpeed(n)}>{n}×</button>
-      ))}
-      <button className={`px-2 py-1 rounded-[2px] border font-ui text-[12px] ${auto ? "border-gold text-gold bg-[#2a2216]" : "border-line text-muted"}`} aria-pressed={auto} onClick={toggleAuto}>자동</button>
+      <div className="flex items-center gap-1.5 justify-between lg:justify-end">
+        <button className="btn !px-3 !py-1 !text-[13px] min-h-[34px]" onClick={togglePause} aria-pressed={paused} aria-label={paused ? "재개" : "일시정지"}>{paused ? "▶" : "⏸"}</button>
+        <div className="flex gap-1">
+          {SPEEDS.map((n) => (
+            <button key={n} className={`min-w-[38px] min-h-[34px] px-2 py-1 rounded-[2px] border font-ui text-[12px] tabular-nums ${speed === n ? "border-gold text-gold bg-[#2a2216]" : "border-line text-muted"}`}
+              aria-pressed={speed === n} onClick={() => setSpeed(n)}>{n}×</button>
+          ))}
+        </div>
+        <button className={`min-h-[34px] px-2.5 py-1 rounded-[2px] border font-ui text-[12px] ${auto ? "border-gold text-gold bg-[#2a2216]" : "border-line text-muted"}`} aria-pressed={auto} onClick={toggleAuto}>자동</button>
+      </div>
     </div>
   );
 }

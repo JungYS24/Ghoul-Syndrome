@@ -6,6 +6,9 @@ import {
 } from "@guul/engine";
 import { content } from "@guul/content";
 import { addEnding, type EndingBook } from "./share";
+import { MODE_KEY, isPlayMode, type PlayMode } from "./rtClock";
+
+function saveMode(m: PlayMode) { try { void idbSet(MODE_KEY, m); } catch { /* 저장 불가 */ } }
 
 // ───────── 실시간 달력 (1초 = 1일) ─────────
 export const DAYS_PER_SEASON = 90; // 3개월 × 30일
@@ -85,6 +88,9 @@ interface Store {
   /** 현재 사건이 팝업으로 떠 있는지 (날짜 시계 멈춤) */
   eventActive: boolean;
   rtSetEventActive: (b: boolean) => void;
+  /** 시트(연대기·규칙·설정·상황판)가 열려 있는지 — 실시간 시계를 멈춤 */
+  modalOpen: boolean;
+  setModalOpen: (b: boolean) => void;
   /** 사건 로그 (지도 아래) */
   rtLog: LogEntry2[];
   rtPushLog: (text: string, tone?: string) => void;
@@ -107,7 +113,8 @@ function persist(s: GameState | null) {
 
 export const useGame = create<Store>((set, get) => ({
   screen: "title", state: null, dice: null, hasSave: false, saveInfo: null, actedThisAp: false, openAction: null, preview: null, book: {}, legacy: { points: 0, perks: [] }, lastGain: 0,
-  realtime: false, speed: 1, paused: false, auto: false, flash: null, dayOffset: 0, eventActive: false, rtLog: [],
+  realtime: false, speed: 1, paused: false, auto: false, flash: null, dayOffset: 0, eventActive: false, rtLog: [], modalOpen: false,
+  setModalOpen(b) { if (get().modalOpen !== b) set({ modalOpen: b }); },
   setPreview(p) { set({ preview: p }); },
 
   async init() {
@@ -128,13 +135,24 @@ export const useGame = create<Store>((set, get) => ({
   },
   start(f, seed, difficulty = "normal") {
     const s = startTurn(newGame(f, seed, { difficulty, legacy: get().legacy.perks }), content);
-    persist(s);
-    set({ state: s, screen: s.ended ? "ending" : "game", openAction: null });
+    persist(s); saveMode("turn");
+    set({ state: s, screen: s.ended ? "ending" : "game", openAction: null, realtime: false });
   },
   async continueSave() {
-    try { const raw = await idbGet<unknown>(SAVE_KEY); if (raw) { const saved = migrateState(raw); set({ state: saved, screen: saved.ended ? "ending" : "game" }); } } catch { /* ignore */ }
+    try {
+      const raw = await idbGet<unknown>(SAVE_KEY); if (!raw) return;
+      const saved = migrateState(raw);
+      let mode: PlayMode = "turn";
+      try { const m = await idbGet<unknown>(MODE_KEY); if (isPlayMode(m)) mode = m; } catch { /* 모드 기록 없음 = 턴제 */ }
+      if (mode === "realtime") {
+        // 날짜는 계절 첫날부터 다시 흐릅니다(남은 사건은 그 계절 안에서 다시 예정일에 뜸).
+        logSeq = 0;
+        set({ state: saved, screen: saved.ended ? "ending" : "game", openAction: null, realtime: true, speed: 1, paused: false, auto: false, flash: null, dice: null,
+          dayOffset: 0, eventActive: false, rtLog: [{ id: ++logSeq, date: rtDateStr(saved.turn, 0), text: "저장한 곳에서 다시 통치를 이어 갑니다." }] });
+      } else set({ state: saved, screen: saved.ended ? "ending" : "game", realtime: false });
+    } catch { /* ignore */ }
   },
-  toTitle() { set({ screen: "title", openAction: null, realtime: false, paused: false, auto: false, flash: null, eventActive: false, rtLog: [], dayOffset: 0 }); void get().init(); },
+  toTitle() { set({ screen: "title", openAction: null, modalOpen: false, realtime: false, paused: false, auto: false, flash: null, eventActive: false, rtLog: [], dayOffset: 0 }); void get().init(); },
 
   // ───────── 실시간 모드 ─────────
   clearFlash() { set({ flash: null }); },
@@ -146,7 +164,7 @@ export const useGame = create<Store>((set, get) => ({
   },
   startRealtime(f, seed, difficulty = "normal") {
     const s = startTurn(newGame(f, seed, { difficulty, legacy: get().legacy.perks }), content);
-    persist(s);
+    persist(s); saveMode("realtime");
     logSeq = 0;
     const d0 = rtDate(s.turn, 0);
     set({ state: s, screen: s.ended ? "ending" : "game", openAction: null, realtime: true, speed: 1, paused: false, auto: false, flash: null, dice: null,

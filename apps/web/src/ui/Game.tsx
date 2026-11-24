@@ -70,6 +70,10 @@ export function Game({ s }: { s: GameState }) {
   const pickAction = (id: string) => (i: number, b?: Parameters<typeof chooseAction>[2]) => (realtime ? rtAction(id, i, b) : chooseAction(id, i, b));
   const [sheet, setSheet] = useState<null | "chron" | "rules" | "settings" | "board">(null);
   const openTab = (t: MobileTab) => { if (t === "title") toTitle(); else setSheet(sheet === t ? null : t); };
+  // 실시간: 시트가 열려 있는 동안 날짜 시계와 제한시간을 멈춤
+  const setModalOpen = useGame((z) => z.setModalOpen);
+  useEffect(() => { setModalOpen(sheet !== null); }, [sheet, setModalOpen]);
+  useEffect(() => () => setModalOpen(false), [setModalOpen]);
   // 단계가 바뀌면 그 단계의 제목(결산·사건 등)을 화면 맨 위로 올리고 키보드 초점을 옮깁니다.
   // (교수 피드백: 아래로 내린 채 계절을 마치면 '다음 계절' 버튼부터 보이던 문제 — 노트북 포함 전 화면 대상)
   const anchorRef = useRef<HTMLDivElement>(null);
@@ -89,9 +93,9 @@ export function Game({ s }: { s: GameState }) {
     return (
       <>
         <RealtimeDriver />
-        <section className="gutter max-w-[1180px] mx-auto pt-3 pb-10">
+        <section className="gutter max-w-[1180px] mx-auto pt-3 pb-28 lg:pb-10">
           <RealtimeTopBar s={s} />
-          <div className="flex justify-end gap-1.5 mb-3">
+          <div className="hidden lg:flex justify-end gap-1.5 mb-3">
             <button className="btn !px-2.5 !text-[12px]" onClick={() => setSheet("chron")}>연대기</button>
             <button className="btn !px-2.5 !text-[12px]" onClick={() => setSheet("rules")}>규칙</button>
             <button className="btn !px-2.5 !text-[12px]" onClick={() => setSheet("settings")}>설정</button>
@@ -113,6 +117,8 @@ export function Game({ s }: { s: GameState }) {
         {sheet === "chron" && <ChronicleSheet s={s} onClose={() => setSheet(null)} />}
         {sheet === "rules" && <RulesSheet onClose={() => setSheet(null)} />}
         {sheet === "settings" && <SettingsSheet onClose={() => setSheet(null)} />}
+        {sheet === "board" && <Sheet title="상황판" onClose={() => setSheet(null)}><Dashboard s={s} className="!p-3" /></Sheet>}
+        <MobileNav onOpen={openTab} active={sheet} />
       </>
     );
   }
