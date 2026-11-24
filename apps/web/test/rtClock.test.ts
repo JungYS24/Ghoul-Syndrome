@@ -3,6 +3,7 @@ import { AUTO_MS, DEADLINE_MS, clockFrozen, deadlineMs, isPlayMode } from "../sr
 
 describe("실시간 시간 규칙", () => {
   it("사람의 제한시간은 배속과 무관, 자동 진행만 배속을 따른다", () => {
+    expect(DEADLINE_MS).toBe(15000);
     for (const sp of [1, 2, 5, 10]) expect(deadlineMs(false, sp)).toBe(DEADLINE_MS);
     expect(deadlineMs(true, 1)).toBe(AUTO_MS);
     expect(deadlineMs(true, 10)).toBe(AUTO_MS / 10);

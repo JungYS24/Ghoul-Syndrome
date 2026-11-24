@@ -9,7 +9,7 @@ import { ChronicleSheet, RulesSheet, SettingsSheet, Sheet } from "./Sheets";
 import { MobileHud, MobileNav, type MobileTab } from "./Mobile";
 import { Onboarding } from "./Onboarding";
 import { DecreePanel } from "./Decrees";
-import { RealtimeDriver, RealtimeTopBar, RealtimeDecision, RealtimeFlash, RealtimeActionHint, MapPanel, EventLog } from "./Realtime";
+import { RealtimeDriver, RealtimeTopBar, RealtimeSlot, RealtimeFlash, RealtimeActionHint, EventLog } from "./Realtime";
 
 const CREST: Record<string, string[]> = { arkandal: ["shield"], iruth: ["snowflake"], voodoo: ["eye"] };
 
@@ -106,13 +106,13 @@ export function Game({ s }: { s: GameState }) {
               <RealtimeActionHint s={s} />
               <Dashboard s={s} />
             </div>
-            <div className="grid gap-3">
-              <MapPanel />
+            {/* 우측: 배너 자리(결정이 없으면 지도) + 축소한 사건 기록. 데스크톱에선 화면에 붙어 따라옴 */}
+            <div className="grid gap-3 lg:sticky lg:top-[76px] lg:max-h-[calc(100vh-88px)] lg:overflow-auto lg:pr-1">
+              <RealtimeSlot s={s} />
               <EventLog />
             </div>
           </div>
         </section>
-        <RealtimeDecision s={s} />
         <RealtimeFlash />
         {sheet === "chron" && <ChronicleSheet s={s} onClose={() => setSheet(null)} />}
         {sheet === "rules" && <RulesSheet onClose={() => setSheet(null)} />}

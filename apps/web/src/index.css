@@ -54,3 +54,8 @@ button[data-faction] h2{color:var(--f-main)}
   .end-dock{position:sticky;bottom:calc(60px + env(safe-area-inset-bottom,0px));z-index:5;margin:0 -14px -14px;padding:10px 14px 12px;
     background:linear-gradient(180deg,rgba(29,25,21,0),rgba(29,25,21,.96) 30%)}
 }
+/* 실시간 배너: 우측 자리에 맞게 카드 일러스트를 낮춤 */
+.rt-banner img{max-height:min(150px,18vh);width:auto}
+.rt-banner .letter{padding:14px 16px 12px;gap:10px}
+.rt-banner .letter h2{font-size:22px}
+.rt-banner .letter > p{font-size:15px;line-height:1.6}

@@ -1,5 +1,5 @@
 // 실시간 모드의 시간 규칙 — 화면과 분리한 순수 함수 (테스트용)
-export const DEADLINE_MS = 10000; // 사람이 고르는 제한시간: 배속과 상관없이 10초
+export const DEADLINE_MS = 15000; // 사람이 고르는 제한시간: 배속과 상관없이 15초
 export const AUTO_MS = 800;       // 자동(관전) 모드의 한 번 선택 간격 (배속 적용)
 export type PlayMode = "turn" | "realtime";
 export const MODE_KEY = "guul-save-mode-v1";

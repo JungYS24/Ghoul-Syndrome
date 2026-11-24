@@ -1,5 +1,5 @@
 // 실시간 모드: 지도 중심 레이아웃. 1초=1일(배속 적용)로 날짜가 흐르고,
-// 사건은 예정된 날에 팝업으로 떠(그동안 날짜 시계 멈춤) 제한시간 게이지 안에 선택.
+// 사건은 예정된 날에 우측 배너 자리에 떠(그동안 날짜 시계 멈춤) 15초 제한시간 안에 선택 — 배속과 무관.
 // 지도 아래엔 사건 로그가 쌓이고, 우측 상단에 날짜·배속 컨트롤.
 import { useEffect, useRef, useState } from "react";
 import { DIFFICULTIES, FACTIONS, actionsFor, canAfford, npcVisit, successChance, type Choice, type GameState } from "@guul/engine";
@@ -60,11 +60,12 @@ export function RealtimeDriver() {
 // ───────── 제한시간 게이지 ─────────
 function DeadlineBar({ onTimeout, onAuto }: { onTimeout: () => void; onAuto: () => void }) {
   const [remain, setRemain] = useState(1);
+  const [budget, setBudget] = useState(0);
   const leftRef = useRef(0), lastRef = useRef(0), firedRef = useRef(false);
   useEffect(() => {
     const st0 = useGame.getState();
     const bud = deadlineMs(st0.auto, st0.speed);
-    leftRef.current = bud; lastRef.current = performance.now(); firedRef.current = false;
+    leftRef.current = bud; lastRef.current = performance.now(); firedRef.current = false; setBudget(bud);
     let raf = 0;
     const loop = () => {
       const now = performance.now(); const dt = now - lastRef.current; lastRef.current = now;
@@ -78,15 +79,24 @@ function DeadlineBar({ onTimeout, onAuto }: { onTimeout: () => void; onAuto: () 
     raf = requestAnimationFrame(loop);
     return () => cancelAnimationFrame(raf);
   }, []); // eslint-disable-line react-hooks/exhaustive-deps
+  const secs = Math.ceil((remain * budget) / 1000);
   return (
-    <div className="h-1.5 bg-[#100d0b] border border-line rounded-[1px] overflow-hidden" aria-hidden="true">
-      <i className={`block h-full ${remain < 0.3 ? "bg-blood" : "bg-gold"}`} style={{ width: `${Math.round(remain * 100)}%`, transition: "width .1s linear" }} />
+    <div className="grid grid-cols-[1fr_auto] items-center gap-2">
+      <div className="h-1.5 bg-[#100d0b] border border-line rounded-[1px] overflow-hidden" aria-hidden="true">
+        <i className={`block h-full ${remain < 0.3 ? "bg-blood" : "bg-gold"}`} style={{ width: `${Math.round(remain * 100)}%`, transition: "width .1s linear" }} />
+      </div>
+      <span className={`font-ui text-[12px] tabular-nums ${remain < 0.3 ? "text-blood" : "text-muted"}`} aria-live="off">{secs}초</span>
     </div>
   );
 }
 
-// ───────── 사건/행동/알현 팝업 ─────────
-export function RealtimeDecision({ s }: { s: GameState }) {
+// ───────── 사건/행동/알현 배너 (우측 배너 자리, 비모달) ─────────
+// 팝업으로 화면을 덮지 않아, 선택지에 마우스를 올리면 좌측 대시보드의 자원·게이지 변화가 그대로 보입니다.
+export function RealtimeSlot({ s }: { s: GameState }) {
+  return <RealtimeDecision s={s} fallback={<MapPanel />} />;
+}
+function RealtimeDecision({ s, fallback }: { s: GameState; fallback: React.ReactNode }) {
+  const setPreview = useGame((z) => z.setPreview);
   const openAction = useGame((z) => z.openAction);
   const eventActive = useGame((z) => z.eventActive);
   const rtEvent = useGame((z) => z.rtEvent);
@@ -101,7 +111,10 @@ export function RealtimeDecision({ s }: { s: GameState }) {
   if (openAction) kind = "action";
   else if (eventActive && s.phase === "event") kind = "event";
   else if (npc) kind = "npc";
-  if (!kind) return null;
+  const bannerKey = kind === "action" ? `act-${openAction}` : kind === "event" ? `ev-${s.turn}-${s.eventIdx}` : kind === "npc" ? `npc-${s.turn}` : "none";
+  // 배너가 바뀌거나 사라지면 남아 있던 미리보기를 지움
+  useEffect(() => () => setPreview(null), [bannerKey, setPreview]);
+  if (!kind) return <>{fallback}</>;
 
   let card, onPick: (i: number, b?: Parameters<typeof rtEvent>[1]) => void, onTimeout: () => void, onAuto: () => void, title: string, key: string, extra: React.ReactNode = null;
   if (kind === "action") {
@@ -124,20 +137,21 @@ export function RealtimeDecision({ s }: { s: GameState }) {
     onAuto = () => rtNpc(bestChoice(s, npc!.card.choices));
   }
 
+  const label = kind === "event" ? `사건 ${s.eventIdx + 1}/${s.events.length}` : kind === "npc" ? `연말 알현 · ${npc!.npc.name} (${npc!.npc.role})` : `행동 · ${title}`;
   return (
-    <div className="fixed inset-0 bg-black/75 grid place-items-center z-50 backdrop-blur-sm overflow-auto"
-      style={{ padding: "20px max(16px,env(safe-area-inset-right,0px)) 20px max(16px,env(safe-area-inset-left,0px))" }}>
-      <div className="w-[min(560px,100%)] grid gap-2">
-        {kind === "npc" && <div className="eyebrow text-gold text-center">연말 알현 · {npc!.npc.name} ({npc!.npc.role})</div>}
-        <CardView key={key} s={s} card={card!} onPick={onPick}>
-          <div className="grid gap-2">
-            {/* 행동은 스스로 고르는 것이라 사람에게는 제한시간이 없습니다(카드가 열린 동안 날짜도 멈춤). 자동 진행만 타이머로 고름. */}
-            {(kind !== "action" || auto) && <DeadlineBar key={key} onTimeout={onTimeout} onAuto={onAuto} />}
-            {extra && <div className="flex gap-2 flex-wrap">{extra}</div>}
-          </div>
-        </CardView>
+    <section className="rt-banner grid gap-2" aria-label={`결정: ${title}`}>
+      <div className="flex items-center justify-between gap-2">
+        <span className="eyebrow text-gold">{label}</span>
+        <span className="hidden lg:inline font-ui text-[11px] text-faint">선택지에 마우스를 올리면 왼쪽에 변화가 보입니다</span>
       </div>
-    </div>
+      <CardView key={key} s={s} card={card!} onPick={onPick}>
+        <div className="grid gap-2">
+          {/* 행동은 스스로 고르는 것이라 사람에게는 제한시간이 없습니다(카드가 열린 동안 날짜도 멈춤). 자동 진행만 타이머로 고름. */}
+          {(kind !== "action" || auto) && <DeadlineBar key={key} onTimeout={onTimeout} onAuto={onAuto} />}
+          {extra && <div className="flex gap-2 flex-wrap">{extra}</div>}
+        </div>
+      </CardView>
+    </section>
   );
 }
 
@@ -187,9 +201,9 @@ export function EventLog() {
   const ref = useRef<HTMLDivElement>(null);
   useEffect(() => { const el = ref.current; if (el) el.scrollTop = el.scrollHeight; }, [log]);
   return (
-    <div className="grid gap-1.5 bg-panel border border-line rounded p-3">
+    <div className="grid gap-1 bg-panel border border-line rounded px-3 py-2">
       <h3 className="eyebrow">사건 기록</h3>
-      <div ref={ref} className="grid gap-1 max-h-[240px] overflow-auto font-ui text-[12.5px] leading-snug">
+      <div ref={ref} className="grid gap-1 max-h-[132px] overflow-auto font-ui text-[12px] leading-snug">
         {log.length === 0 ? <span className="text-faint">시간이 흐르면 여기에 소식이 쌓입니다.</span>
           : log.map((e) => <div key={e.id} className="grid grid-cols-[auto_1fr] gap-2"><span className="text-faint tabular-nums whitespace-nowrap">{e.date.replace("여신력 ", "")}</span><span className={TONE_COLOR[e.tone ?? ""] ?? "text-ink"}>{e.text}</span></div>)}
       </div>
