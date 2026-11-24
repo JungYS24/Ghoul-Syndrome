@@ -5,7 +5,7 @@ import { useEffect, useRef, useState } from "react";
 import { DIFFICULTIES, FACTIONS, actionsFor, canAfford, npcVisit, successChance, type Choice, type GameState } from "@guul/engine";
 import { DAYS_PER_SEASON, content, rtDate, useGame } from "../store/store";
 import { clockFrozen, deadlineMs } from "../store/rtClock";
-import { CardView } from "./Cards";
+import { BannerCard } from "./BannerCard";
 import { Dashboard } from "./Dashboard";
 import { Illus } from "../art/Art";
 
@@ -144,31 +144,32 @@ function RealtimeDecision({ s, fallback }: { s: GameState; fallback: React.React
         <span className="eyebrow text-gold">{label}</span>
         <span className="hidden lg:inline font-ui text-[11px] text-faint">선택지에 마우스를 올리면 왼쪽에 변화가 보입니다</span>
       </div>
-      <CardView key={key} s={s} card={card!} onPick={onPick}>
+      <BannerCard key={key} s={s} card={card!} onPick={onPick}>
         <div className="grid gap-2">
           {/* 행동은 스스로 고르는 것이라 사람에게는 제한시간이 없습니다(카드가 열린 동안 날짜도 멈춤). 자동 진행만 타이머로 고름. */}
           {(kind !== "action" || auto) && <DeadlineBar key={key} onTimeout={onTimeout} onAuto={onAuto} />}
           {extra && <div className="flex gap-2 flex-wrap">{extra}</div>}
         </div>
-      </CardView>
+      </BannerCard>
     </section>
   );
 }
 
 // ───────── 상단 바 (날짜 + 배속) ─────────
-export function RealtimeTopBar({ s }: { s: GameState }) {
+export function RealtimeTopBar({ s, menu }: { s: GameState; menu?: React.ReactNode }) {
   const dayOffset = useGame((z) => z.dayOffset);
   const speed = useGame((z) => z.speed), paused = useGame((z) => z.paused), auto = useGame((z) => z.auto);
   const setSpeed = useGame((z) => z.setSpeed), togglePause = useGame((z) => z.togglePause), toggleAuto = useGame((z) => z.toggleAuto);
   const d = rtDate(s.turn, dayOffset);
   const F = FACTIONS[s.faction];
   return (
-    <div className="rt-bar sticky z-30 bg-panel border border-line2 rounded px-3 py-2 mb-3 grid gap-2 lg:flex lg:items-center lg:gap-3" style={{ top: "env(safe-area-inset-top, 0px)" }}>
+    <div className="rt-bar sticky z-30 bg-panel border border-line2 rounded px-3 py-2 mb-3 grid gap-2 lg:flex lg:items-center lg:gap-4" style={{ top: "env(safe-area-inset-top, 0px)" }}>
       <div className="flex items-center gap-2 min-w-0 lg:flex-1">
         <span className="w-6 h-6 shrink-0"><Illus keys={CREST[s.faction]} faction={s.faction} accent /></span>
         <b className="font-display text-[17px] leading-none whitespace-nowrap">{F.short}</b>
         <span className="font-ui text-[12px] text-muted hidden sm:inline">{s.difficulty !== "normal" ? DIFFICULTIES[s.difficulty].name : ""}</span>
-        <div className="ml-auto text-right lg:mx-auto lg:text-center">
+        {menu && <div className="hidden lg:flex gap-1 ml-2">{menu}</div>}
+        <div className="ml-auto text-right">
           <div className="font-display text-[17px] sm:text-[19px] leading-none text-gold tabular-nums whitespace-nowrap">여신력 {d.year}년 {d.month}월 {d.day}일</div>
           <div className="font-ui text-[11px] text-faint">{d.season} · {s.turn}/40계절{paused ? " · 일시정지" : ""}</div>
         </div>

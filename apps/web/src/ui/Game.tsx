@@ -94,20 +94,19 @@ export function Game({ s }: { s: GameState }) {
       <>
         <RealtimeDriver />
         <section className="gutter max-w-[1180px] mx-auto pt-3 pb-28 lg:pb-10">
-          <RealtimeTopBar s={s} />
-          <div className="hidden lg:flex justify-end gap-1.5 mb-3">
-            <button className="btn !px-2.5 !text-[12px]" onClick={() => setSheet("chron")}>연대기</button>
-            <button className="btn !px-2.5 !text-[12px]" onClick={() => setSheet("rules")}>규칙</button>
-            <button className="btn !px-2.5 !text-[12px]" onClick={() => setSheet("settings")}>설정</button>
-            <button className="btn !px-2.5 !text-[12px]" onClick={toTitle}>처음으로</button>
-          </div>
+          <RealtimeTopBar s={s} menu={<>
+            <button className="btn !px-2 !py-1 !text-[12px]" onClick={() => setSheet("chron")}>연대기</button>
+            <button className="btn !px-2 !py-1 !text-[12px]" onClick={() => setSheet("rules")}>규칙</button>
+            <button className="btn !px-2 !py-1 !text-[12px]" onClick={() => setSheet("settings")}>설정</button>
+            <button className="btn !px-2 !py-1 !text-[12px]" onClick={toTitle}>처음으로</button>
+          </>} />
           <div className="grid gap-4 lg:grid-cols-[minmax(0,1fr)_minmax(0,540px)] items-start">
             <div className="grid gap-3 order-last lg:order-none">
               <RealtimeActionHint s={s} />
               <Dashboard s={s} />
             </div>
             {/* 우측: 배너 자리(결정이 없으면 지도) + 축소한 사건 기록. 데스크톱에선 화면에 붙어 따라옴 */}
-            <div className="grid gap-3 lg:sticky lg:top-[76px] lg:max-h-[calc(100vh-88px)] lg:overflow-auto lg:pr-1">
+            <div className="grid gap-3 lg:sticky lg:top-[64px] lg:max-h-[calc(100vh-72px)] lg:overflow-y-auto lg:overflow-x-hidden lg:pr-1">
               <RealtimeSlot s={s} />
               <EventLog />
             </div>

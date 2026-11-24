@@ -51,7 +51,7 @@ function Chips({ s, choice, target }: { s: GameState; choice: Choice; target?: s
 }
 
 /** 이 선택지가 건드리는 수치를 화살표로 상시 표시 (모바일에서도 보임). ▲ 오름 ▼ 내림, 개수가 규모. */
-function ImpactLine({ s, choice }: { s: GameState; choice: Choice }) {
+export function ImpactLine({ s, choice }: { s: GameState; choice: Choice }) {
   const dots = choiceImpact(s, choice);
   if (!dots.length) return null;
   return (

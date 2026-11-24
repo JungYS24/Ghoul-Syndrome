@@ -6,6 +6,7 @@ import { Illus } from "../art/Art";
 import { MuteToggle } from "./MuteToggle";
 import { RulesSheet, SettingsSheet } from "./Sheets";
 import { parseShare } from "../store/share";
+import { VERSION_LABEL } from "./version";
 
 const shared = typeof window !== "undefined" ? parseShare(window.location.search) : {};
 
@@ -17,99 +18,124 @@ export function Title() {
   const hasSave = useGame((z) => z.hasSave);
   const saveInfo = useGame((z) => z.saveInfo);
   const cont = useGame((z) => z.continueSave);
+  const book = useGame((z) => z.book);
   const [seed, setSeed] = useState(() => String(shared.seed ?? Math.floor(Math.random() * 900000) + 100000));
   const [diff, setDiff] = useState<Difficulty>(shared.difficulty ?? "normal");
   const [mode, setMode] = useState<"turn" | "realtime">("turn");
   const begin = (id: FactionId) => { const sd = (parseInt(seed, 10) || 1) >>> 0; if (mode === "realtime") startRealtime(id, sd, diff); else start(id, sd, diff); };
   const [rules, setRules] = useState(false);
   const [settings, setSettings] = useState(false);
-  const [lore, setLore] = useState(false); // 모바일에서만 접어 둠 (데스크톱은 늘 펼침)
   const legacy = useGame((z) => z.legacy);
   const buyPerk = useGame((z) => z.buyPerk);
+  const got = ENDINGS.filter((e) => book[e.id]).length;
+  const seg = (on: boolean, danger = false) =>
+    `px-3 py-1.5 rounded-[2px] border font-ui text-[13px] ${on ? (danger ? "border-blood text-blood bg-[#2a1712]" : "border-gold text-gold bg-[#2a2216]") : "border-line text-muted hover:text-ink"}`;
   return (
-    <section className="gutter max-w-[1120px] mx-auto pb-10" style={{ paddingTop: "max(20px, env(safe-area-inset-top, 0px))" }}>
-      <div className="flex justify-between items-start gap-3">
-        <div className="eyebrow pt-1">The Game of Peace · 여신력 759년 봄</div>
-        <div className="flex gap-1.5"><button className="btn" onClick={() => setSettings(true)}>설정</button><MuteToggle /></div>
+    <section className="lobby gutter max-w-[980px] mx-auto pb-10" style={{ paddingTop: "max(18px, env(safe-area-inset-top, 0px))" }}>
+      {/* 상단: 작은 표기 + 규칙·설정·소리 */}
+      <div className="flex justify-between items-center gap-3">
+        <span className="eyebrow">The Game of Peace</span>
+        <div className="flex gap-1.5">
+          <button className="btn !py-1 !px-2.5 !text-[12px]" onClick={() => setRules(true)}>규칙</button>
+          <button className="btn !py-1 !px-2.5 !text-[12px]" onClick={() => setSettings(true)}>설정</button>
+          <MuteToggle />
+        </div>
       </div>
-      <div className="grid gap-2.5 max-w-[760px] py-4 lg:py-5">
-        <h1 className="font-display text-[clamp(44px,9vw,84px)] leading-none">구울 <span className="text-gold">증후군</span></h1>
-        <p className="text-muted max-w-[62ch] m-0">발푸르기스의 밤으로부터 10년. 시신이 다시 일어나 산 자를 먹는 대륙에서, 세 세력 중 하나를 골라 40계절 동안 나라를 이끄십시오. 모든 결정은 20면체 다섯 개로 판정됩니다.</p>
-      </div>
+
+      {/* 제목 */}
+      <header className="text-center py-8 sm:py-10 grid gap-2 justify-items-center">
+        <h1 className="font-display text-[clamp(46px,10vw,88px)] leading-none">구울 <span className="text-gold">증후군</span></h1>
+        <p className="text-muted m-0 max-w-[56ch] text-[15px] [word-break:keep-all]">시신이 다시 일어나는 대륙. 세 세력 중 하나로 40계절을 버티십시오.</p>
+        <details className="max-w-[640px] text-left mt-1">
+          <summary className="font-ui text-[12px] text-gold-dim cursor-pointer text-center list-none">배경 이야기 ▾</summary>
+          <div className="grid gap-1.5 mt-2 p-3.5 border-l-2 border-gold-dim bg-gradient-to-r from-[#1f1a14] to-transparent text-[14px] text-muted">
+            <div><b className="text-ink font-bold">749년, 발푸르기스의 밤.</b> 마도왕 필립스 프리오는 재가 되고 불의 신 그니스는 소멸했습니다. 인공신 스틱스 아이루스가 아이루스 공국을 지키고, 여신 샤리아의 진노는 0으로 돌아왔습니다.</div>
+            <div><b className="text-ink font-bold">752년, 라벤 폐허.</b> 몰락한 마도왕국의 옛 영토에서 구울 증후군이 처음 발병했습니다. 물린 사람은 한 계절 뒤 같은 것이 됩니다.</div>
+            <div><b className="text-ink font-bold">759년 봄.</b> 세 세력은 서로를 구원자이자 감염원으로 의심합니다. 여신은 침묵하지만, 무고한 피는 여전히 셈하고 있습니다.</div>
+          </div>
+        </details>
+      </header>
+
       {hasSave && (
-        <div className="mb-4 flex flex-wrap items-center gap-2.5 p-3 border border-gold-dim rounded bg-[#1f1a14]" data-testid="continue-banner">
-          <span className="font-ui text-[13px] text-muted">저장된 통치가 있습니다{saveInfo ? ` — ${FACTIONS[saveInfo.faction].short} · ${saveInfo.turn}/40턴` : ""}.</span>
+        <div className="mb-5 flex flex-wrap items-center gap-2.5 p-3 border border-gold-dim rounded bg-[#1f1a14]" data-testid="continue-banner">
+          <span className="font-ui text-[13px] text-muted">저장된 통치{saveInfo ? ` — ${FACTIONS[saveInfo.faction].short} · ${saveInfo.turn}/40턴` : ""}</span>
           <button className="btn-gold !py-1.5 ml-auto" onClick={cont}>이어하기</button>
         </div>
       )}
-      <button type="button" className="lg:hidden font-ui text-[13px] text-gold-dim underline underline-offset-4 mb-3" aria-expanded={lore} aria-controls="lore" onClick={() => setLore(!lore)}>{lore ? "배경 이야기 접기" : "배경 이야기 펼치기 (749~759년)"}</button>
-      <div id="lore" className={`grid gap-1.5 mb-4 lg:my-4 p-3.5 border-l-2 border-gold-dim bg-gradient-to-r from-[#1f1a14] to-transparent max-w-[760px] text-[14px] text-muted ${lore ? "" : "max-lg:hidden"}`}>
-        <div><b className="text-ink font-bold">749년, 발푸르기스의 밤.</b> 마도왕 필립스 프리오는 재가 되고 불의 신 그니스는 소멸했습니다. 인공신 스틱스 아이루스가 아이루스 공국을 지키고, 여신 샤리아의 진노는 0으로 돌아왔습니다.</div>
-        <div><b className="text-ink font-bold">752년, 라벤 폐허.</b> 몰락한 마도왕국의 옛 영토에서 구울 증후군이 처음 발병했습니다. 물린 사람은 한 계절 뒤 같은 것이 됩니다.</div>
-        <div><b className="text-ink font-bold">759년 봄.</b> 세 세력은 서로를 구원자이자 감염원으로 의심합니다. 여신은 침묵하지만, 무고한 피는 여전히 셈하고 있습니다.</div>
+      {shared.seed !== undefined && (
+        <p className="font-ui text-[13px] text-gold text-center m-0 mb-3">공유 링크 — 시드 {shared.seed}{shared.difficulty ? ` · ${DIFFICULTIES[shared.difficulty].name}` : ""}</p>
+      )}
+
+      {/* 설정 한 줄: 진행 방식 · 난이도 · 시드 */}
+      <div className="flex flex-wrap items-center justify-center gap-x-5 gap-y-2.5 mb-5">
+        <div className="flex items-center gap-1" role="group" aria-label="진행 방식">
+          <button type="button" aria-pressed={mode === "turn"} onClick={() => setMode("turn")} className={seg(mode === "turn")} title="한 단계씩 천천히">턴제</button>
+          <button type="button" aria-pressed={mode === "realtime"} onClick={() => setMode("realtime")} className={seg(mode === "realtime")} title="시간이 흐르고 15초 안에 선택 (배속·일시정지 가능)">실시간</button>
+        </div>
+        <div className="flex items-center gap-1" role="group" aria-label="난이도">
+          {DIFFICULTY_IDS.map((d) => (
+            <button key={d} type="button" aria-pressed={diff === d} onClick={() => setDiff(d)} title={DIFFICULTIES[d].desc} className={seg(diff === d, d === "hell")}>{DIFFICULTIES[d].name}</button>
+          ))}
+        </div>
+        <label htmlFor="seed" className="flex items-center gap-1.5 font-ui text-[12px] text-faint">시드
+          <input id="seed" inputMode="numeric" value={seed} onChange={(e) => setSeed(e.target.value.replace(/\D/g, ""))}
+            className="bg-panel border border-line text-ink px-2 py-1.5 rounded-[2px] w-[92px] font-ui text-[13px] tabular-nums" />
+        </label>
       </div>
-      {shared.seed !== undefined && <p className="font-ui text-[13px] text-gold m-0 mb-3">공유 링크로 열었습니다 — 시드 {shared.seed}{shared.difficulty ? ` · ${DIFFICULTIES[shared.difficulty].name}` : ""}. 같은 세력·시드·난이도면 같은 주사위가 굴러갑니다.</p>}
-      <fieldset className="border-0 p-0 m-0 mb-3 flex flex-wrap items-center gap-2 font-ui text-[13px]">
-        <legend className="sr-only">진행 방식</legend>
-        <span className="text-muted mr-1">진행 방식</span>
-        <button type="button" aria-pressed={mode === "turn"} onClick={() => setMode("turn")}
-          className={`px-3 py-1.5 rounded-[3px] border ${mode === "turn" ? "border-gold text-gold bg-[#2a2216]" : "border-line text-muted"}`}>턴제</button>
-        <button type="button" aria-pressed={mode === "realtime"} onClick={() => setMode("realtime")}
-          className={`px-3 py-1.5 rounded-[3px] border ${mode === "realtime" ? "border-gold text-gold bg-[#2a2216]" : "border-line text-muted"}`}>실시간</button>
-        <span className="text-faint text-[12px]">{mode === "realtime" ? "시간이 흐르고 제한시간 안에 선택 (배속·일시정지 가능)" : "한 단계씩 천천히"}</span>
-      </fieldset>
-      <fieldset className="border-0 p-0 m-0 mb-3.5 flex flex-wrap items-center gap-2 font-ui text-[13px]">
-        <legend className="sr-only">난이도</legend>
-        <span className="text-muted mr-1">난이도</span>
-        {DIFFICULTY_IDS.map((d) => (
-          <button key={d} type="button" aria-pressed={diff === d} onClick={() => setDiff(d)} title={DIFFICULTIES[d].desc}
-            className={`px-3 py-1.5 rounded-[3px] border ${diff === d ? (d === "hell" ? "border-blood text-blood bg-[#2a1712]" : "border-gold text-gold bg-[#2a2216]") : "border-line text-muted"}`}>{DIFFICULTIES[d].name}</button>
-        ))}
-        <span className="text-faint text-[12px]">{DIFFICULTIES[diff].desc}</span>
-      </fieldset>
-      <div className="grid gap-3.5 [grid-template-columns:repeat(auto-fit,minmax(270px,1fr))]">
+
+      {/* 세력 선택: 한 문장 + 승리 조건 (강점·약점은 마우스를 올리면) */}
+      <div className="grid gap-3 sm:grid-cols-3">
         {FACTION_IDS.map((id) => {
           const F = FACTIONS[id];
           return (
-            <button key={id} onClick={() => begin(id)}
-              className={`text-left bg-panel border rounded p-[18px] grid gap-2.5 content-start hover:border-gold-dim hover:-translate-y-0.5 transition-all ${shared.faction === id ? "border-gold" : "border-line"}`} data-faction={id}>
-              <div className="flex items-center gap-2.5"><span className="w-11 h-11 shrink-0"><Illus keys={CREST[id]} faction={id} accent /></span>
-                <div><h2 className="font-display text-[26px] leading-tight">{F.name}</h2><div className="font-ui text-[12px] text-muted">{F.ruler}</div></div></div>
+            <button key={id} onClick={() => begin(id)} title={`강점: ${F.strength}\n약점: ${F.weakness}`}
+              className={`text-left bg-panel border rounded p-4 grid gap-2 content-start hover:border-gold-dim hover:-translate-y-0.5 transition-all ${shared.faction === id ? "border-gold" : "border-line"}`} data-faction={id}>
+              <div className="flex items-center gap-2.5">
+                <span className="w-10 h-10 shrink-0"><Illus keys={CREST[id]} faction={id} accent /></span>
+                <h2 className="font-display text-[24px] leading-tight">{F.name}</h2>
+              </div>
               <p className="m-0 text-[14px] text-[#d9cdb6]">{F.tagline}</p>
-              <dl className="m-0 grid grid-cols-[auto_1fr] gap-x-2.5 gap-y-1 text-[13px]">
-                <dt className="font-ui text-faint text-[12px] pt-px">강점</dt><dd className="m-0 text-ink">{F.strength}</dd>
-                <dt className="font-ui text-faint text-[12px] pt-px">약점</dt><dd className="m-0 text-ink">{F.weakness}</dd>
-                <dt className="font-ui text-faint text-[12px] pt-px">승리</dt><dd className="m-0 text-ink">{F.victory} — {F.victoryText}</dd>
-              </dl>
-              <div className="font-ui text-[13px] text-gold mt-1">{shared.faction === id ? "공유된 판으로 시작 →" : "이 세력으로 시작 →"}</div>
+              <p className="m-0 font-ui text-[12px] text-faint">승리 · {F.victoryText}</p>
+              <span className="font-ui text-[13px] text-gold mt-0.5">{shared.faction === id ? "공유된 판으로 시작 →" : "시작 →"}</span>
             </button>
           );
         })}
       </div>
-      <div className="flex flex-wrap gap-3 items-center mt-5 font-ui text-[13px] text-muted">
-        <label htmlFor="seed" className="flex items-center gap-2">시드
-          <input id="seed" inputMode="numeric" value={seed} onChange={(e) => setSeed(e.target.value.replace(/\D/g, ""))}
-            className="bg-panel border border-line text-ink px-2.5 py-1.5 rounded-[3px] w-32 font-ui tabular-nums" /></label>
-        <span>같은 시드는 같은 주사위를 굴립니다.</span>
-        <button className="btn" onClick={() => setRules(true)}>규칙 보기</button>
+
+      {/* 부가 정보는 접어 둠 */}
+      <div className="grid gap-2 mt-8">
+        <details className="border border-line rounded-[3px] bg-[#15120e]">
+          <summary className="flex justify-between items-center px-3.5 py-2.5 cursor-pointer list-none">
+            <span className="eyebrow">엔딩 컬렉션</span><span className="font-ui text-[12px] text-muted tabular-nums">{got} / {ENDINGS.length} ▾</span>
+          </summary>
+          <div className="px-3.5 pb-3.5"><EndingCollection /></div>
+        </details>
+        <details className="border border-line rounded-[3px] bg-[#15120e]" data-testid="legacy-panel">
+          <summary className="flex justify-between items-center px-3.5 py-2.5 cursor-pointer list-none">
+            <span className="eyebrow">역사의 유산</span><span className="font-ui text-[12px] text-gold">{legacy.points}점 ▾</span>
+          </summary>
+          <div className="px-3.5 pb-3.5 grid gap-1.5">
+            <p className="m-0 font-ui text-[12px] text-faint">엔딩을 볼 때마다 점수를 얻고(승리 3, 생존 1~3, 패배 1~, 어려움 +1, 지옥 +2), 영구 보너스를 삽니다. 시드 공유 링크에는 포함되지 않습니다.</p>
+            <div className="grid gap-1.5 [grid-template-columns:repeat(auto-fit,minmax(200px,1fr))]">
+              {LEGACY_PERKS.map((p) => {
+                const owned = legacy.perks.includes(p.id);
+                return (
+                  <button key={p.id} type="button" disabled={owned || legacy.points < p.cost} onClick={() => buyPerk(p.id)}
+                    className={`text-left font-ui text-[12px] p-2 rounded-[3px] border ${owned ? "border-gold text-gold" : "border-line text-muted"} disabled:opacity-60`}>
+                    <b className="text-ink font-medium">{p.name}</b> {owned ? "✓ 보유" : `· ${p.cost}점`}<span className="block text-faint">{p.desc}</span>
+                  </button>
+                );
+              })}
+            </div>
+          </div>
+        </details>
       </div>
-      <p className="font-ui text-[11px] text-faint mt-6">카드 {content.cards.length}장 · 일러스트 심볼 벡터 · 주사위 데모는 <a className="text-gold-dim underline" href="./dice.html">/dice.html</a>, 일러스트 갤러리는 <a className="text-gold-dim underline" href="./art.html">/art.html</a></p>
-      <EndingCollection />
-      <div className="grid gap-1.5 mt-7 p-3 border border-line rounded-[3px] bg-[#15120e] max-w-[760px]" data-testid="legacy-panel">
-        <div className="flex justify-between items-baseline"><span className="eyebrow">역사의 유산</span><span className="font-ui text-[13px] text-gold">{legacy.points}점</span></div>
-        <p className="m-0 font-ui text-[12px] text-faint">엔딩을 볼 때마다 점수를 얻고(승리 3, 생존 1~3, 패배 1~, 어려움 +1, 지옥 +2), 영구 보너스를 삽니다. 시드 공유 링크에는 포함되지 않습니다.</p>
-        <div className="grid gap-1.5 [grid-template-columns:repeat(auto-fit,minmax(200px,1fr))]">
-          {LEGACY_PERKS.map((p) => {
-            const owned = legacy.perks.includes(p.id);
-            return (
-              <button key={p.id} type="button" disabled={owned || legacy.points < p.cost} onClick={() => buyPerk(p.id)}
-                className={`text-left font-ui text-[12px] p-2 rounded-[3px] border ${owned ? "border-gold text-gold" : "border-line text-muted"} disabled:opacity-60`}>
-                <b className="text-ink font-medium">{p.name}</b> {owned ? "✓ 보유" : `· ${p.cost}점`}<span className="block text-faint">{p.desc}</span>
-              </button>
-            );
-          })}
-        </div>
-      </div>
+
+      {/* 바닥글: 버전·수정 시각 (빌드할 때 자동 기록) */}
+      <footer className="mt-8 pt-3 border-t border-line flex flex-wrap justify-between gap-2 font-ui text-[11px] text-faint">
+        <span data-testid="version">{VERSION_LABEL}</span>
+        <span>카드 {content.cards.length}장 · <a className="text-gold-dim underline" href="./dice.html">주사위 데모</a> · <a className="text-gold-dim underline" href="./art.html">일러스트</a></span>
+      </footer>
       {rules && <RulesSheet onClose={() => setRules(false)} />}
       {settings && <SettingsSheet onClose={() => setSettings(false)} />}
     </section>
@@ -122,26 +148,19 @@ const TYPE_CLASS = { victory: "text-gold border-gold-dim", defeat: "text-blood b
 /** 엔딩 컬렉션 — IndexedDB 에 저장된 달성 기록 */
 function EndingCollection() {
   const book = useGame((z) => z.book);
-  const got = ENDINGS.filter((e) => book[e.id]).length;
   return (
-    <section className="mt-7 grid gap-2.5" aria-labelledby="ending-col">
-      <div className="flex items-baseline justify-between gap-2 flex-wrap">
-        <h2 id="ending-col" className="font-display text-[24px]">엔딩 컬렉션</h2>
-        <span className="font-ui text-[13px] text-muted tabular-nums">{got} / {ENDINGS.length} 달성</span>
-      </div>
-      <ul className="m-0 p-0 list-none grid gap-1.5 [grid-template-columns:repeat(auto-fill,minmax(190px,1fr))]">
-        {ENDINGS.map((e) => {
-          const rec = book[e.id];
-          const who = e.factions ? e.factions.map((f) => FACTIONS[f].short).join("·") : "공통";
-          return (
-            <li key={e.id} className={`bg-panel border rounded-[3px] px-2.5 py-2 grid gap-0.5 ${rec ? "border-line2" : "border-line opacity-60"}`} title={rec ? e.text : "아직 보지 못한 결말"}>
-              <span className="flex items-center gap-1.5 font-ui text-[11px]"><span className={`px-1 border rounded-[2px] ${TYPE_CLASS[e.type]}`}>{TYPE_LABEL[e.type]}</span><span className="text-faint">{who}</span></span>
-              <b className="font-display text-[17px] font-normal leading-tight">{rec ? e.title : "？？？"}</b>
-              {rec && <span className="font-ui text-[11px] text-faint tabular-nums">{rec.count}회 · 최고 {DIFFICULTIES[rec.bestDifficulty].name}</span>}
-            </li>
-          );
-        })}
-      </ul>
-    </section>
+    <ul className="m-0 p-0 list-none grid gap-1.5 [grid-template-columns:repeat(auto-fill,minmax(190px,1fr))]" aria-label="엔딩 컬렉션">
+      {ENDINGS.map((e) => {
+        const rec = book[e.id];
+        const who = e.factions ? e.factions.map((f) => FACTIONS[f].short).join("·") : "공통";
+        return (
+          <li key={e.id} className={`bg-panel border rounded-[3px] px-2.5 py-2 grid gap-0.5 ${rec ? "border-line2" : "border-line opacity-60"}`} title={rec ? e.text : "아직 보지 못한 결말"}>
+            <span className="flex items-center gap-1.5 font-ui text-[11px]"><span className={`px-1 border rounded-[2px] ${TYPE_CLASS[e.type]}`}>{TYPE_LABEL[e.type]}</span><span className="text-faint">{who}</span></span>
+            <b className="font-display text-[17px] font-normal leading-tight">{rec ? e.title : "？？？"}</b>
+            {rec && <span className="font-ui text-[11px] text-faint tabular-nums">{rec.count}회 · 최고 {DIFFICULTIES[rec.bestDifficulty].name}</span>}
+          </li>
+        );
+      })}
+    </ul>
   );
 }
