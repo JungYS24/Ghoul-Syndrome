@@ -108,3 +108,21 @@ describe("기회의 창", () => {
     expect(seen).toBeGreaterThan(0);
   });
 });
+
+describe("결과 문장", () => {
+  it("모든 사건·행동 선택지에 결과 구간 다섯 문장이 있다", () => {
+    const all = [
+      ...content.cards, ...content.situational, ...content.collapse, ...(content.opportunities ?? []),
+      ...Object.values(content.fixed), ...content.actions.map((a) => a.card),
+    ];
+    const missing: string[] = [];
+    for (const c of all) {
+      const sets = [c.choices, ...((c as { branches?: { choices?: typeof c.choices }[] }).branches ?? []).map((b) => b.choices ?? [])];
+      for (const cs of sets) for (const ch of cs) {
+        const o = ch.outcomes;
+        if (!o || ![o.great, o.success, o.weak, o.partial, o.fail].every((t) => t && t.endsWith("."))) missing.push(`${c.id}:${ch.label}`);
+      }
+    }
+    expect(missing).toEqual([]);
+  });
+});

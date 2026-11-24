@@ -7,6 +7,7 @@ import { MuteToggle } from "./MuteToggle";
 import { RulesSheet, SettingsSheet } from "./Sheets";
 import { parseShare } from "../store/share";
 import { VERSION_LABEL } from "./version";
+import { HEADER_IDS, headerUrl } from "../art/headers";
 
 const shared = typeof window !== "undefined" ? parseShare(window.location.search) : {};
 
@@ -14,15 +15,13 @@ const CREST: Record<FactionId, string[]> = { arkandal: ["shield"], iruth: ["snow
 
 export function Title() {
   const start = useGame((z) => z.start);
-  const startRealtime = useGame((z) => z.startRealtime);
   const hasSave = useGame((z) => z.hasSave);
   const saveInfo = useGame((z) => z.saveInfo);
   const cont = useGame((z) => z.continueSave);
   const book = useGame((z) => z.book);
   const [seed, setSeed] = useState(() => String(shared.seed ?? Math.floor(Math.random() * 900000) + 100000));
   const [diff, setDiff] = useState<Difficulty>(shared.difficulty ?? "normal");
-  const [mode, setMode] = useState<"turn" | "realtime">("realtime");
-  const begin = (id: FactionId) => { const sd = (parseInt(seed, 10) || 1) >>> 0; if (mode === "realtime") startRealtime(id, sd, diff); else start(id, sd, diff); };
+  const begin = (id: FactionId) => start(id, (parseInt(seed, 10) || 1) >>> 0, diff);
   const [rules, setRules] = useState(false);
   const [settings, setSettings] = useState(false);
   const legacy = useGame((z) => z.legacy);
@@ -45,7 +44,7 @@ export function Title() {
       {/* 제목 */}
       <header className="text-center py-8 sm:py-10 grid gap-2 justify-items-center">
         <h1 className="font-display text-[clamp(46px,10vw,88px)] leading-none">구울 <span className="text-gold">증후군</span></h1>
-        <p className="text-muted m-0 max-w-[56ch] text-[15px] [word-break:keep-all]">시신이 다시 일어나는 대륙. 세 세력 중 하나로 40계절을 버티십시오.</p>
+        <p className="text-muted m-0 max-w-[56ch] text-[15px] [word-break:keep-all]">시신이 다시 일어나는 대륙. 세 세력 중 하나로 40계절을 버티십시오. 시간은 멈추지 않고, 사건은 15초 안에 결정해야 합니다.</p>
         <details className="max-w-[640px] text-left mt-1">
           <summary className="font-ui text-[12px] text-gold-dim cursor-pointer text-center list-none">배경 이야기 ▾</summary>
           <div className="grid gap-1.5 mt-2 p-3.5 border-l-2 border-gold-dim bg-gradient-to-r from-[#1f1a14] to-transparent text-[14px] text-muted">
@@ -66,12 +65,8 @@ export function Title() {
         <p className="font-ui text-[13px] text-gold text-center m-0 mb-3">공유 링크 — 시드 {shared.seed}{shared.difficulty ? ` · ${DIFFICULTIES[shared.difficulty].name}` : ""}</p>
       )}
 
-      {/* 설정 한 줄: 진행 방식 · 난이도 · 시드 */}
+      {/* 설정 한 줄: 난이도 · 시드 */}
       <div className="flex flex-wrap items-center justify-center gap-x-5 gap-y-2.5 mb-5">
-        <div className="flex items-center gap-1" role="group" aria-label="진행 방식">
-          <button type="button" aria-pressed={mode === "realtime"} onClick={() => setMode("realtime")} className={seg(mode === "realtime")} title="시간이 흐르고 15초 안에 선택 (배속·일시정지 가능)">실시간</button>
-          <button type="button" aria-pressed={mode === "turn"} onClick={() => setMode("turn")} className={seg(mode === "turn")} title="한 단계씩 천천히">턴제</button>
-        </div>
         <div className="flex items-center gap-1" role="group" aria-label="난이도">
           {DIFFICULTY_IDS.map((d) => (
             <button key={d} type="button" aria-pressed={diff === d} onClick={() => setDiff(d)} title={DIFFICULTIES[d].desc} className={seg(diff === d, d === "hell")}>{DIFFICULTIES[d].name}</button>
@@ -145,22 +140,46 @@ export function Title() {
 const TYPE_LABEL = { victory: "승리", defeat: "패배", survive: "생존" } as const;
 const TYPE_CLASS = { victory: "text-gold border-gold-dim", defeat: "text-blood border-[#5a3328]", survive: "text-frost border-[#3d5560]" } as const;
 
-/** 엔딩 컬렉션 — IndexedDB 에 저장된 달성 기록 */
+/** 엔딩 컬렉션 — 본 엔딩의 배너 그림을 모읍니다 (IndexedDB 달성 기록). 누르면 크게 봅니다. */
 function EndingCollection() {
   const book = useGame((z) => z.book);
+  const [open, setOpen] = useState<string | null>(null);
+  const cur = open ? ENDINGS.find((e) => e.id === open) : null;
   return (
-    <ul className="m-0 p-0 list-none grid gap-1.5 [grid-template-columns:repeat(auto-fill,minmax(190px,1fr))]" aria-label="엔딩 컬렉션">
-      {ENDINGS.map((e) => {
-        const rec = book[e.id];
-        const who = e.factions ? e.factions.map((f) => FACTIONS[f].short).join("·") : "공통";
-        return (
-          <li key={e.id} className={`bg-panel border rounded-[3px] px-2.5 py-2 grid gap-0.5 ${rec ? "border-line2" : "border-line opacity-60"}`} title={rec ? e.text : "아직 보지 못한 결말"}>
-            <span className="flex items-center gap-1.5 font-ui text-[11px]"><span className={`px-1 border rounded-[2px] ${TYPE_CLASS[e.type]}`}>{TYPE_LABEL[e.type]}</span><span className="text-faint">{who}</span></span>
-            <b className="font-display text-[17px] font-normal leading-tight">{rec ? e.title : "？？？"}</b>
-            {rec && <span className="font-ui text-[11px] text-faint tabular-nums">{rec.count}회 · 최고 {DIFFICULTIES[rec.bestDifficulty].name}</span>}
-          </li>
-        );
-      })}
-    </ul>
+    <>
+      <ul className="m-0 p-0 list-none grid gap-2 [grid-template-columns:repeat(auto-fill,minmax(132px,1fr))]" aria-label="엔딩 컬렉션">
+        {ENDINGS.map((e) => {
+          const rec = book[e.id];
+          const who = e.factions ? e.factions.map((f) => FACTIONS[f].short).join("·") : "공통";
+          const art = HEADER_IDS.has(`end-${e.id}`);
+          return (
+            <li key={e.id}>
+              <button type="button" disabled={!rec} onClick={() => setOpen(e.id)} data-testid="ending-tile"
+                className={`w-full text-left grid gap-1 p-1.5 rounded-[3px] border bg-panel transition-colors ${rec ? "border-line2 hover:border-gold-dim" : "border-line cursor-default"}`}
+                title={rec ? e.title : `아직 보지 못한 결말 · ${who}`}>
+                <span className="relative block aspect-square overflow-hidden rounded-[2px] bg-[#120e0b]">
+                  {rec && art ? <img src={headerUrl(`end-${e.id}`)} alt="" loading="lazy" width={512} height={512} className="w-full h-full object-cover" />
+                    : <span className="absolute inset-0 grid place-items-center font-display text-[28px] text-[#3a3027]">{rec ? "✦" : "？"}</span>}
+                  <span className={`absolute left-1 top-1 px-1 border rounded-[2px] font-ui text-[10px] bg-[#14100c]/85 ${TYPE_CLASS[e.type]}`}>{TYPE_LABEL[e.type]}</span>
+                </span>
+                <b className={`font-display text-[14px] font-normal leading-tight truncate ${rec ? "" : "text-faint"}`}>{rec ? e.title : "？？？"}</b>
+                <span className="font-ui text-[10.5px] text-faint truncate tabular-nums">{rec ? `${rec.count}회 · 최고 ${DIFFICULTIES[rec.bestDifficulty].name}` : who}</span>
+              </button>
+            </li>
+          );
+        })}
+      </ul>
+      {cur && (
+        <div className="fixed inset-0 z-50 bg-black/80 grid place-items-center p-4" onClick={() => setOpen(null)} role="dialog" aria-label={cur.title}>
+          <figure className="m-0 w-[min(440px,100%)] bg-panel border border-line2 rounded p-3 grid gap-2" onClick={(ev) => ev.stopPropagation()}>
+            {HEADER_IDS.has(`end-${cur.id}`) && <img src={headerUrl(`end-${cur.id}`)} alt="" width={512} height={512} className="w-full aspect-square object-cover rounded-[3px]" />}
+            <span className={`justify-self-start px-1 border rounded-[2px] font-ui text-[11px] ${TYPE_CLASS[cur.type]}`}>{TYPE_LABEL[cur.type]}</span>
+            <b className="font-display text-[22px] font-normal leading-tight">{cur.title}</b>
+            <figcaption className="text-[14px] text-muted [word-break:keep-all]">{cur.text}</figcaption>
+            <button type="button" className="btn justify-self-end" onClick={() => setOpen(null)}>닫기</button>
+          </figure>
+        </div>
+      )}
+    </>
   );
 }

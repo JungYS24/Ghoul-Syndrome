@@ -47,7 +47,10 @@ export interface Choice {
   followUp?: FollowUp;
   /** 판정이 실패가 아니면(최종값 40 이상) 이 유물을 얻음 */
   grantRelic?: string;
+  /** 결과 구간별 한 문장 (사건 기록용) */
+  outcomes?: Outcomes;
 }
+export interface Outcomes { great: string; success: string; weak: string; partial: string; fail: string }
 export interface FollowUp { cardId: string; afterTurns: number }
 /** 판정 직전 자원 투입 — 비용(res)을 치르고 판정 보정(mod)을 올립니다. */
 export interface Boost { res: ResourceKey; cost: number; mod: number; label: string }

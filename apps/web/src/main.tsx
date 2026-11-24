@@ -4,7 +4,6 @@ import { useGame } from "./store/store";
 import { Title } from "./ui/Title";
 import { Game } from "./ui/Game";
 import { Ending } from "./ui/Ending";
-import { DiceOverlay } from "./ui/DiceOverlay";
 import { playBgm } from "./audio/bgm";
 import "./index.css";
 import "./theme.css";
@@ -33,7 +32,6 @@ function App() {
       {screen === "game" && state && <Game s={state} />}
       {screen === "ending" && state && <Ending s={state} />}
       <Atmosphere />
-      <DiceOverlay />
     </>
   );
 }

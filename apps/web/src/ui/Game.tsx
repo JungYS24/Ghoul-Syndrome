@@ -1,219 +1,51 @@
-import { RelicBar } from "./RelicBar";
-import { useEffect, useRef, useState } from "react";
-import { DIFFICULTIES, FACTIONS, REGION_NAME, SEASON_KO, actionsFor, npcVisit, seasonOf, yearOf, type GameState, type RegionId } from "@guul/engine";
-import { content, useGame } from "../store/store";
+// 게임 화면 — 실시간 모드 하나만 있습니다. 1초 = 1일로 날짜가 흐르고, 사건은 우측 배너 자리에 뜹니다.
+import { useEffect, useState } from "react";
+import type { GameState } from "@guul/engine";
+import { useGame } from "../store/store";
 import { Dashboard } from "./Dashboard";
-import { CardView } from "./Cards";
-import { Illus } from "../art/Art";
 import { ChronicleSheet, RulesSheet, SettingsSheet, Sheet } from "./Sheets";
-import { MobileHud, MobileNav, type MobileTab } from "./Mobile";
+import { MobileNav, type MobileTab } from "./Mobile";
 import { Onboarding } from "./Onboarding";
-import { DecreePanel } from "./Decrees";
 import { RealtimeDriver, RealtimeTopBar, RealtimeSlot, RealtimeFlash, RealtimeActionHint, EventLog } from "./Realtime";
 
-const CREST: Record<string, string[]> = { arkandal: ["shield"], iruth: ["snowflake"], voodoo: ["eye"] };
-
-function Phases({ s }: { s: GameState }) {
-  const steps = [["start", "시작 결산"], ["event", "사건 카드"], ["action", "행동"], ["end", "종료 결산"]];
-  const cur = s.phase === "over" ? "end" : s.phase;
-  const idx = steps.findIndex((x) => x[0] === cur);
-  return (
-    <div className="sticky-bar -mx-1 px-1 py-1.5 flex gap-1 items-center font-ui text-[12px] text-faint flex-wrap">
-      {steps.map(([k, n], i) => <span key={k} className={`px-2 py-0.5 border rounded-[2px] ${i === idx ? "border-gold text-gold" : i < idx ? "border-line text-muted" : "border-line"}`}>{i + 1}. {n}{k === "event" && cur === "event" ? ` ${s.eventIdx + 1}/${s.events.length}` : ""}</span>)}
-      <ApDiamonds s={s} />
-    </div>
-  );
-}
-function ApDiamonds({ s }: { s: GameState }) {
-  return (
-    <span className="ml-auto inline-flex items-center gap-1.5 font-ui text-[12px] text-muted shrink-0" data-testid="ap-bar" title="행동권 — 미사용 시 이월, 최대 3">
-      행동권{[0, 1, 2].map((i) => <i key={i} className={`w-3 h-3 rotate-45 border border-gold inline-block ${i < s.ap ? "bg-gold" : ""}`} />)}<b className="font-normal text-ink tabular-nums">{s.ap}</b>
-    </span>
-  );
-}
-// F3: 결산에서 실제로 변한 수치 — 큰 변동 순, 가장 큰 항목 강조
-function DeltaStrip({ s }: { s: GameState }) {
-  const d = s.settleDelta;
-  if (!d || !Object.keys(d).length) return null;
-  const entries = Object.entries(d).sort((a, b) => Math.abs(b[1]) - Math.abs(a[1]));
-  return (
-    <div className="flex flex-wrap gap-1.5 font-ui text-[12px]" aria-label="이번 결산 변동">
-      {entries.map(([k, v]) => {
-        const up = v > 0;
-        const bad = (k === "감염도" || k === "진노") ? up : !up;
-        const col = bad ? "text-[#d98a74] border-[#5a3328]" : "text-frost border-[#3d5560]";
-        const hot = k === s.settleHighlight;
-        const n = Math.abs(v) % 1 === 0 ? String(Math.abs(v)) : Math.abs(v).toFixed(1);
-        return <span key={k} className={`chip ${col} ${hot ? "ring-1 ring-gold font-bold" : ""}`}>{k} {up ? "▲" : "▼"}{up ? "+" : "−"}{n}</span>;
-      })}
-    </div>
-  );
-}
-
-function TargetPicker({ s }: { s: GameState }) {
-  const setTarget = useGame((z) => z.setTarget);
-  if (s.faction !== "voodoo") return null;
-  const opts: RegionId[] = ["arkandal", "iruth", "neutral"];
-  return (
-    <div className="flex items-center gap-2 font-ui text-[12px] text-muted flex-wrap">
-      <span>확산 대상:</span>
-      {opts.map((o) => <button key={o} onClick={() => setTarget(o)} aria-pressed={s.target === o}
-        className={`px-2 py-1 rounded-[2px] border ${s.target === o ? "border-gold text-gold bg-[#2a2216]" : "border-line"}`}>{REGION_NAME[o]} ({s.infection[o]})</button>)}
-    </div>
-  );
-}
-
 export function Game({ s }: { s: GameState }) {
-  const { goEvents, chooseEvent, openActionCard, closeActionCard, chooseAction, chooseNpc, finishTurn, advance, toTitle, openAction, realtime, rtEvent, rtAction, rtNpc } = useGame();
-  const pickEvent = realtime ? rtEvent : chooseEvent;
-  const pickNpc = realtime ? rtNpc : chooseNpc;
-  const pickAction = (id: string) => (i: number, b?: Parameters<typeof chooseAction>[2]) => (realtime ? rtAction(id, i, b) : chooseAction(id, i, b));
+  const toTitle = useGame((z) => z.toTitle);
   const [sheet, setSheet] = useState<null | "chron" | "rules" | "settings" | "board">(null);
   const openTab = (t: MobileTab) => { if (t === "title") toTitle(); else setSheet(sheet === t ? null : t); };
-  // 실시간: 시트가 열려 있는 동안 날짜 시계와 제한시간을 멈춤
+  // 시트가 열려 있는 동안 날짜 시계와 제한시간을 멈춤
   const setModalOpen = useGame((z) => z.setModalOpen);
   useEffect(() => { setModalOpen(sheet !== null); }, [sheet, setModalOpen]);
   useEffect(() => () => setModalOpen(false), [setModalOpen]);
-  // 단계가 바뀌면 그 단계의 제목(결산·사건 등)을 화면 맨 위로 올리고 키보드 초점을 옮깁니다.
-  // (교수 피드백: 아래로 내린 채 계절을 마치면 '다음 계절' 버튼부터 보이던 문제 — 노트북 포함 전 화면 대상)
-  const anchorRef = useRef<HTMLDivElement>(null);
-  useEffect(() => {
-    const el = anchorRef.current;
-    if (!el || typeof window === "undefined") return;
-    const reduce = window.matchMedia?.("(prefers-reduced-motion: reduce)").matches;
-    el.scrollIntoView({ block: "start", behavior: reduce ? "auto" : "smooth" });
-    try { el.focus({ preventScroll: true }); } catch { /* 일부 브라우저 */ }
-  }, [s.turn, s.phase, s.eventIdx, openAction]);
-  const F = FACTIONS[s.faction];
-  const V = s.faction === "voodoo";
-  const last = s.chronicle[s.chronicle.length - 1];
-
-  // ───────── 실시간 모드: 지도 중심 레이아웃 ─────────
-  if (realtime) {
-    return (
-      <>
-        <RealtimeDriver />
-        <section className="gutter max-w-[1180px] mx-auto pt-3 pb-28 lg:pb-10">
-          <RealtimeTopBar s={s} menu={<>
-            <button className="btn !px-2 !py-1 !text-[12px]" onClick={() => setSheet("chron")}>연대기</button>
-            <button className="btn !px-2 !py-1 !text-[12px]" onClick={() => setSheet("rules")}>규칙</button>
-            <button className="btn !px-2 !py-1 !text-[12px]" onClick={() => setSheet("settings")}>설정</button>
-            <button className="btn !px-2 !py-1 !text-[12px]" onClick={toTitle}>처음으로</button>
-          </>} />
-          <div className="grid gap-4 lg:grid-cols-[minmax(0,1fr)_minmax(0,540px)] items-start">
-            <div className="grid gap-3 order-last lg:order-none">
-              <RealtimeActionHint s={s} />
-              <Dashboard s={s} />
-            </div>
-            {/* 우측: 배너 자리(결정이 없으면 지도) + 축소한 사건 기록. 데스크톱에선 화면에 붙어 따라옴 */}
-            <div className="grid gap-3 lg:sticky lg:top-[64px] lg:max-h-[calc(100vh-72px)] lg:overflow-y-auto lg:overflow-x-hidden lg:pr-1">
-              <RealtimeSlot s={s} />
-              <EventLog />
-            </div>
-          </div>
-        </section>
-        <RealtimeFlash />
-        {sheet === "chron" && <ChronicleSheet s={s} onClose={() => setSheet(null)} />}
-        {sheet === "rules" && <RulesSheet onClose={() => setSheet(null)} />}
-        {sheet === "settings" && <SettingsSheet onClose={() => setSheet(null)} />}
-        {sheet === "board" && <Sheet title="상황판" onClose={() => setSheet(null)}><Dashboard s={s} className="!p-3" /></Sheet>}
-        <MobileNav onOpen={openTab} active={sheet} />
-      </>
-    );
-  }
 
   return (
     <>
-    <MobileHud s={s} />
-    <section className="gutter max-w-[1120px] mx-auto pt-3 lg:pt-5 pb-28 lg:pb-10">
-      <header className="hidden lg:flex flex-wrap items-center gap-x-4 gap-y-2.5 pb-3.5 border-b border-line mb-4">
-        <div className="flex items-center gap-2.5 min-w-0"><span className="w-7 h-7 shrink-0"><Illus keys={CREST[s.faction]} faction={s.faction} accent /></span>
-          <div><h2 className="font-display text-[22px] leading-none">{F.name}</h2><div className="font-ui text-[12px] text-muted">{F.ruler} · 시드 {s.seed}{s.difficulty !== "normal" ? ` · ${DIFFICULTIES[s.difficulty].name}` : ""}</div></div></div>
-        <div className="ml-auto text-right"><div className="font-display text-[22px] leading-none">{yearOf(s.turn)}년 {SEASON_KO[seasonOf(s.turn)]}</div><div className="font-ui text-[12px] text-muted">{s.turn} / 40턴</div></div>
-        <div className="flex gap-1.5 w-full justify-end lg:w-auto">
-          <button className="btn !px-2.5 !text-[12px]" onClick={() => setSheet("chron")}>연대기</button>
-          <button className="btn !px-2.5 !text-[12px]" onClick={() => setSheet("rules")}>규칙</button>
-          <button className="btn !px-2.5 !text-[12px]" onClick={() => setSheet("settings")}>설정</button>
-          <button className="btn !px-2.5 !text-[12px]" onClick={toTitle}>처음으로</button>
+      <RealtimeDriver />
+      <section className="gutter max-w-[1180px] mx-auto pt-3 pb-28 lg:pb-10">
+        <RealtimeTopBar s={s} menu={<>
+          <button className="btn !px-2 !py-1 !text-[12px]" onClick={() => setSheet("chron")}>연대기</button>
+          <button className="btn !px-2 !py-1 !text-[12px]" onClick={() => setSheet("rules")}>규칙</button>
+          <button className="btn !px-2 !py-1 !text-[12px]" onClick={() => setSheet("settings")}>설정</button>
+          <button className="btn !px-2 !py-1 !text-[12px]" onClick={toTitle}>처음으로</button>
+        </>} />
+        <div className="grid gap-4 lg:grid-cols-[minmax(0,1fr)_minmax(0,540px)] items-start">
+          <div className="grid gap-3 order-last lg:order-none">
+            <Onboarding key={s.seed} s={s} />
+            <RealtimeActionHint s={s} />
+            <Dashboard s={s} />
+          </div>
+          {/* 우측: 배너 자리(결정이 없으면 지도) + 사건 기록. 데스크톱에선 화면에 붙어 따라옴 */}
+          <div className="grid gap-3 lg:sticky lg:top-[64px] lg:max-h-[calc(100vh-72px)] lg:overflow-y-auto lg:overflow-x-hidden lg:pr-1">
+            <RealtimeSlot s={s} />
+            <EventLog />
+          </div>
         </div>
-      </header>
-
-      <div className="grid gap-[18px] lg:grid-cols-[340px_minmax(0,1fr)] lg:items-start">
-        <Dashboard s={s} className="hidden lg:grid" />
-        <main className="grid gap-3.5 min-w-0 order-first lg:order-none">
-          <Onboarding key={s.seed} s={s} />
-          <div className="hidden lg:block"><Phases s={s} /></div>
-          <div ref={anchorRef} tabIndex={-1} aria-hidden="true" className="outline-none scroll-mt-28" />{/* 단계 제목 스크롤·초점 기준점 */}
-
-          {s.phase === "start" && (
-            <section className="bg-panel border border-line rounded p-3.5 sm:p-[18px] grid gap-2.5">
-              <div className="eyebrow">{yearOf(s.turn)}년 {SEASON_KO[seasonOf(s.turn)]} · 시작 결산</div>
-              <h2 className="font-display text-[26px]">{s.turn === 1 ? "759년 봄, 통치가 시작됩니다" : "새 계절이 밝았습니다"}</h2>
-              <ul className="m-0 pl-[18px] grid gap-1 text-[14px] text-[#d9cdb6]">{s.startReport.map((l, i) => <li key={i}>{l}</li>)}</ul>
-              <DeltaStrip s={s} />
-              <div className="flex gap-2 flex-wrap"><button className="btn-gold" onClick={goEvents}>사건 카드 {s.events.length}장 펼치기</button></div>
-            </section>
-          )}
-
-          {s.phase === "event" && s.events[s.eventIdx] && (
-            <CardView key={`${s.turn}-${s.eventIdx}`} s={s} card={s.events[s.eventIdx]!} onPick={pickEvent}><RelicBar s={s} /></CardView>
-          )}
-
-          {s.phase === "action" && !openAction && (
-            <section className="bg-panel border border-line rounded p-3.5 sm:p-[18px] grid gap-3">
-              <div className="flex justify-between items-center gap-2.5 flex-wrap">
-                <h2 className="font-display text-[26px]">행동권</h2>
-                <div className="flex gap-1.5 items-center font-ui text-[13px] text-muted">{[0, 1, 2].map((i) => <i key={i} className={`w-3.5 h-3.5 rotate-45 border border-gold inline-block ${i < s.ap ? "bg-gold" : ""}`} />)}<span>{s.ap}개 남음</span></div>
-              </div>
-              <TargetPicker s={s} />
-              <p className="m-0 text-muted text-[14px]">{V ? "확산 행동은 성공할수록 은닉이 더 깎입니다. 남긴 행동권은 다음 계절로 이월됩니다." : "남긴 행동권은 다음 계절로 이월됩니다(최대 3)."}</p>
-              <div className="grid grid-cols-2 sm:[grid-template-columns:repeat(auto-fill,minmax(150px,1fr))] gap-2">
-                {actionsFor(s, content).map((a) => (
-                  <button key={a.id} onClick={() => openActionCard(a.id)} disabled={s.ap <= 0}
-                    className="text-left bg-[#17130f] border border-line rounded-[3px] p-2.5 sm:p-3 grid gap-0.5 content-start hover:border-gold transition-colors disabled:opacity-40 disabled:cursor-not-allowed">
-                    <b className="font-display text-[18px] sm:text-[20px] font-normal">{a.name}</b><span className="font-ui text-[11.5px] sm:text-[12px] text-muted leading-snug">{a.desc}</span></button>
-                ))}
-              </div>
-              <DecreePanel s={s} />
-              <div className="end-dock flex gap-2 flex-wrap"><button className="btn-gold max-lg:w-full" onClick={finishTurn}>계절을 마친다{s.ap > 0 ? ` (행동권 ${s.ap} 이월)` : ""}</button></div>
-            </section>
-          )}
-
-          {s.phase === "action" && openAction && (() => {
-            const act = actionsFor(s, content).find((a) => a.id === openAction) ?? content.actions.find((a) => a.id === openAction)!;
-            return <CardView key={act.id} s={s} card={{ ...act.card, kind: `행동 · ${act.name}` }} onPick={pickAction(act.id)}>
-              <div className="flex gap-2 flex-wrap"><button className="btn" onClick={closeActionCard}>다른 행동 고르기</button></div>
-            </CardView>;
-          })()}
-
-          {(s.phase === "end" || s.phase === "over") && (() => {
-            const visit = s.phase === "end" ? npcVisit(s) : null;
-            return (
-              <section className="bg-panel border border-line rounded p-3.5 sm:p-[18px] grid gap-2.5">
-                <div className="eyebrow">{yearOf(s.turn)}년 {SEASON_KO[seasonOf(s.turn)]} · 종료 결산</div>
-                <h2 className="font-display text-[26px]">계절 결산</h2>
-                <ul className="m-0 pl-[18px] grid gap-1 text-[14px] text-[#d9cdb6]">{s.endReport.map((l, i) => <li key={i}>{l}</li>)}</ul>
-                <DeltaStrip s={s} />
-                {s.aiReport.length > 0 && <div className="grid gap-1 text-[13px] text-muted border-t border-line pt-2.5"><span className="eyebrow">소식</span>{s.aiReport.map((l, i) => <div key={i}>· {l}</div>)}</div>}
-                {last && <div className="text-[15px] border-l-2 border-gold-dim pl-3 text-ink"><span className="eyebrow">연대기</span><br />{last.year}년 {last.season} — {last.text}</div>}
-                {visit
-                  ? (<div className="grid gap-2.5 border-t border-gold-dim pt-3 mt-1">
-                      <div className="eyebrow text-gold">연말 알현 · {visit.npc.name} ({visit.npc.role})</div>
-                      <CardView key={`npc-${s.turn}`} s={s} card={visit.card} onPick={pickNpc} />
-                    </div>)
-                  : (<div className="flex gap-2 flex-wrap"><button className="btn-gold" onClick={advance}>{s.ended ? "결말 보기" : `${yearOf(s.turn + 1)}년 ${SEASON_KO[seasonOf(s.turn + 1)]}으로`}</button></div>)}
-              </section>
-            );
-          })()}
-        </main>
-      </div>
-
+      </section>
+      <RealtimeFlash />
       {sheet === "chron" && <ChronicleSheet s={s} onClose={() => setSheet(null)} />}
       {sheet === "rules" && <RulesSheet onClose={() => setSheet(null)} />}
       {sheet === "settings" && <SettingsSheet onClose={() => setSheet(null)} />}
       {sheet === "board" && <Sheet title="상황판" onClose={() => setSheet(null)}><Dashboard s={s} className="!p-3" /></Sheet>}
-    </section>
-    <MobileNav onOpen={openTab} active={sheet} />
+      <MobileNav onOpen={openTab} active={sheet} />
     </>
   );
 }

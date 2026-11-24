@@ -8,7 +8,7 @@ import {
 import { Illus } from "../art/Art";
 import { HEADER_IDS, headerUrl } from "../art/headers";
 import { useGame } from "../store/store";
-import { ImpactLine } from "./Cards";
+import { ImpactLine } from "./Impact";
 
 const COUNCIL: Record<string, string> = { arkandal: "제후 회의", iruth: "가문회", voodoo: "비밀 회합" };
 // 선택지 수에 맞춰 배너 폭을 꽉 채움 (4개면 2×2)

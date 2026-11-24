@@ -2,9 +2,16 @@
 // 판정은 엔진이 이미 확정했고(최종값 = 주사위 + 보정, 1~100), 여기서는 그 값을 보여 줄 뿐입니다.
 // 최종값이 SUCCESS_AT_LEAST 이상이면 성공 — 등급표 구간이 결과를 정합니다.
 import { useEffect, useState } from "react";
-import { SUCCESS_AT_LEAST, type GameState, type RollOutcome } from "@guul/engine";
+import { SUCCESS_AT_LEAST, type AppliedEffect, type GameState, type RollOutcome } from "@guul/engine";
 import { useGame } from "../store/store";
-import { chip } from "./DiceOverlay";
+
+/** 실제로 바뀐 수치 칩 */
+function chip(_s: GameState, a: AppliedEffect, fail: boolean) {
+  const unit = a.key === "pop" || a.key === "army" ? "만" : "";
+  const n = a.key === "pop" || a.key === "army" ? Math.abs(a.delta).toFixed(1) : String(Math.abs(Math.round(a.delta)));
+  const t = `${a.label} ${a.delta > 0 ? "+" : "−"}${n}${unit}`;
+  return <span key={(fail ? "f" : "") + a.key + a.label} className={`chip ${a.good ? "text-frost border-[#3d5560]" : "text-[#d98a74] border-[#5a3328]"} ${fail ? "border-dashed" : ""}`}>{fail ? "실패 시 " : ""}{t}</span>;
+}
 
 const ROLL_MS = 1300;
 // 종이 위 등급 글씨(진하게)
@@ -74,6 +81,7 @@ export function RealtimeRoll({ s }: { s: GameState }) {
       {done && (
         <div className="grid gap-2 justify-items-center quick-pop">
           <b className="font-display text-[30px] leading-none" style={{ color: INK[o.grade.tone] ?? "#4a3b2a" }}>{o.grade.name}</b>
+          {roll.line && <p className="m-0 max-w-[420px] text-[14px] leading-snug font-medium text-[#3a2e22] [word-break:keep-all]">{roll.line}</p>}
           <div className="flex flex-wrap gap-1 justify-center max-w-[420px]">{chips.length ? chips : <span className="chip border-line text-muted">변화 없음</span>}</div>
           <span className="font-ui text-[11px] text-faint">눌러서 닫기</span>
         </div>

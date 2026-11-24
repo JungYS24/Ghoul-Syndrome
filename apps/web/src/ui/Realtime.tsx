@@ -1,8 +1,8 @@
-// 실시간 모드: 지도 중심 레이아웃. 1초=1일(배속 적용)로 날짜가 흐르고,
+// 게임 진행(실시간): 지도 중심 레이아웃. 1초=1일(배속 적용)로 날짜가 흐르고,
 // 사건은 예정된 날에 우측 배너 자리에 떠(그동안 날짜 시계 멈춤) 15초 제한시간 안에 선택 — 배속과 무관.
 // 지도 아래엔 사건 로그가 쌓이고, 우측 상단에 날짜·배속 컨트롤.
 import { useEffect, useRef, useState } from "react";
-import { DIFFICULTIES, FACTIONS, actionsFor, canAfford, npcVisit, successChance, type Choice, type GameState } from "@guul/engine";
+import { DIFFICULTIES, FACTIONS, REGION_NAME, actionsFor, canAfford, npcVisit, successChance, type Choice, type GameState, type RegionId } from "@guul/engine";
 import { DAYS_PER_SEASON, content, rtDate, useGame } from "../store/store";
 import { clockFrozen, deadlineMs } from "../store/rtClock";
 import { BannerCard } from "./BannerCard";
@@ -10,6 +10,8 @@ import { WorldMap } from "./WorldMap";
 import { RealtimeRoll } from "./D20Roll";
 import { Dashboard } from "./Dashboard";
 import { Illus } from "../art/Art";
+import { DecreePanel } from "./Decrees";
+import { RelicBar } from "./RelicBar";
 
 const SPEEDS = [1, 2, 5, 10];
 const EV_START = 5, EV_SPAN = 60;          // 사건은 5~65일에 분산
@@ -127,13 +129,13 @@ function RealtimeDecision({ s, fallback }: { s: GameState; fallback: React.React
     onPick = (i, b) => rtAction(act.id, i, b);
     onTimeout = () => closeActionCard();
     onAuto = () => rtAction(act.id, bestChoice(s, act.card.choices));
-    extra = <button className="btn" onClick={closeActionCard}>다른 행동 고르기</button>;
+    extra = <button className="btn justify-self-start" onClick={closeActionCard}>다른 행동 고르기</button>;
   } else if (kind === "event") {
     card = s.events[s.eventIdx]!; title = card.title; key = `ev-${s.turn}-${s.eventIdx}`;
     onPick = (i, b) => rtEvent(i, b);
     onTimeout = () => rtSkip();
     onAuto = () => rtEvent(bestChoice(s, card!.choices));
-    extra = <button className="btn !text-[12px] !px-2.5" onClick={rtSkip}>이 사건 넘기기</button>;
+    extra = <><RelicBar s={s} /><button className="btn !text-[12px] !px-2.5 justify-self-start" onClick={rtSkip}>이 사건 넘기기</button></>;
   } else {
     card = npc!.card; title = npc!.npc.name; key = `npc-${s.turn}`;
     onPick = (i, b) => rtNpc(i, b);
@@ -152,7 +154,7 @@ function RealtimeDecision({ s, fallback }: { s: GameState; fallback: React.React
         <div className="grid gap-2">
           {/* 행동은 스스로 고르는 것이라 사람에게는 제한시간이 없습니다(카드가 열린 동안 날짜도 멈춤). 자동 진행만 타이머로 고름. */}
           {(kind !== "action" || auto) && <DeadlineBar key={key} onTimeout={onTimeout} onAuto={onAuto} />}
-          {extra && <div className="flex gap-2 flex-wrap">{extra}</div>}
+          {extra && <div className="grid gap-2">{extra}</div>}
         </div>
       </BannerCard>
     </section>
@@ -201,9 +203,9 @@ export function EventLog() {
   return (
     <div className="grid gap-1 bg-panel border border-line rounded px-3 py-2">
       <h3 className="eyebrow">사건 기록</h3>
-      <div ref={ref} className="grid gap-1 max-h-[132px] overflow-auto font-ui text-[12px] leading-snug">
+      <div ref={ref} className="grid gap-1 max-h-[160px] overflow-auto font-ui text-[12px] leading-snug">
         {log.length === 0 ? <span className="text-faint">시간이 흐르면 여기에 소식이 쌓입니다.</span>
-          : log.map((e) => <div key={e.id} className="grid grid-cols-[auto_1fr] gap-2"><span className="text-faint tabular-nums whitespace-nowrap">{e.date.replace("여신력 ", "")}</span><span className={TONE_COLOR[e.tone ?? ""] ?? "text-ink"}>{e.text}</span></div>)}
+          : log.map((e) => <div key={e.id} className="grid grid-cols-[auto_1fr] gap-x-2"><span className="text-faint tabular-nums whitespace-nowrap">{e.date.replace("여신력 ", "")}</span><span className={TONE_COLOR[e.tone ?? ""] ?? "text-ink"}>{e.text}</span>{e.detail && <span className="col-start-2 text-muted [word-break:keep-all]">{e.detail}</span>}</div>)}
       </div>
     </div>
   );
@@ -241,7 +243,23 @@ export function RealtimeActionHint({ s }: { s: GameState }) {
             <b className="font-display text-[17px] font-normal">{a.name}</b><span className="font-ui text-[11.5px] text-muted leading-snug">{a.desc}</span></button>
         ))}
       </div>
-      <button className="btn-gold" onClick={rtFinishTurn}>지금 계절 마치기</button>
+      <TargetPicker s={s} />
+      <DecreePanel s={s} />
+      <button className="btn-gold" onClick={rtFinishTurn}>지금 계절 마치기{s.ap > 0 ? ` (행동권 ${s.ap} 이월)` : ""}</button>
     </section>
+  );
+}
+
+// 부두교: 확산 대상 고르기 (지도에서 지역을 눌러도 됨)
+function TargetPicker({ s }: { s: GameState }) {
+  const setTarget = useGame((z) => z.setTarget);
+  if (s.faction !== "voodoo") return null;
+  const opts: RegionId[] = ["arkandal", "iruth", "neutral"];
+  return (
+    <div className="flex items-center gap-2 font-ui text-[12px] text-muted flex-wrap">
+      <span>확산 대상:</span>
+      {opts.map((o) => <button key={o} onClick={() => setTarget(o)} aria-pressed={s.target === o}
+        className={`px-2 py-1 rounded-[2px] border ${s.target === o ? "border-gold text-gold bg-[#2a2216]" : "border-line"}`}>{REGION_NAME[o]} ({s.infection[o]})</button>)}
+    </div>
   );
 }

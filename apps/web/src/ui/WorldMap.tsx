@@ -18,7 +18,7 @@ const BORDER = "M480,262 L470,340 L455,450 L470,560 L440,720";
 const REGION: Record<Zone, { d: string; fill: string; name: string; label: [number, number] }> = {
   iruth: { d: "M0,0 H1000 V250 C900,262 820,240 740,258 C640,276 560,250 480,262 C380,276 300,250 200,266 C120,276 60,258 0,262 Z", fill: "#a9c3c9", name: "아이루스 공국", label: [560, 205] },
   neutral: { d: "M0,262 C60,258 120,276 200,266 C300,250 380,276 480,262 L470,340 L455,450 L470,560 L440,720 H0 Z", fill: "#5b4868", name: "라벤 폐허", label: [235, 470] },
-  arkandal: { d: "M480,262 C560,250 640,276 740,258 C820,240 900,262 1000,250 V720 H440 L470,560 L455,450 L470,340 Z", fill: "#86352e", name: "아르칸달 공국", label: [700, 380] },
+  arkandal: { d: "M480,262 C560,250 640,276 740,258 C820,240 900,262 1000,250 V720 H440 L470,560 L455,450 L470,340 Z", fill: "#86352e", name: "아르칸달 군국", label: [700, 380] },
 };
 const ORDER: Zone[] = ["iruth", "neutral", "arkandal"];
 
@@ -39,7 +39,7 @@ const CITIES: City[] = [
   { name: "에테르 라티스", x: 250, y: 420, region: "neutral" },
   { name: "어비스", x: 330, y: 560, region: "neutral" },
   { name: "여신의 제단", x: 470, y: 470, region: "neutral" },
-  { name: "아이언펑", x: 700, y: 430, capital: true, region: "arkandal" },
+  { name: "아이언 팽", x: 700, y: 430, capital: true, region: "arkandal" },
   { name: "하울링", x: 790, y: 310, region: "arkandal" },
   { name: "베르세르크", x: 850, y: 520, region: "arkandal" },
   { name: "바스티온", x: 600, y: 560, region: "arkandal" },
