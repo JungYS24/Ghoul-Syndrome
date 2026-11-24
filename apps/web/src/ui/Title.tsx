@@ -21,7 +21,7 @@ export function Title() {
   const book = useGame((z) => z.book);
   const [seed, setSeed] = useState(() => String(shared.seed ?? Math.floor(Math.random() * 900000) + 100000));
   const [diff, setDiff] = useState<Difficulty>(shared.difficulty ?? "normal");
-  const [mode, setMode] = useState<"turn" | "realtime">("turn");
+  const [mode, setMode] = useState<"turn" | "realtime">("realtime");
   const begin = (id: FactionId) => { const sd = (parseInt(seed, 10) || 1) >>> 0; if (mode === "realtime") startRealtime(id, sd, diff); else start(id, sd, diff); };
   const [rules, setRules] = useState(false);
   const [settings, setSettings] = useState(false);
@@ -69,8 +69,8 @@ export function Title() {
       {/* 설정 한 줄: 진행 방식 · 난이도 · 시드 */}
       <div className="flex flex-wrap items-center justify-center gap-x-5 gap-y-2.5 mb-5">
         <div className="flex items-center gap-1" role="group" aria-label="진행 방식">
-          <button type="button" aria-pressed={mode === "turn"} onClick={() => setMode("turn")} className={seg(mode === "turn")} title="한 단계씩 천천히">턴제</button>
           <button type="button" aria-pressed={mode === "realtime"} onClick={() => setMode("realtime")} className={seg(mode === "realtime")} title="시간이 흐르고 15초 안에 선택 (배속·일시정지 가능)">실시간</button>
+          <button type="button" aria-pressed={mode === "turn"} onClick={() => setMode("turn")} className={seg(mode === "turn")} title="한 단계씩 천천히">턴제</button>
         </div>
         <div className="flex items-center gap-1" role="group" aria-label="난이도">
           {DIFFICULTY_IDS.map((d) => (

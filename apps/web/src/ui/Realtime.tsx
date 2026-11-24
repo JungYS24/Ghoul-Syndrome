@@ -6,6 +6,7 @@ import { DIFFICULTIES, FACTIONS, actionsFor, canAfford, npcVisit, successChance,
 import { DAYS_PER_SEASON, content, rtDate, useGame } from "../store/store";
 import { clockFrozen, deadlineMs } from "../store/rtClock";
 import { BannerCard } from "./BannerCard";
+import { WorldMap } from "./WorldMap";
 import { Dashboard } from "./Dashboard";
 import { Illus } from "../art/Art";
 
@@ -93,7 +94,7 @@ function DeadlineBar({ onTimeout, onAuto }: { onTimeout: () => void; onAuto: () 
 // ───────── 사건/행동/알현 배너 (우측 배너 자리, 비모달) ─────────
 // 팝업으로 화면을 덮지 않아, 선택지에 마우스를 올리면 좌측 대시보드의 자원·게이지 변화가 그대로 보입니다.
 export function RealtimeSlot({ s }: { s: GameState }) {
-  return <RealtimeDecision s={s} fallback={<MapPanel />} />;
+  return <RealtimeDecision s={s} fallback={<WorldMap s={s} />} />;
 }
 function RealtimeDecision({ s, fallback }: { s: GameState; fallback: React.ReactNode }) {
   const setPreview = useGame((z) => z.setPreview);
@@ -188,15 +189,8 @@ export function RealtimeTopBar({ s, menu }: { s: GameState; menu?: React.ReactNo
   );
 }
 
-// ───────── 지도 + 사건 로그 ─────────
+// ───────── 사건 로그 ─────────
 const TONE_COLOR: Record<string, string> = { crit: "text-gold", great: "text-gold", success: "text-frost", partial: "text-ink", fail: "text-[#d98a74]", fumble: "text-blood", after: "text-blood" };
-export function MapPanel() {
-  return (
-    <div className="rounded border border-line2 overflow-hidden bg-[#0f0c0a] shadow-[0_10px_28px_-12px_#000]">
-      <img src="world-map.webp" alt="대륙 지도" width={1024} height={765} className="w-full h-auto block" />
-    </div>
-  );
-}
 export function EventLog() {
   const log = useGame((z) => z.rtLog);
   const ref = useRef<HTMLDivElement>(null);
