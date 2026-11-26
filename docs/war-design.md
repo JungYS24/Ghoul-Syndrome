@@ -1,6 +1,6 @@
 # 전쟁 시스템 + 필요한 일러스트
 
-> 상태: **구현됨** (엔진 `packages/engine/src/war.ts`, 카드 `content.json`의 `warCards`, 화면 `apps/web/src/ui/War.tsx`).
+> 상태: **구현됨, 일러스트 28장 적용 완료** (엔진 `packages/engine/src/war.ts`, 카드 `content.json`의 `warCards`, 화면 `apps/web/src/ui/War.tsx`).
 > 아래 "확정한 규칙"은 사용자 답변을 반영한 것입니다.
 
 ## 1. 흐름
@@ -33,6 +33,8 @@
 | 항복 버튼 | 전시엔 상단 바에 **하얀 🏳 항복** 버튼이 늘 있음(한 번 더 눌러 확정). 스스로 항복하면 **자원·도시 1/3만** 내줌 |
 | 패배 | 자원 **절반**(실링·식량·광석·정화석·먹이) 배상, 우리 비수도 도시 **절반(올림)** 양도, 민심 −15·질서 −10. 수도 함락이면 수도도 넘어감 |
 | 승리 | 자원마다 우리 현재치의 50%(최소 20) 획득, 적 비수도 도시 **절반(올림)** 획득(수도 점령이면 적 수도까지), 정통성 +10, 진노 +5 |
+| 군주 포박 패배 | 우리 군주가 포박되면(군주 추적 −100) **즉시 게임 종료 — 엔딩 "패배의 댓가"**(하얀 깃발). 수도 함락·항복은 배상 후 게임이 이어짐 |
+| 정복왕 | 도시 13곳 중 **10곳**을 차지하는 순간 **즉시 승리 — 엔딩 "정복왕 — 백마를 탄 왕"** |
 | 휴전 | 결판 후 그 세력과 **4계절** 동안 다시 전쟁 불가. "휴전 제안" 카드를 받아들이면 아무것도 오가지 않고 끝남 |
 | 도시와 생산 | 처음보다 도시가 1개 많을 때마다 생산 **+4%**, 적으면 −4% (식량·실링·광석·정화석, 유지비는 그대로) |
 | 수도·군주 | 아르칸달: 아이언 팽 · 영웅왕 전운 / 아이루스: 벨로링크 · 대공 / 부두교: **에테르 라티스 · 대사제** |
@@ -63,47 +65,111 @@
 | 17 | `war-truce-offer` | 휴전 제안 | 휴전을 받아들인다 / 거절하고 밀어붙인다 | 적 피로 ≥ 40 |
 | 18 | `war-surrender-demand` | 항복 권고 | 항복을 권한다 / 칼을 보낸다 | 적 피로 ≥ 60 |
 
-## 4. 만들 일러스트 목록 (총 26장)
+## 4. 만들 일러스트 — 28장 = 4분할 시트 7장
 
-규격은 기존 카드와 같습니다: **512×512 정사각형 WebP**, 같은 판화풍(검은 바탕·장식 테두리), 파일은 `apps/web/public/headers/<id>.webp`.
-**생성기 로고·워터마크가 없는 원본**으로 부탁드립니다. 파일을 넣고 `apps/web/src/art/headers.ts`의 목록에 id만 추가하면 바로 쓰입니다(없으면 SVG 아이콘으로 대신 보임).
+전쟁 일러스트 26장 + 새 엔딩 배너 2장(**패배의 댓가**, **정복왕 / 백마를 탄 왕**) = **28장 = 2×2 시트 7장**.
+시트마다 아래 STYLE 블록을 그대로 붙이고, PALETTE와 네 칸만 바꿔 넣으면 됩니다. 잘라 낸 칸은 512×512 WebP로 `apps/web/public/headers/<파일 id>.webp`에 넣습니다.
 
-### A. 전쟁 카드 배너 — 3국 공용 18장 (위 표의 파일 id 그대로)
+> 생성기 로고는 시트 오른쪽 아래, 즉 **④칸 오른쪽 아래 모서리**에 찍힙니다. STYLE 끝에 그 모서리를 빈 배경으로 두라는 문장을 넣어 두어, 로고가 그림 위가 아니라 빈 바탕에 찍혀 지우기 쉬워집니다(NPC 9장처럼 제가 지워 드릴 수도 있습니다).
 
-| 파일 id | 장면 제안 |
-|---|---|
-| `war-naval` | 불붙은 기함과 부딪치는 두 함대 |
-| `war-cavalry` | 평원을 가르는 기병 돌격, 흩날리는 깃발 |
-| `war-siege` | 공성탑과 투석기가 성벽에 붙은 장면 |
-| `war-night-raid` | 달빛 아래 횃불을 든 습격대와 불타는 천막 |
-| `war-supply` | 매복당해 불타는 보급 수레 행렬 |
-| `war-ambush` | 협곡 위 바위 뒤에 숨은 궁수들 |
-| `war-river` | 불어난 강을 건너는 병사들과 부교 |
-| `war-spy` | 촛불 아래 지도를 훔쳐보는 그림자 |
-| `war-deserters` | 밤중에 막사를 빠져나가는 병사들 |
-| `war-mercenary` | 금화 자루를 받는 용병 대장 |
-| `war-prisoners` | 사슬에 묶여 줄지어 선 포로들 |
-| `war-plague-camp` | 천막 안에서 구울로 변해 가는 병사 |
-| `war-counterattack` | 방패벽을 밀어붙이는 적의 대군 |
-| `war-capital-siege` | 포위된 수도 성벽과 치솟는 불길 |
-| `war-ruler-hunt` | 숲길을 달아나는 왕관 쓴 인물과 추격대 |
-| `war-home-defense` | 우리 수도 성문을 막아선 시민군 |
-| `war-truce-offer` | 백기를 든 사절이 다가오는 전장 |
-| `war-surrender-demand` | 지친 적진 앞에 내밀어진 항복 문서 |
+### 공통 STYLE (모든 시트 동일)
 
-### B. 전쟁 준비·선포·결판 — 8장
+```
+STYLE (keep identical across every sheet in this set): one single SQUARE image, cleanly divided into a 2x2 grid of FOUR separate square panels, a thin dark gutter (~3% of width) between panels and a matching margin on the outer edge so each panel can be cropped out as an independent square icon. Each panel is a SELF-CONTAINED illustration, its subject centered with comfortable padding (nothing important touches a panel edge). Art style: flat vector heraldic illustration with a medieval woodcut feel; bold uniform 2px-weight dark outlines; NO gradients, NO photo realism, NO 3D; limited flat palette; dark charcoal background #14110e in every panel; iconic, simple, legible at small size. ABSOLUTELY NO text, letters, numbers, runes or labels anywhere (scrolls and maps show only blank lines). No outer decorative frame. Consistent lighting and line weight across all four panels. Keep the bottom-right corner of panel ④ as plain empty background.
+```
 
-| 파일 id | 용도 | 장면 제안 |
-|---|---|---|
-| `war-prep` | 전쟁 준비 카드 (3국 공용) | 연병장에 정렬한 병사와 전쟁 지도 |
-| `war-declare` | 우리가 선전포고 | 찢긴 조약문에 꽂힌 검, 봉화 |
-| `war-declared-on-us` | 적이 선전포고 | 성문 앞에 도착한 적 전령, 피 묻은 깃발 |
-| `war-win-capital` | 승리: 수도 점령 | 적 수도 성루에 꽂히는 우리 깃발 |
-| `war-win-ruler` | 승리: 군주 포박 | 사슬에 묶여 끌려오는 적 군주 |
-| `war-win-surrender` | 승리: 적 항복 | 항복 문서에 찍히는 인장 |
-| `war-lose` | 패배 (조건 공통) | 불타는 우리 수도, 쓰러진 깃발 |
-| `war-truce` | 휴전 | 부러진 창 위에 놓인 올리브 가지와 조약문 |
+### 시트 1 — 선포와 준비
 
-> 휴전 알림은 지금 `war-truce-offer` 그림을 같이 씁니다. `war-truce`를 따로 만들면 그쪽으로 바꾸겠습니다.
+```
+PALETTE for this sheet: blood crimson + tarnished iron grey accent, war-drum dread mood.
 
-**합계: 공용 전쟁 카드 18 + 준비·선포·결판 8 = 26장.** 우선순위를 두자면 B의 8장 → A 중 자주 나오는 공성전·수도 포위·군주 추격·해상전·기마전 순입니다.
+Four panels:
+① a war map pinned to a drill board with crossed spears and a marching drum
+② a torn treaty scroll pierced by an upright sword; a lit beacon brazier
+③ a closed city gate with a blood-stained enemy banner planted before it; a war horn
+④ a broken spear lying across a sealed peace scroll; an olive branch
+```
+
+### 시트 2 — 승리와 패배
+
+```
+PALETTE for this sheet: aged gold + ember red accent, triumph-and-ruin mood.
+
+Four panels:
+① a victory banner planted on a captured castle tower; small flames below
+② an empty toppled crown wrapped in heavy chains; a shackle key
+③ a surrender scroll stamped with a wax seal; a sword laid flat beside it
+④ a burning castle keep behind a fallen torn banner on the ground
+```
+
+### 시트 3 — 새 엔딩 2장 + 결정적 전쟁 카드
+
+```
+PALETTE for this sheet: bone white + cold steel blue + aged gold accent, solemn and final mood.
+
+Four panels:
+① a tattered white flag on a short pole above a spilled coin chest and a handed-over city key (the price of defeat)
+② a crowned king on a rearing white horse holding a raised sword, a small row of conquered castle towers behind (the conqueror)
+③ a besieged city wall with a scaling ladder and a siege tower; a rising column of smoke
+④ a dropped crown on a forest path; a hunting horn and scattered arrows
+```
+
+### 시트 4 — 들판과 물의 전투
+
+```
+PALETTE for this sheet: storm teal + iron grey + amber spark accent, open-battlefield mood.
+
+Four panels:
+① a burning warship prow ramming another hull among waves
+② a charging armored warhorse with a lance and a streaming pennant
+③ a pontoon bridge over a swollen river; a shield floating on the water
+④ a narrow rocky canyon with a drawn longbow and a quiver on the cliff edge
+```
+
+### 시트 5 — 성과 진영의 전투
+
+```
+PALETTE for this sheet: fire orange + soot black + iron accent, siege-and-fire mood.
+
+Four panels:
+① a wooden trebuchet hurling a flaming stone at a fortress wall
+② a crescent moon over a burning tent; a torch and a curved dagger
+③ a wall of overlapping round shields with spears pointing forward
+④ a city gate barred with a heavy beam; a pitchfork and a militia helmet before it
+```
+
+### 시트 6 — 군영
+
+```
+PALETTE for this sheet: muddy ochre + worn leather brown + tarnished silver accent, weary-camp mood.
+
+Four panels:
+① an overturned supply cart with spilled grain sacks; a broken wheel with an arrow stuck in it
+② an empty army tent with its flap open; abandoned boots and a dropped helmet
+③ a heavy coin purse on a war drum; a broad mercenary sword and a gauntlet
+④ a row of iron shackles chained to a post; a jailer key ring
+```
+
+### 시트 7 — 첩보·역병·협상
+
+```
+PALETTE for this sheet: sickly plague green + parchment beige + candle amber accent, intrigue-and-pestilence mood.
+
+Four panels:
+① an open eye over a folded map with a dagger; a single candle
+② a sick-tent with a hanging plague lantern; a clawed ghoul hand reaching from under the flap
+③ a white flag carried on a lance beside a sealed envoy letter
+④ a rolled demand scroll with a heavy seal laid on a broken shield
+```
+
+### 파일 이름표 (자른 뒤 이 이름으로 저장)
+
+| 시트 | ① | ② | ③ | ④ |
+|---|---|---|---|---|
+| 1 | war-prep | war-declare | war-declared-on-us | war-truce |
+| 2 | war-win-capital | war-win-ruler | war-win-surrender | war-lose |
+| 3 | end-d-war-price | end-v-conqueror | war-capital-siege | war-ruler-hunt |
+| 4 | war-naval | war-cavalry | war-river | war-ambush |
+| 5 | war-siege | war-night-raid | war-counterattack | war-home-defense |
+| 6 | war-supply | war-deserters | war-mercenary | war-prisoners |
+| 7 | war-spy | war-plague-camp | war-truce-offer | war-surrender-demand |

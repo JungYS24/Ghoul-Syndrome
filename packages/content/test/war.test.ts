@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 import {
-  CAPITAL, aiWarChance, citiesOf, cityProdMod, declareWar, migrateState, newGame, nextTurn, resolveAction, resolveEvent,
+  CAPITAL, aiWarChance, endWarIn, citiesOf, cityProdMod, declareWar, migrateState, newGame, nextTurn, resolveAction, resolveEvent,
   resolveWarPrep, startTurn, suggestPlays, surrender, warPrepCard, type GameState,
 } from "@guul/engine";
 import { content } from "../src";
@@ -91,5 +91,20 @@ describe("전쟁", () => {
     const m = migrateState(old);
     expect(citiesOf(m, "iruth").length).toBe(4);
     expect(m.war).toBeNull();
+  });
+  it("우리 군주가 포박되면 즉시 \"패배의 댓가\" 엔딩, 수도 함락·항복은 게임이 이어진다", () => {
+    const base = declareWar(atAction((x) => { x.warReady = "iruth"; }));
+    const ruler = structuredClone(base); endWarIn(ruler, false, "ruler", false);
+    expect(ruler.ended?.id).toBe("d-war-price");
+    expect(ruler.phase).toBe("over");
+    const cap = structuredClone(base); endWarIn(cap, false, "capital", false);
+    expect(cap.ended).toBeNull();
+    expect(surrender(base).ended).toBeNull();
+  });
+  it("도시 10곳을 차지하면 즉시 \"정복왕\" 승리", () => {
+    const s = declareWar(atAction((x) => { x.warReady = "voodoo"; x.cities.frost = "arkandal"; x.cities.hibern = "arkandal"; }));
+    endWarIn(s, true, "capital", false); // 부두교 비수도 3곳 중 2곳 + 수도 → 7 + 3 = 10
+    expect(citiesOf(s, "arkandal").length).toBeGreaterThanOrEqual(10);
+    expect(s.ended?.id).toBe("v-conqueror");
   });
 });

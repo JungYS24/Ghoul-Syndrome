@@ -53,13 +53,22 @@ export const HEADER_IDS = new Set<string>([
   "wall", "npc-franci", "npc-dio", "npc-yard",
   "npc-kshala", "npc-imis", "npc-milione", "npc-lapis",
   "npc-cruill", "npc-kobiko",
-  // 엔딩 배너 (24종)
+  // 엔딩 배너
   "end-v-arkandal-wall", "end-v-iruth-cure", "end-v-voodoo-grace", "end-v-pact",
   "end-d-morale", "end-d-order", "end-d-finance", "end-d-legit",
   "end-d-faith", "end-d-control", "end-d-offering", "end-d-stealth",
   "end-d-empty", "end-d-capital", "end-d-continent", "end-d-voodoo-cure", "end-d-voodoo-wall",
   "end-s-iruth-led", "end-s-S", "end-s-A", "end-s-B", "end-s-C", "end-s-D",
   "end-x-goddess",
+  // 전쟁 엔딩 (2종)
+  "end-d-war-price", "end-v-conqueror",
+  // 전쟁 — 준비·선포·결판
+  "war-prep", "war-declare", "war-declared-on-us", "war-truce",
+  "war-win-capital", "war-win-ruler", "war-win-surrender", "war-lose",
+  // 전쟁 카드 (3국 공용 18장)
+  "war-naval", "war-cavalry", "war-siege", "war-night-raid", "war-supply", "war-ambush",
+  "war-river", "war-spy", "war-deserters", "war-mercenary", "war-prisoners", "war-plague-camp",
+  "war-counterattack", "war-capital-siege", "war-ruler-hunt", "war-home-defense", "war-truce-offer", "war-surrender-demand",
 ]);
 
 export const headerUrl = (id: string) => `headers/${id}.webp`;

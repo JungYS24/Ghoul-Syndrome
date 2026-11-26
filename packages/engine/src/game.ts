@@ -456,6 +456,7 @@ export function setTarget(state: GameState, target: RegionId): GameState { const
 export function setPreset(state: GameState, preset: GameState["preset"]): GameState { const s = clone(state); s.preset = preset; return s; }
 
 export function finishCheck(s: GameState) {
+  if (s.ended) { s.phase = "over"; return; } // 전쟁 등으로 이미 결말이 정해짐
   const d = checkDefeat(s);
   if (d) { s.ended = d; s.phase = "over"; s.chronicle.push(chron(s, `${d.title}.`)); }
 }
@@ -558,7 +559,7 @@ export function endTurn(state: GameState, content: Pick<GameContent, "decrees">)
   s.endReport = rep;
   s.settleDelta = diffSnap(before, snap(s)); s.settleHighlight = topKey(s.settleDelta);
   s.rng = rng.state;
-  const end = checkDefeat(s) ?? checkVictory(s) ?? (s.turn >= 40 ? finalScore(s) : null);
+  const end = s.ended ?? checkDefeat(s) ?? checkVictory(s) ?? (s.turn >= 40 ? finalScore(s) : null);
   if (end) { s.ended = end; s.phase = "over"; } else s.phase = "end";
   return s;
 }
@@ -586,7 +587,10 @@ export function checkDefeat(s: GameState): Ending | null {
   }
   return null;
 }
+/** 정복왕: 도시 이만큼을 차지하면 즉시 승리 */
+export const CONQUEROR_CITIES = 10;
 export function checkVictory(s: GameState): Ending | null {
+  if (citiesOf(s, s.faction).length >= CONQUEROR_CITIES) return makeEnding("v-conqueror");
   if (s.faction === "voodoo" && s.ciStreak >= 2) return makeEnding("v-voodoo-grace");
   if (s.faction === "iruth" && s.research >= 100) return makeEnding("v-iruth-cure");
   if (s.faction === "arkandal" && s.wall >= 100 && s.infection.arkandal < 20) return makeEnding("v-arkandal-wall");

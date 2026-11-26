@@ -5,7 +5,8 @@ import { FACTIONS, SEASON_KO, otherFactions, seasonOf, yearOf } from "./factions
 import { diffOf } from "./difficulty";
 import { josa } from "./news";
 import { createRng, type Rng } from "./rng";
-import { finishCheck, resolveChoice } from "./game";
+import { CONQUEROR_CITIES, finishCheck, resolveChoice } from "./game";
+import { makeEnding } from "./endings";
 import type { Boost, Card, Choice, FactionId, GameContent, GameState, ResourceKey, RollOutcome, WarDelta, WarHow, WarResult } from "./types";
 
 const clone = <T>(v: T): T => (typeof structuredClone === "function" ? structuredClone(v) : JSON.parse(JSON.stringify(v)));
@@ -232,6 +233,9 @@ export function endWarIn(s: GameState, win: boolean, how: WarHow, voluntary: boo
     s.gauges[g1] = clamp(s.gauges[g1] - (voluntary ? 8 : 15), 0, 100);
     s.gauges[g2] = clamp(s.gauges[g2] - (voluntary ? 5 : 10), 0, 100);
   }
+  // 결말: 우리 군주가 포박되면 즉시 "패배의 댓가", 도시 10곳 이상이면 즉시 "정복왕"
+  if (!win && how === "ruler") { s.ended = makeEnding("d-war-price"); s.phase = "over"; }
+  else if (win && citiesOf(s, me).length >= CONQUEROR_CITIES) { s.ended = makeEnding("v-conqueror"); s.phase = "over"; }
   s.truce[enemy] = s.turn + 4;
   s.lastWar = { enemy, win, how, voluntary, turn: s.turn, cities, res };
   s.war = null;

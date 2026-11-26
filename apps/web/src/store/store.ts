@@ -287,7 +287,7 @@ export function warNotice(prev: GameState, next: GameState): WarNotice | null {
     const cities = w.cities.map((id) => cityById(id)?.name ?? id).join("·");
     const res = Object.entries(w.res).map(([k, v]) => `${RES_LABEL[k] ?? k} ${v! > 0 ? "+" : "−"}${Math.abs(v!)}`).join(" · ");
     const lines = [cities ? (w.win ? `얻은 도시: ${cities}` : `잃은 도시: ${cities}`) : "", res ? (w.win ? `전리품: ${res}` : `배상금: ${res}`) : ""].filter(Boolean);
-    if (w.how === "peace") return { title: `🕊 ${josa(e.short, "과", "와")} 휴전`, text: "양쪽 모두 지쳐 칼을 거두었습니다. 4계절 동안 다시 싸울 수 없습니다.", img: "war-truce-offer", tone: "peace", lines };
+    if (w.how === "peace") return { title: `🕊 ${josa(e.short, "과", "와")} 휴전`, text: "양쪽 모두 지쳐 칼을 거두었습니다. 4계절 동안 다시 싸울 수 없습니다.", img: "war-truce", tone: "peace", lines };
     if (w.win) return { title: `🏆 ${josa(e.short, "과", "와")}의 전쟁 승리 — ${WAR_HOW_LABEL[w.how]}`, text: w.how === "capital" ? `${e.short}의 수도에 우리 깃발이 올랐습니다.` : w.how === "ruler" ? `${josa(RULER[w.enemy], "을", "를")} 사슬에 묶어 끌고 왔습니다.` : `${josa(e.short, "이", "가")} 항복 문서에 인장을 찍었습니다.`, img: w.how === "capital" ? "war-win-capital" : w.how === "ruler" ? "war-win-ruler" : "war-win-surrender", tone: "win", lines };
     return { title: `🏳 ${josa(e.short, "과", "와")}의 전쟁 패배 — ${WAR_HOW_LABEL[w.how]}`, text: w.voluntary ? "스스로 백기를 들어 배상을 1/3로 줄였습니다." : w.how === "capital" ? "우리 수도가 함락되었습니다." : w.how === "ruler" ? "우리 군주가 적의 손에 떨어졌습니다." : "지친 병사들이 더는 싸우지 않았습니다.", img: "war-lose", tone: "lose", lines };
   }

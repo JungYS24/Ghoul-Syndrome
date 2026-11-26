@@ -62,7 +62,7 @@ export function WarPanel({ s }: { s: GameState }) {
         <Track label="적 피로" v={w.enemyWeary} left="" right="적 항복" color="#8fc3d6" />
       </div>
       <p className="m-0 font-ui text-[11px] text-faint leading-snug">
-        이기는 길: 전선 100(수도 점령) · 군주 추적 100(군주 포박) · 적 피로 100(항복). 계절마다 전쟁 카드 2장과 역병 사건 1장이 옵니다.
+        이기는 길: 전선 100(수도 점령) · 군주 추적 100(군주 포박) · 적 피로 100(항복). 군주 추적이 −100이 되면 우리 군주가 포박되어 그대로 게임이 끝납니다(패배의 댓가). 도시 10곳을 차지하면 정복왕으로 승리합니다. 계절마다 전쟁 카드 2장과 역병 사건 1장이 옵니다.
         도시 {citiesOf(s, s.faction).length}곳 ({me.short}) · {citiesOf(s, w.enemy).length}곳 ({E.short}).
       </p>
     </section>
