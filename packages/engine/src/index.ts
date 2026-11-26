@@ -2,6 +2,8 @@ export * from "./types";
 export * from "./rng";
 export * from "./dice";
 export * from "./outcomes";
+export * from "./plays";
+export * from "./war";
 export * from "./factions";
 export * from "./rules";
 export * from "./game";

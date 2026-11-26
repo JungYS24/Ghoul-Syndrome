@@ -6,6 +6,7 @@ import { Dashboard } from "./Dashboard";
 import { ChronicleSheet, RulesSheet, SettingsSheet, Sheet } from "./Sheets";
 import { MobileNav, type MobileTab } from "./Mobile";
 import { Onboarding } from "./Onboarding";
+import { WarPanel } from "./War";
 import { RealtimeDriver, RealtimeTopBar, RealtimeSlot, RealtimeFlash, RealtimeActionHint, EventLog } from "./Realtime";
 
 export function Game({ s }: { s: GameState }) {
@@ -29,6 +30,7 @@ export function Game({ s }: { s: GameState }) {
         </>} />
         <div className="grid gap-4 lg:grid-cols-[minmax(0,1fr)_minmax(0,540px)] items-start">
           <div className="grid gap-3 order-last lg:order-none">
+            <WarPanel s={s} />
             <Onboarding key={s.seed} s={s} />
             <RealtimeActionHint s={s} />
             <Dashboard s={s} />

@@ -19,3 +19,28 @@ export function zoomAt(v: View, factor: number, sx: number, sy: number): View {
 export function panBy(v: View, dx: number, dy: number): View {
   return clampView({ k: v.k, x: v.x - dx / v.k, y: v.y - dy / v.k });
 }
+
+type Pt = [number, number];
+/** 볼록 다각형을 반평면 f(p) ≤ 0 으로 자릅니다 (Sutherland–Hodgman) */
+function clipHalf(poly: Pt[], f: (p: Pt) => number): Pt[] {
+  const out: Pt[] = [];
+  for (let i = 0; i < poly.length; i++) {
+    const a = poly[i]!, b = poly[(i + 1) % poly.length]!;
+    const fa = f(a), fb = f(b);
+    if (fa <= 0) out.push(a);
+    if ((fa <= 0) !== (fb <= 0)) { const t = fa / (fa - fb); out.push([a[0] + (b[0] - a[0]) * t, a[1] + (b[1] - a[1]) * t]); }
+  }
+  return out;
+}
+/** 보로노이 칸: sites[i] 가 다른 어느 점보다 가까운 영역 (지도 사각형 안) — 도시 영향권 */
+export function voronoiCell(sites: Pt[], i: number, w = MAP_W, h = MAP_H): Pt[] {
+  let poly: Pt[] = [[0, 0], [w, 0], [w, h], [0, h]];
+  const [px, py] = sites[i]!;
+  sites.forEach(([qx, qy], j) => {
+    if (j === i) return;
+    const mx = (px + qx) / 2, my = (py + qy) / 2, nx = qx - px, ny = qy - py;
+    poly = clipHalf(poly, ([x, y]) => (x - mx) * nx + (y - my) * ny);
+  });
+  return poly;
+}
+export const polyPath = (p: Pt[]) => (p.length ? `M${p.map(([x, y]) => `${x.toFixed(1)},${y.toFixed(1)}`).join(" L")} Z` : "");

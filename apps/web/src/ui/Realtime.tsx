@@ -2,15 +2,16 @@
 // 사건은 예정된 날에 우측 배너 자리에 떠(그동안 날짜 시계 멈춤) 15초 제한시간 안에 선택 — 배속과 무관.
 // 지도 아래엔 사건 로그가 쌓이고, 우측 상단에 날짜·배속 컨트롤.
 import { useEffect, useRef, useState } from "react";
-import { DIFFICULTIES, FACTIONS, REGION_NAME, actionsFor, canAfford, npcVisit, successChance, type Choice, type GameState, type RegionId } from "@guul/engine";
+import { DIFFICULTIES, FACTIONS, REGION_NAME, actionsFor, canAfford, decreeById, josa, npcVisit, successChance, suggestPlays, WAR_PREP_ID, warPrepCard, type Choice, type GameState, type RegionId } from "@guul/engine";
 import { DAYS_PER_SEASON, content, rtDate, useGame } from "../store/store";
 import { clockFrozen, deadlineMs } from "../store/rtClock";
 import { BannerCard } from "./BannerCard";
 import { WorldMap } from "./WorldMap";
 import { RealtimeRoll } from "./D20Roll";
+import { SurrenderButton, WarNoticeBanner } from "./War";
 import { Dashboard } from "./Dashboard";
 import { Illus } from "../art/Art";
-import { DecreePanel } from "./Decrees";
+import { ActiveDecreeBar, DecreePlay } from "./Decrees";
 import { RelicBar } from "./RelicBar";
 
 const SPEEDS = [1, 2, 5, 10];
@@ -98,7 +99,9 @@ function DeadlineBar({ onTimeout, onAuto }: { onTimeout: () => void; onAuto: () 
 // 팝업으로 화면을 덮지 않아, 선택지에 마우스를 올리면 좌측 대시보드의 자원·게이지 변화가 그대로 보입니다.
 export function RealtimeSlot({ s }: { s: GameState }) {
   const rolling = useGame((z) => !!z.rtRoll);
+  const notice = useGame((z) => !!z.rtNotice);
   if (rolling) return <RealtimeRoll s={s} />;
+  if (notice) return <WarNoticeBanner />;
   return <RealtimeDecision s={s} fallback={<WorldMap s={s} />} />;
 }
 function RealtimeDecision({ s, fallback }: { s: GameState; fallback: React.ReactNode }) {
@@ -108,6 +111,7 @@ function RealtimeDecision({ s, fallback }: { s: GameState; fallback: React.React
   const rtEvent = useGame((z) => z.rtEvent);
   const rtSkip = useGame((z) => z.rtSkip);
   const rtAction = useGame((z) => z.rtAction);
+  const rtWarPrep = useGame((z) => z.rtWarPrep);
   const rtNpc = useGame((z) => z.rtNpc);
   const closeActionCard = useGame((z) => z.closeActionCard);
   const auto = useGame((z) => z.auto);
@@ -123,7 +127,15 @@ function RealtimeDecision({ s, fallback }: { s: GameState; fallback: React.React
   if (!kind) return <>{fallback}</>;
 
   let card, onPick: (i: number, b?: Parameters<typeof rtEvent>[1]) => void, onTimeout: () => void, onAuto: () => void, title: string, key: string, extra: React.ReactNode = null;
-  if (kind === "action") {
+  if (kind === "action" && openAction === WAR_PREP_ID) {
+    // 전쟁 준비: 선택지 = 상대 세력
+    const wc = warPrepCard(s);
+    card = wc; title = wc.title; key = "act-war-prep";
+    onPick = (i, b) => rtWarPrep(i, b);
+    onTimeout = () => closeActionCard();
+    onAuto = () => closeActionCard();
+    extra = <button className="btn justify-self-start" onClick={closeActionCard}>다른 행동 고르기</button>;
+  } else if (kind === "action") {
     const act = actionsFor(s, content).find((a) => a.id === openAction) ?? content.actions.find((a) => a.id === openAction)!;
     card = { ...act.card, kind: `행동 · ${act.name}` }; title = act.name; key = `act-${act.id}`;
     onPick = (i, b) => rtAction(act.id, i, b);
@@ -181,6 +193,8 @@ export function RealtimeTopBar({ s, menu }: { s: GameState; menu?: React.ReactNo
         </div>
       </div>
       <div className="flex items-center gap-1.5 justify-between lg:justify-end">
+        {s.war && <span className="font-ui text-[12px] text-[#e8a08a] whitespace-nowrap" data-testid="war-chip">⚔ {josa(FACTIONS[s.war.enemy].short, "과", "와")} 전쟁</span>}
+        <SurrenderButton />
         <button className="btn !px-3 !py-1 !text-[13px] min-h-[34px]" onClick={togglePause} aria-pressed={paused} aria-label={paused ? "재개" : "일시정지"}>{paused ? "▶" : "⏸"}</button>
         <div className="flex gap-1">
           {SPEEDS.map((n) => (
@@ -230,21 +244,41 @@ export function RealtimeActionHint({ s }: { s: GameState }) {
   const openActionCard = useGame((z) => z.openActionCard);
   const rtFinishTurn = useGame((z) => z.rtFinishTurn);
   const dayOffset = useGame((z) => z.dayOffset);
+  const declare = useGame((z) => z.declareWar);
   if (s.phase !== "action") return null;
+  const plays = suggestPlays(s, content);
   const left = Math.max(0, DAYS_PER_SEASON - Math.floor(dayOffset));
   return (
     <section className="bg-panel border border-gold-dim rounded p-3.5 grid gap-2.5">
       <div className="flex justify-between items-center gap-2"><h2 className="font-display text-[20px]">행동 — 계절 마감까지 {left}일</h2>
         <span className="font-ui text-[12px] text-muted">행동권 {s.ap}</span></div>
-      <div className="grid grid-cols-2 gap-2">
-        {actionsFor(s, content).map((a) => (
-          <button key={a.id} onClick={() => openActionCard(a.id)} disabled={s.ap <= 0}
-            className="text-left bg-[#17130f] border border-line rounded-[3px] p-2.5 grid gap-0.5 content-start hover:border-gold transition-colors disabled:opacity-40">
-            <b className="font-display text-[17px] font-normal">{a.name}</b><span className="font-ui text-[11.5px] text-muted leading-snug">{a.desc}</span></button>
-        ))}
-      </div>
+      {/* 행동·법령을 한데 모아 지금 상황에 맞는 4가지만 — 행동권을 쓸 때마다 다시 고릅니다 */}
+      {plays.length > 0 ? (
+        <div className="grid grid-cols-2 gap-2" data-testid="plays">
+          {plays.map((p) => {
+            if (p.kind === "decree") { const d = decreeById(content, p.id); return d ? <DecreePlay key={p.id} s={s} d={d} /> : null; }
+            if (p.kind === "declare") return (
+              <button key="declare" onClick={declare} data-testid="play-declare"
+                className="text-left bg-[#2a1712] border border-blood rounded-[3px] p-2.5 grid gap-0.5 content-start hover:bg-[#3a1d16] transition-colors">
+                <b className="font-display text-[17px] font-normal text-[#f0b8a0]">⚔ 선전포고</b><span className="font-ui text-[11.5px] text-[#e8b8a0] leading-snug">{josa(FACTIONS[p.id as "iruth"].short, "과", "와")} 전쟁을 시작합니다 (행동권 없음)</span></button>
+            );
+            if (p.kind === "warprep") return (
+              <button key="warprep" onClick={() => openActionCard(WAR_PREP_ID)} data-testid="play-warprep"
+                className="text-left bg-[#17130f] border border-[#6a3a2a] rounded-[3px] p-2.5 grid gap-0.5 content-start hover:border-blood transition-colors">
+                <b className="font-display text-[17px] font-normal">⚔ 전쟁 준비</b><span className="font-ui text-[11.5px] text-muted leading-snug">{s.warPrep ? `${josa(FACTIONS[s.warPrep.target].short, "과", "와")}의 준비 1/2 — 한 번 더` : "두 세력 중 하나와의 전쟁을 준비합니다"}</span></button>
+            );
+            const a = actionsFor(s, content).find((x) => x.id === p.id);
+            if (!a) return null;
+            return (
+              <button key={a.id} onClick={() => openActionCard(a.id)} data-testid="play-action"
+                className="text-left bg-[#17130f] border border-line rounded-[3px] p-2.5 grid gap-0.5 content-start hover:border-gold transition-colors">
+                <b className="font-display text-[17px] font-normal">{a.name}</b><span className="font-ui text-[11.5px] text-muted leading-snug">{a.desc}</span></button>
+            );
+          })}
+        </div>
+      ) : <p className="m-0 font-ui text-[12px] text-faint">행동권을 모두 썼습니다. 남은 날이 지나면 계절이 마감됩니다.</p>}
       <TargetPicker s={s} />
-      <DecreePanel s={s} />
+      <ActiveDecreeBar s={s} />
       <button className="btn-gold" onClick={rtFinishTurn}>지금 계절 마치기{s.ap > 0 ? ` (행동권 ${s.ap} 이월)` : ""}</button>
     </section>
   );

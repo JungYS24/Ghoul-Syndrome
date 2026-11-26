@@ -49,7 +49,15 @@ export interface Choice {
   grantRelic?: string;
   /** 결과 구간별 한 문장 (사건 기록용) */
   outcomes?: Outcomes;
+  /** 전쟁 카드: 성공하면 판정 배율만큼 전황이 움직임 (우리 입장, +가 유리 — weary 만 +가 불리) */
+  war?: WarDelta;
+  /** 전쟁 카드: 실패(최종값 40 미만) 때 전황 변화. 없으면 전선 −6 · 우리 피로 +6 */
+  warFail?: WarDelta;
+  /** 전쟁 카드: 이 선택이 성공하면 전쟁을 휴전으로 끝냄 */
+  warPeace?: boolean;
 }
+/** 전황 변화: front 전선(+면 적 수도 쪽으로), hunt 적 군주 추적(+), weary 우리 피로(+는 불리), enemyWeary 적 피로(+) */
+export type WarDelta = Partial<Record<"front" | "hunt" | "weary" | "enemyWeary", number>>;
 export interface Outcomes { great: string; success: string; weak: string; partial: string; fail: string }
 export interface FollowUp { cardId: string; afterTurns: number }
 /** 판정 직전 자원 투입 — 비용(res)을 치르고 판정 보정(mod)을 올립니다. */
@@ -74,6 +82,8 @@ export interface Card {
   choices: Choice[];
   /** 연쇄 사건으로 나올 때만 쓰는 갈래 (위에서부터 첫 일치) */
   branches?: CardBranch[];
+  /** 전쟁 카드가 나올 전황 조건 */
+  warWhen?: { front?: Range; hunt?: Range; enemyWeary?: Range };
 }
 export interface ActionDef {
   id: string;
@@ -126,6 +136,8 @@ export interface GameContent {
   opportunities?: Card[];
   /** 유물 정의 */
   relics?: Relic[];
+  /** 전쟁 카드 — 3국 공용. 전시에는 계절마다 2장 + 역병 사건 1장 */
+  warCards?: Card[];
 }
 /** 유물 — 사건 단계에서 선택지를 대신해 쓰는 일회용 아이템 (Reigns: Her Majesty 의 아이템 참고) */
 export interface Relic {
@@ -208,6 +220,27 @@ export interface GameState {
   relics: string[];
   /** 이 판에 적용된 역사의 유산 id */
   legacy: string[];
+  /** 도시 id → 주인 세력 (전쟁으로 바뀜) */
+  cities: Record<string, FactionId>;
+  /** 전쟁 준비: 같은 상대로 연속 성공한 횟수 (다른 행동을 하면 사라짐) */
+  warPrep: { target: FactionId; stacks: number } | null;
+  /** 선전포고 가능 상대 */
+  warReady: FactionId | null;
+  /** 진행 중인 전쟁 */
+  war: WarState | null;
+  /** 세력별 휴전 만료 턴 (이 턴 전까지 다시 전쟁 불가) */
+  truce: Partial<Record<FactionId, number>>;
+  /** 가장 최근에 끝난 전쟁 (화면 알림용) */
+  lastWar: WarResult | null;
+}
+export interface WarState { enemy: FactionId; front: number; hunt: number; weary: number; enemyWeary: number; since: number; byUs: boolean }
+export type WarHow = "capital" | "ruler" | "surrender" | "peace";
+export interface WarResult {
+  enemy: FactionId; win: boolean; how: WarHow; voluntary: boolean; turn: number;
+  /** 오간 도시 id */
+  cities: string[];
+  /** 오간 자원 (+는 얻음, −는 냄) */
+  res: Partial<Record<ResourceKey, number>>;
 }
 export type PresetId = "balance" | "farm" | "trade" | "mine";
 

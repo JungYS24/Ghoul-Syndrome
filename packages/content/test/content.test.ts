@@ -113,7 +113,7 @@ describe("결과 문장", () => {
   it("모든 사건·행동 선택지에 결과 구간 다섯 문장이 있다", () => {
     const all = [
       ...content.cards, ...content.situational, ...content.collapse, ...(content.opportunities ?? []),
-      ...Object.values(content.fixed), ...content.actions.map((a) => a.card),
+      ...Object.values(content.fixed), ...content.actions.map((a) => a.card), ...(content.warCards ?? []),
     ];
     const missing: string[] = [];
     for (const c of all) {

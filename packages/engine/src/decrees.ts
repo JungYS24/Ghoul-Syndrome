@@ -40,6 +40,7 @@ export function enactDecree(state: GameState, content: Pick<GameContent, "decree
   if (why) throw new Error(why);
   const s = clone(state);
   s.ap -= 1;
+  s.warPrep = null; // 다른 행동을 하면 연속 전쟁 준비가 끊김
   s.decrees.push({ id, since: s.turn });
   if (!s.decreeHistory.includes(id)) s.decreeHistory.push(id);
   if (!s.flags.includes(flagOf(id))) s.flags.push(flagOf(id));
@@ -56,6 +57,7 @@ export function repealDecree(state: GameState, content: Pick<GameContent, "decre
   if (state.ap <= 0) throw new Error("행동권이 없습니다");
   const s = clone(state);
   s.ap -= 1;
+  s.warPrep = null;
   drop(s, id);
   s.chronicle.push(chronLine(s, `「${d.name}」을(를) 철회했다.`));
   return s;

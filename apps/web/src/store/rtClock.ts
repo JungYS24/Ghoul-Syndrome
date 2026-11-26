@@ -6,7 +6,7 @@ export const AUTO_MS = 800;       // 자동(관전) 모드의 한 번 선택 간
 export function deadlineMs(auto: boolean, speed: number): number {
   return auto ? AUTO_MS / Math.max(1, speed) : DEADLINE_MS;
 }
-/** 날짜 시계·제한시간이 멈춰야 하는지: 일시정지, 판정 주사위 연출, 시트(연대기·규칙·설정 등)가 열려 있을 때 */
-export function clockFrozen(st: { paused: boolean; rtRoll: unknown; modalOpen: boolean }): boolean {
-  return st.paused || !!st.rtRoll || st.modalOpen;
+/** 날짜 시계·제한시간이 멈춰야 하는지: 일시정지, 판정 주사위 연출·전쟁 알림, 시트(연대기·규칙·설정 등)가 열려 있을 때 */
+export function clockFrozen(st: { paused: boolean; rtRoll: unknown; modalOpen: boolean; rtNotice?: unknown }): boolean {
+  return st.paused || !!st.rtRoll || !!st.rtNotice || st.modalOpen;
 }

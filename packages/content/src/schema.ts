@@ -15,6 +15,7 @@ const when = z.object({
   foodLow: z.boolean().optional(), relLow: z.boolean().optional(), voodooAi: z.boolean().optional(),
 }).strict();
 const factionId = z.enum(["arkandal", "iruth", "voodoo"]);
+const warDelta = z.object({ front: z.number().optional(), hunt: z.number().optional(), weary: z.number().optional(), enemyWeary: z.number().optional() }).strict();
 const choice = z.object({
   label: z.string().min(1),
   art: z.array(z.string()).optional(),
@@ -27,6 +28,9 @@ const choice = z.object({
   followUp: z.object({ cardId: z.string().min(1), afterTurns: z.number().int().min(1) }).strict().optional(),
   grantRelic: z.string().min(1).optional(),
   outcomes: z.object({ great: z.string().min(1), success: z.string().min(1), weak: z.string().min(1), partial: z.string().min(1), fail: z.string().min(1) }).strict().optional(),
+  war: warDelta.optional(),
+  warFail: warDelta.optional(),
+  warPeace: z.boolean().optional(),
 }).strict();
 const tone = z.enum(["crit", "great", "success", "partial", "fail", "fumble", "after"]);
 const branch = z.object({
@@ -47,6 +51,7 @@ export const cardSchema = z.object({
   art: z.array(z.string()).optional(),
   choices: z.array(choice).min(1),
   branches: z.array(branch).optional(),
+  warWhen: z.object({ front: range.optional(), hunt: range.optional(), enemyWeary: range.optional() }).strict().optional(),
 }).strict();
 export const actionSchema = z.object({
   id: z.string().min(1),
@@ -85,4 +90,5 @@ export const contentSchema = z.object({
   decrees: z.array(decreeSchema),
   opportunities: z.array(cardSchema).optional(),
   relics: z.array(relicSchema).optional(),
+  warCards: z.array(cardSchema).optional(),
 }).strict();

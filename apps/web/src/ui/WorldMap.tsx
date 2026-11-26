@@ -5,10 +5,10 @@
 // - 우리 세력 영토로 확대해 보여 주고, 버튼으로 대륙 전체를 볼 수 있음
 // - 지도 위에서 휠(트랙패드 스크롤)로 확대·축소, 누른 채 끌면 이동
 import { useEffect, useRef, useState } from "react";
-import { infStage, seasonOf, type FactionId, type GameState, type RegionId } from "@guul/engine";
+import { CITIES as ENGINE_CITIES, FACTIONS, infStage, seasonOf, type FactionId, type GameState, type RegionId } from "@guul/engine";
 import { useGame } from "../store/store";
 import { regionCollapsed } from "./mapShade";
-import { MAP_H as H, MAP_W as W, clampView, panBy, zoomAt, type View } from "./mapView";
+import { MAP_H as H, MAP_W as W, clampView, panBy, polyPath, voronoiCell, zoomAt, type View } from "./mapView";
 
 /** 지도에 그리는 세 땅 (부두교는 라벤 폐허=중립지에 숨어 있음) */
 type Zone = Extract<RegionId, "iruth" | "neutral" | "arkandal">;
@@ -29,22 +29,13 @@ const BLOBS: Record<Zone, [number, number, number, number][]> = {
   arkandal: [[525, 335, 55, 4], [560, 450, 60, 18], [620, 565, 60, 30], [700, 360, 50, 42], [785, 470, 55, 54], [850, 590, 50, 66], [720, 640, 50, 76], [880, 330, 45, 86]],
 };
 
-interface City { name: string; x: number; y: number; capital?: boolean; port?: boolean; region: Zone }
-const CITIES: City[] = [
-  { name: "벨로링크", x: 250, y: 150, capital: true, port: true, region: "iruth" },
-  { name: "프로스트", x: 470, y: 150, region: "iruth" },
-  { name: "글레이시어", x: 690, y: 140, region: "iruth" },
-  { name: "하이번", x: 330, y: 232, region: "iruth" },
-  { name: "오로라", x: 210, y: 320, region: "neutral" },
-  { name: "에테르 라티스", x: 250, y: 420, region: "neutral" },
-  { name: "어비스", x: 330, y: 560, region: "neutral" },
-  { name: "여신의 제단", x: 470, y: 470, region: "neutral" },
-  { name: "아이언 팽", x: 700, y: 430, capital: true, region: "arkandal" },
-  { name: "하울링", x: 790, y: 310, region: "arkandal" },
-  { name: "베르세르크", x: 850, y: 520, region: "arkandal" },
-  { name: "바스티온", x: 600, y: 560, region: "arkandal" },
-  { name: "서부 거점항", x: 650, y: 650, port: true, region: "arkandal" },
-];
+// 도시는 엔진이 주인을 관리합니다(전쟁으로 바뀜). 지역(Zone)은 처음 주인으로 정합니다.
+const ZONE_OF: Record<FactionId, Zone> = { arkandal: "arkandal", iruth: "iruth", voodoo: "neutral" };
+const CITIES = ENGINE_CITIES.map((c) => ({ ...c, region: ZONE_OF[c.owner] }));
+const OWNER_FILL: Record<FactionId, string> = { arkandal: "#86352e", iruth: "#a9c3c9", voodoo: "#5b4868" };
+const OWNER_RING: Record<FactionId, string> = { arkandal: "#e0705a", iruth: "#cfe6ee", voodoo: "#c9a2f2" };
+// 도시 영향권 (보로노이 칸) — 주인이 바뀐 도시의 땅을 새 주인 색으로 칠할 때 씀
+const CELLS = CITIES.map((_, i) => polyPath(voronoiCell(CITIES.map((c) => [c.x, c.y] as [number, number]), i)));
 
 // 교역로: via = 지나는 지역(감염도 80 이상이면 끊김)
 interface Route { id: string; d: string; via: Zone[]; days: number; n: number }
@@ -162,6 +153,12 @@ export function WorldMap({ s }: { s: GameState }) {
                 </g>
               );
             })}
+            {/* 전쟁으로 주인이 바뀐 도시의 땅 */}
+            {CITIES.map((c, i) => {
+              const o = s.cities[c.id] ?? c.owner;
+              if (o === c.owner) return null;
+              return <path key={c.id} d={CELLS[i]} fill={OWNER_FILL[o]} opacity=".9" stroke="#1b1410" strokeWidth="2" strokeDasharray="6 5" className="transition-opacity duration-1000" pointerEvents="none"><title>{c.name} — {FACTIONS[o].short} 점령</title></path>;
+            })}
             {/* 오염 */}
             {ORDER.map((r) => {
               const inf = s.infection[r];
@@ -200,8 +197,9 @@ export function WorldMap({ s }: { s: GameState }) {
 
           {/* 도시 */}
           {CITIES.map((c) => (
-            <g key={c.name} pointerEvents="none">
+            <g key={c.id} pointerEvents="none">
               {c.capital && <circle cx={c.x} cy={c.y} r="11" fill="none" stroke="#f0d68d" strokeWidth="2" />}
+              {(s.cities[c.id] ?? c.owner) !== c.owner && <circle cx={c.x} cy={c.y} r="14" fill="none" stroke={OWNER_RING[s.cities[c.id]!]} strokeWidth="3" />}
               <circle cx={c.x} cy={c.y} r={c.capital ? 6 : 4.5} fill={regionCollapsed(s.infection[c.region]) ? "#4e8f2a" : "#f5ecd8"} stroke="#1b1410" strokeWidth="2" />
               {c.port && <path d={`M${c.x + 9},${c.y - 14} v10 m-5,-5 h10`} stroke="#bcd6e2" strokeWidth="1.6" />}
               <text x={c.x} y={c.y + 22} textAnchor="middle" fontSize="15" className="font-ui" fill="#f3ead6" stroke="#15100c" strokeWidth="4" paintOrder="stroke">{c.name}</text>

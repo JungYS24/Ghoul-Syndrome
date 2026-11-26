@@ -24,3 +24,12 @@ describe("지도 시점", () => {
     expect(v.y).toBe(220);
   });
 });
+
+import { voronoiCell } from "../src/ui/mapView";
+describe("도시 영향권 (보로노이)", () => {
+  it("두 점이면 가운데 수직선으로 반씩 나뉜다", () => {
+    const left = voronoiCell([[100, 100], [300, 100]], 0, 400, 200);
+    expect(Math.max(...left.map((p) => p[0]))).toBeCloseTo(200);
+    expect(Math.min(...left.map((p) => p[0]))).toBeCloseTo(0);
+  });
+});

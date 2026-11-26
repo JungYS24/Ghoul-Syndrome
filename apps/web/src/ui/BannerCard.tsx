@@ -29,6 +29,20 @@ function SquareArt({ card, faction }: { card: Card; faction: GameState["faction"
   return <div className="w-full aspect-square grid place-items-center rounded-[4px] border border-line2 bg-[#2a231b]">{card.art ? <Illus keys={card.art} faction={faction} accent className="w-3/4 h-3/4" /> : null}</div>;
 }
 
+/** 전쟁 카드 선택지의 전황 변화 (성공 시) */
+function WarLine({ choice }: { choice: Choice }) {
+  if (choice.warPeace) return <span className="font-ui text-[#2f5d6e] font-semibold">🕊 휴전</span>;
+  const w = choice.war ?? {};
+  const arrow = (v: number | undefined, good: boolean) => (!v ? "" : (v > 0) === good ? (Math.abs(v) >= 15 ? "▲▲" : "▲") : (Math.abs(v) >= 15 ? "▼▼" : "▼"));
+  const parts = [
+    w.front ? `전선 ${arrow(w.front, true)}` : "",
+    w.hunt ? `군주 추적 ${arrow(w.hunt, true)}` : "",
+    w.enemyWeary ? `적 피로 ${arrow(w.enemyWeary, true)}` : "",
+    w.weary ? `우리 피로 ${w.weary > 0 ? "▲" : "▼"}` : "",
+  ].filter(Boolean);
+  return <span className="font-ui text-[#7a2a14] font-semibold" data-testid="war-line">⚔ {parts.join(" · ")}</span>;
+}
+
 function ChoiceTile({ s, choice, boostCost, onPick, disabled }: { s: GameState; choice: Choice; boostCost: number | null; onPick: (b?: Boost) => void; disabled?: boolean }) {
   const setPreview = useGame((z) => z.setPreview);
   const afford = canAfford(s, choice);
@@ -43,7 +57,7 @@ function ChoiceTile({ s, choice, boostCost, onPick, disabled }: { s: GameState; 
       onMouseEnter={show} onMouseLeave={hide} onFocus={show} onBlur={hide}
       className="seal-btn choice-tile min-h-[104px] p-2.5 grid grid-rows-[auto_1fr_auto] gap-1 text-left disabled:opacity-55 disabled:cursor-not-allowed">
       <span className="font-body text-[15px] font-bold leading-snug line-clamp-3">{label}</span>
-      <span className="self-end text-[11px] leading-snug"><ImpactLine s={s} choice={choice} /></span>
+      <span className="self-end text-[11px] leading-snug grid gap-0.5">{choice.war || choice.warPeace ? <WarLine choice={choice} /> : null}<ImpactLine s={s} choice={choice} /></span>
       <span className="flex items-baseline justify-between gap-1 font-ui">
         <span className="text-[11px] text-muted truncate">{m.statLabel} {sign(m.statMod + (boost?.mod ?? 0))}</span>
         <b className={`text-[18px] tabular-nums ${afford ? "text-[#7a1a14]" : "text-blood"}`}>{afford ? `${chance}%` : "부족"}</b>

@@ -1,6 +1,7 @@
 import { AFTERMATH_AT_OR_BELOW, ON_FAIL_BELOW, chanceAtLeast, clamp, judge, roll5d20 } from "./dice";
 import { FACTIONS, GAUGE_LABEL, NEUTRAL_START, REGION_NAME, SEASON_KO, VOODOO_MAP, otherFactions, seasonOf, yearOf } from "./factions";
 import { createRng, type Rng } from "./rng";
+import { aiDeclareIn, applyWarIn, breakWarPrepIn, citiesOf, cityProdMod, drawWarEventsIn, initialCities, warModifier, warSeasonTickIn } from "./war";
 import {
   abilityModifier, baseSpread, continentalInfection, foodUse, popLoss, preyUse, production, r1, seasonMod, stateModifier,
 } from "./rules";
@@ -39,6 +40,7 @@ export function newGame(faction: FactionId, seed: number, opts: { difficulty?: D
     flags: [], ap: 2, preset: "balance", queue: [], recent: {}, events: [], eventIdx: 0,
     startReport: [], endReport: [], aiReport: [], turnLog: [], chronicle: [], maxInfection: infection[faction], tempInf: 0,
     decrees: [], decreeHistory: [], chains: [], chainsDone: [], ended: null, relics: [], legacy: [],
+    cities: initialCities(), warPrep: null, warReady: null, war: null, truce: {}, lastWar: null,
   };
   applyLegacy(st, opts.legacy ?? []);
   return st;
@@ -60,6 +62,12 @@ export function migrateState(raw: unknown): GameState {
   { const r = { ...(o.res as Record<string, number>) }; if (r.stone === undefined) r.stone = 0; o.res = r; }
   o.relics = (o.relics as string[]) ?? [];
   o.legacy = (o.legacy as string[]) ?? [];
+  o.cities = (o.cities as GameState["cities"]) ?? initialCities();
+  o.warPrep = (o.warPrep as GameState["warPrep"]) ?? null;
+  o.warReady = (o.warReady as GameState["warReady"]) ?? null;
+  o.war = (o.war as GameState["war"]) ?? null;
+  o.truce = (o.truce as GameState["truce"]) ?? {};
+  o.lastWar = (o.lastWar as GameState["lastWar"]) ?? null;
   return o as unknown as GameState;
 }
 
@@ -166,7 +174,7 @@ export function checkModifiers(s: GameState, choice: Choice) {
   const g = mapGauge(s, choice.check.stat);
   const statMod = abilityModifier(s.gauges[g]);
   const choiceMod = choice.check.mod ?? 0;
-  const stMod = stateModifier(s);
+  const stMod = stateModifier(s) + warModifier(s, choice);
   return { statMod, choiceMod, stateMod: stMod, total: statMod + choiceMod + stMod, statLabel: GAUGE_LABEL[g] };
 }
 /** 성공(반쪽 성공 이상) 확률 % */
@@ -205,6 +213,7 @@ export function resolveChoice(state: GameState, card: Card, choice: Choice, rng:
   const j = judge(dice, m.total + boostMod);
   const applied = applyEffects(s, choice.effects, j.mult, { withSuccess: choice.withSuccess, target: choice.target });
   const failApplied = j.final < ON_FAIL_BELOW && choice.onFail ? applyEffects(s, choice.onFail, null, { target: choice.target }) : [];
+  applyWarIn(s, choice, j.final, j.mult);
   const aftermath = j.final <= AFTERMATH_AT_OR_BELOW;
   if (aftermath) s.queue.push({ type: "aftermath" });
   for (const f of choice.setFlags ?? []) if (!s.flags.includes(f)) s.flags.push(f);
@@ -375,9 +384,17 @@ export function startTurn(state: GameState, content: GameContent): GameState {
     rep.push(`구울 무리 유지 — 제어 −${dc} · 타국의 수색 — 은닉 −${hunt}`);
   }
   s.streak[s.faction] = s.infection[s.faction] >= 100 ? s.streak[s.faction] + 1 : 0;
+  // 5) 타 세력의 선전포고 (우리 질서·민심이 흔들리고 관계가 나쁠 때)
+  const foe = aiDeclareIn(s, rng);
+  if (foe) rep.push(`⚔ ${FACTIONS[foe].name}이(가) 선전포고했습니다`);
   s.startReport = rep;
   s.settleDelta = diffSnap(before, snap(s)); s.settleHighlight = topKey(s.settleDelta);
-  drawEventsInto(s, content, rng);
+  if (s.war) {
+    // 전시: 전쟁 카드 2장 + 역병 사건 1장
+    const tails = chainTailIds(s);
+    const plague = pick(s, content.cards.filter((c) => (c.faction === s.faction || c.faction === "common") && !tails.has(c.id)), rng);
+    if (!drawWarEventsIn(s, content, rng, plague)) drawEventsInto(s, content, rng);
+  } else drawEventsInto(s, content, rng);
   s.phase = "start"; // 시작 결산 화면을 보여 준 뒤 goEvents 로 사건 단계로
   s.rng = rng.state;
   const dft = checkDefeat(s); if (dft) { s.ended = dft; s.phase = "over"; }
@@ -431,6 +448,7 @@ export function resolveAction(state: GameState, content: GameContent, actionId: 
   if (!choice) throw new Error("선택지가 없습니다");
   const r = resolveChoice(state, act.card, choice, createRng(state.rng), boost);
   r.state.ap -= 1;
+  breakWarPrepIn(r.state);
   finishCheck(r.state);
   return r;
 }
@@ -496,7 +514,10 @@ export function endTurn(state: GameState, content: Pick<GameContent, "decrees">)
   const before = snap(state);
   const F = FACTIONS[s.faction], rep: string[] = [];
   const V = s.faction === "voodoo";
-  const P = production(s.faction, s.res.pop, s.res.army, s.preset, s.infection[s.faction], s.wrath);
+  const P0 = production(s.faction, s.res.pop, s.res.army, s.preset, s.infection[s.faction], s.wrath);
+  // 도시 수에 따라 생산 ±4%/도시 (유지비는 그대로)
+  const cm = cityProdMod(s);
+  const P = cm === 1 ? P0 : { ...P0, food: r1(P0.food * cm), silver: r1((P0.silver + P0.upkeep) * cm - P0.upkeep), strat: r1(P0.strat * cm), stone: r1(P0.stone * cm) };
   s.res.food = r1(s.res.food + P.food);
   s.res.silver = Math.max(0, Math.round(s.res.silver + P.silver));
   s.res.strat = Math.round(s.res.strat + P.strat);
@@ -515,6 +536,8 @@ export function endTurn(state: GameState, content: Pick<GameContent, "decrees">)
   if (V && s.gauges.offering >= 25) addG(s, "faith", 4); // 제물이 흐르면 신앙이 유지된다
   if (V && s.gauges.control >= 45) addG(s, "faith", 2);
   if (V && s.res.prey >= preyUse(s.res.army) * 2) { addG(s, "control", 1); addG(s, "offering", 2); }
+  if (cm !== 1) rep.push(`도시 ${citiesOf(s, s.faction).length}곳 — 생산 ${cm > 1 ? "+" : "−"}${Math.round(Math.abs(cm - 1) * 100)}%`);
+  { const w = warSeasonTickIn(s); if (w) rep.push(w); }
   // 지속 법령 결산
   rep.push(...settleDecrees(s, content, diffOf(s).wrath));
   // AI 세력 — 대륙 소식

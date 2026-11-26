@@ -1,4 +1,4 @@
-import { FACTIONS, MAX_DECREES, decreeById, decreesFor, enactBlocker, isDecreeActive, labelOf, type Decree, type EffectKey, type GameState, type UpkeepKey } from "@guul/engine";
+import { FACTIONS, MAX_DECREES, decreeById, enactBlocker, labelOf, type Decree, type EffectKey, type GameState, type UpkeepKey } from "@guul/engine";
 import { content, useGame } from "../store/store";
 import { Illus } from "../art/Art";
 
@@ -40,35 +40,40 @@ export function DecreeIcons({ s }: { s: GameState }) {
   );
 }
 
-/** 행동 단계: 법령 공포·철회 패널 */
-export function DecreePanel({ s }: { s: GameState }) {
+/** 행동 추천 칸에 들어가는 법령 한 장 (누르면 행동권 1개로 공포) */
+export function DecreePlay({ s, d }: { s: GameState; d: Decree }) {
   const enact = useGame((z) => z.enact);
-  const repeal = useGame((z) => z.repeal);
-  const list = decreesFor(s, content);
+  const why = enactBlocker(s, d);
   return (
-    <section className="grid gap-2 border-t border-line pt-3">
-      <div className="flex justify-between items-baseline gap-2 flex-wrap">
-        <h3 className="font-display text-[20px]">법령</h3>
-        <span className="font-ui text-[12px] text-muted">공포·철회에 행동권 1개 · 동시에 {MAX_DECREES}개까지 · 유지비는 종료 결산에서 차감</span>
-      </div>
-      <div className="grid gap-2 [grid-template-columns:repeat(auto-fill,minmax(230px,1fr))]">
-        {list.map((d) => {
-          const active = isDecreeActive(s, d.id);
-          const why = active ? (s.ap <= 0 ? "행동권이 없습니다" : null) : enactBlocker(s, d);
-          return (
-            <div key={d.id} className={`grid gap-1.5 content-start bg-[#17130f] border rounded-[3px] p-2.5 ${active ? "border-gold" : "border-line"}`}>
-              <div className="flex items-center gap-2"><span className="w-9 h-9 shrink-0 grid rounded-full bg-[#e6d8bb] p-1"><Illus keys={[d.icon]} faction={s.faction} accent className="w-full h-full" /></span>
-                <b className="font-display text-[18px] font-normal leading-tight">{d.name}</b>{active && <span className="ml-auto font-ui text-[11px] text-gold">시행 중</span>}</div>
-              <p className="m-0 text-[13px] text-muted">{d.desc}</p>
-              <div className="font-ui text-[12px] text-[#d9cdb6]">매 계절: {effectText(s, d).join(" · ")}</div>
-              <div className="font-ui text-[12px] text-faint">유지비: {upkeepText(s, d)}{d.repealText ? ` · 해제: ${d.repealText}` : ""}</div>
-              <button className={active ? "btn" : "btn-gold !px-3 !py-1 !text-[13px]"} disabled={!!why} title={why ?? undefined}
-                onClick={() => (active ? repeal(d.id) : enact(d.id))} >{active ? "철회 (행동권 1)" : "공포 (행동권 1)"}</button>
-              {why && !active && <span className="font-ui text-[11px] text-blood">{why}</span>}
-            </div>
-          );
-        })}
-      </div>
-    </section>
+    <button type="button" onClick={() => enact(d.id)} disabled={!!why} title={why ?? d.desc} data-testid="play-decree"
+      className="text-left bg-[#17130f] border border-gold-dim rounded-[3px] p-2.5 grid gap-1 content-start hover:border-gold transition-colors disabled:opacity-40">
+      <span className="flex items-center gap-2">
+        <span className="w-7 h-7 shrink-0 grid rounded-full bg-[#e6d8bb] p-0.5"><Illus keys={[d.icon]} faction={s.faction} accent className="w-full h-full" /></span>
+        <b className="font-display text-[17px] font-normal leading-tight">{d.name}</b>
+        <span className="ml-auto font-ui text-[10.5px] text-gold border border-gold-dim rounded-[2px] px-1 shrink-0">법령</span>
+      </span>
+      <span className="font-ui text-[11.5px] text-[#d9cdb6] leading-snug">매 계절 {effectText(s, d).join(" · ")}</span>
+      <span className="font-ui text-[11px] text-faint leading-snug">유지비 {upkeepText(s, d)}</span>
+    </button>
+  );
+}
+
+/** 시행 중인 법령 — 한 줄로, 철회 버튼(행동권 1) */
+export function ActiveDecreeBar({ s }: { s: GameState }) {
+  const repeal = useGame((z) => z.repeal);
+  if (!s.decrees.length) return null;
+  return (
+    <div className="flex flex-wrap items-center gap-1.5 font-ui text-[12px]" data-testid="active-decrees">
+      <span className="text-faint">시행 중 {s.decrees.length}/{MAX_DECREES}:</span>
+      {s.decrees.map((a) => {
+        const d = decreeById(content, a.id); if (!d) return null;
+        return (
+          <span key={a.id} className="inline-flex items-center gap-1 border border-gold-dim rounded-[2px] pl-1.5 pr-0.5 py-0.5" title={`매 계절 ${effectText(s, d).join(", ")} · 유지비 ${upkeepText(s, d)}`}>
+            {d.name}
+            <button type="button" disabled={s.ap <= 0} onClick={() => repeal(d.id)} className="px-1 text-faint hover:text-blood disabled:opacity-40" aria-label={`${d.name} 철회 (행동권 1)`} title="철회 (행동권 1)">✕</button>
+          </span>
+        );
+      })}
+    </div>
   );
 }
