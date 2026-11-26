@@ -96,6 +96,43 @@ export function resolveWarPrep(state: GameState, choiceIndex: number, boost?: Bo
 /** 다른 행동을 하면 연속 준비가 끊깁니다 (선포 가능 상태는 유지) */
 export function breakWarPrepIn(s: GameState) { s.warPrep = null; }
 
+// ───────── 전시 행동권 소모 행동 (게릴라 습격 · 정치적 압박) ─────────
+export const WAR_RAID_ID = "war-raid";
+export const WAR_PRESSURE_ID = "war-pressure";
+/** 전시에만 뜨는 행동권 소모 카드 */
+export function warActionCard(_s: GameState, id: string): Card {
+  if (id === WAR_RAID_ID) {
+    return {
+      id: WAR_RAID_ID, faction: "common", kind: "전쟁 · 습격", art: ["sword", "banner"],
+      title: "게릴라 습격",
+      text: "밤을 틈타 적 보급선과 전초를 친다. 성공하면 전선이 밀려 올라가지만, 우리 병력도 피를 흘린다.",
+      choices: [
+        { label: "야습을 감행한다", art: ["sword"], check: { stat: "order" }, effects: { army: -1.5 }, war: { front: 10 }, warFail: { front: -4, weary: 6 } },
+      ],
+    };
+  }
+  return {
+    id: WAR_PRESSURE_ID, faction: "common", kind: "전쟁 · 압박", art: ["banner", "eye"],
+    title: "정치적 압박",
+    text: "적국 내부에 불화를 심고 여론을 흔든다. 실링이 들지만 적의 전쟁 피로가 빠르게 쌓인다.",
+    choices: [
+      { label: "뒷공작을 벌인다", art: ["eye"], check: { stat: "finance" }, effects: { silver: -12 }, war: { enemyWeary: 12 }, warFail: { enemyWeary: 3 } },
+    ],
+  };
+}
+/** 전시 행동권 행동 판정 (행동권 1 소모) */
+export function resolveWarAction(state: GameState, id: string, choiceIndex: number, boost?: Boost): { state: GameState; outcome: RollOutcome } {
+  if (!state.war) throw new Error("전쟁 중이 아닙니다");
+  if (state.phase !== "action" || state.ap <= 0) throw new Error("행동권이 없습니다");
+  const card = warActionCard(state, id);
+  const choice = card.choices[choiceIndex];
+  if (!choice) throw new Error("선택지가 없습니다");
+  const r = resolveChoice(state, card, choice, createRng(state.rng), boost);
+  r.state.ap -= 1;
+  finishCheck(r.state);
+  return r;
+}
+
 function startWarIn(s: GameState, enemy: FactionId, byUs: boolean) {
   s.war = { enemy, front: 50, hunt: 0, weary: 0, enemyWeary: 0, since: s.turn, byUs };
   s.warReady = null; s.warPrep = null;

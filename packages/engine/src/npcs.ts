@@ -2,6 +2,7 @@
 // 플레이어와 같은 소속이면 '내부 신하', 다르면 '외부 사절'로 대사·선택지가 달라집니다.
 // 선택지는 일반 사건처럼 5d20 으로 판정하는 일회성 큰 사건입니다.
 import { createRng } from "./rng";
+import { FACTIONS } from "./factions";
 import { checkDefeat, resolveChoice } from "./game";
 import type { Boost, Card, Choice, FactionId, GameState, RollOutcome } from "./types";
 
@@ -189,14 +190,29 @@ export function isNpcYear(turn: number): boolean { return turn % 4 === 0 && turn
 const doneFlag = (turn: number) => `npc-${turn}`;
 export function npcDone(s: GameState): boolean { return s.flags.includes(doneFlag(s.turn)); }
 
+/** 전쟁 중인 상대 세력의 NPC가 찾아오면 — 우호가 아니라 전쟁 관련 선택지로 바뀝니다. */
+function warVariant(npc: Npc, s: GameState): NpcVariant {
+  const en = FACTIONS[npc.faction].short;
+  return {
+    title: `적국의 사절 — ${npc.name}`,
+    text: `전쟁 중인 ${en}의 ${npc.role} ${npc.name}이(가) 깃발을 내리고 군영을 찾아왔습니다. 칼자루에 손을 얹은 채 마주 앉습니다.`,
+    choices: [
+      { label: "포로로 붙잡는다", art: ["shield"], check: { stat: "order" }, effects: {}, war: { hunt: 14, enemyWeary: 6 }, warFail: { weary: 8 }, target: npc.faction },
+      { label: "담판을 받아들인다 (휴전)", art: ["bell"], check: { stat: "legit" }, effects: {}, warPeace: true, onFail: { relTo: -8 }, target: npc.faction },
+      { label: "본보기로 돌려보낸다", art: ["sword"], check: { stat: "order" }, effects: { wrath: 4 }, war: { front: 8, enemyWeary: 6 }, warFail: { front: -6, weary: 6 }, target: npc.faction },
+    ],
+  };
+}
+
 /** 이번 연말에 찾아온 NPC와 보여줄 카드(소속 분기). 아니면 null. 시드·턴으로 결정되어 리플레이가 같습니다. */
 export function npcVisit(s: GameState): { npc: Npc; card: Card; same: boolean } | null {
   if (!isNpcYear(s.turn) || npcDone(s)) return null;
   const r = createRng(((s.seed >>> 0) ^ Math.imul(s.turn, 0x9e3779b1)) >>> 0);
   const npc = NPCS[Math.floor(r.next() * NPCS.length)]!;
   const same = npc.faction === s.faction;
-  const v = same ? npc.same : npc.diff;
-  const card: Card = { id: npc.portrait, faction: "common", kind: `연말 알현 · ${npc.name}`, title: v.title, text: v.text, choices: v.choices };
+  const atWar = !!s.war && s.war.enemy === npc.faction;
+  const v = atWar ? warVariant(npc, s) : same ? npc.same : npc.diff;
+  const card: Card = { id: npc.portrait, faction: "common", kind: atWar ? `적국의 알현 · ${npc.name}` : `연말 알현 · ${npc.name}`, title: v.title, text: v.text, choices: v.choices };
   return { npc, card, same };
 }
 

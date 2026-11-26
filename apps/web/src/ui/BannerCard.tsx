@@ -22,8 +22,10 @@ export function boostFor(s: GameState, choice: Choice, cost: number | null): Boo
 }
 
 function SquareArt({ card, faction }: { card: Card; faction: GameState["faction"] }) {
-  if (HEADER_IDS.has(card.id)) {
-    return <img src={headerUrl(card.id)} alt="" loading="lazy" width={512} height={512} draggable={false}
+  // 과잉 후유증(overflow-<게이지>)은 모두 공용 overflow 배너를 씁니다.
+  const hid = card.id.startsWith("overflow-") ? "overflow" : card.id;
+  if (HEADER_IDS.has(hid)) {
+    return <img src={headerUrl(hid)} alt="" loading="lazy" width={512} height={512} draggable={false}
       className="w-full aspect-square object-cover rounded-[4px] border border-line2 shadow-[0_10px_28px_-12px_#000]" />;
   }
   return <div className="w-full aspect-square grid place-items-center rounded-[4px] border border-line2 bg-[#2a231b]">{card.art ? <Illus keys={card.art} faction={faction} accent className="w-3/4 h-3/4" /> : null}</div>;

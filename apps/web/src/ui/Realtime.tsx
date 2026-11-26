@@ -2,7 +2,7 @@
 // 사건은 예정된 날에 우측 배너 자리에 떠(그동안 날짜 시계 멈춤) 15초 제한시간 안에 선택 — 배속과 무관.
 // 지도 아래엔 사건 로그가 쌓이고, 우측 상단에 날짜·배속 컨트롤.
 import { useEffect, useRef, useState } from "react";
-import { DIFFICULTIES, FACTIONS, REGION_NAME, actionsFor, canAfford, decreeById, josa, npcVisit, successChance, suggestPlays, WAR_PREP_ID, warPrepCard, type Choice, type GameState, type RegionId } from "@guul/engine";
+import { DIFFICULTIES, FACTIONS, REGION_NAME, actionsFor, canAfford, decreeById, josa, npcVisit, successChance, suggestPlays, WAR_PREP_ID, WAR_RAID_ID, WAR_PRESSURE_ID, warActionCard, warPrepCard, type Choice, type GameState, type RegionId } from "@guul/engine";
 import { DAYS_PER_SEASON, content, rtDate, useGame } from "../store/store";
 import { clockFrozen, deadlineMs } from "../store/rtClock";
 import { BannerCard } from "./BannerCard";
@@ -112,6 +112,7 @@ function RealtimeDecision({ s, fallback }: { s: GameState; fallback: React.React
   const rtSkip = useGame((z) => z.rtSkip);
   const rtAction = useGame((z) => z.rtAction);
   const rtWarPrep = useGame((z) => z.rtWarPrep);
+  const rtWarAction = useGame((z) => z.rtWarAction);
   const rtNpc = useGame((z) => z.rtNpc);
   const closeActionCard = useGame((z) => z.closeActionCard);
   const auto = useGame((z) => z.auto);
@@ -134,6 +135,14 @@ function RealtimeDecision({ s, fallback }: { s: GameState; fallback: React.React
     onPick = (i, b) => rtWarPrep(i, b);
     onTimeout = () => closeActionCard();
     onAuto = () => closeActionCard();
+    extra = <button className="btn justify-self-start" onClick={closeActionCard}>다른 행동 고르기</button>;
+  } else if (kind === "action" && (openAction === WAR_RAID_ID || openAction === WAR_PRESSURE_ID)) {
+    // 전시 행동권 행동 (게릴라 습격·정치적 압박)
+    const wc = warActionCard(s, openAction);
+    card = wc; title = wc.title; key = `act-${openAction}`;
+    onPick = (i, b) => rtWarAction(openAction, i, b);
+    onTimeout = () => closeActionCard();
+    onAuto = () => rtWarAction(openAction, bestChoice(s, wc.choices));
     extra = <button className="btn justify-self-start" onClick={closeActionCard}>다른 행동 고르기</button>;
   } else if (kind === "action") {
     const act = actionsFor(s, content).find((a) => a.id === openAction) ?? content.actions.find((a) => a.id === openAction)!;
@@ -267,6 +276,11 @@ export function RealtimeActionHint({ s }: { s: GameState }) {
                 className="text-left bg-[#17130f] border border-[#6a3a2a] rounded-[3px] p-2.5 grid gap-0.5 content-start hover:border-blood transition-colors">
                 <b className="font-display text-[17px] font-normal">⚔ 전쟁 준비</b><span className="font-ui text-[11.5px] text-muted leading-snug">{s.warPrep ? `${josa(FACTIONS[s.warPrep.target].short, "과", "와")}의 준비 1/2 — 한 번 더` : "두 세력 중 하나와의 전쟁을 준비합니다"}</span></button>
             );
+            if (p.kind === "waract") { const wc = warActionCard(s, p.id); return (
+              <button key={p.id} onClick={() => openActionCard(p.id)} data-testid="play-waract"
+                className="text-left bg-[#17130f] border border-[#6a3a2a] rounded-[3px] p-2.5 grid gap-0.5 content-start hover:border-blood transition-colors">
+                <b className="font-display text-[17px] font-normal text-[#f0b8a0]">⚔ {wc.title}</b><span className="font-ui text-[11.5px] text-muted leading-snug">{p.id === WAR_RAID_ID ? "전선 상승 · 병력 손실" : "적 피로 상승 · 실링 소모"}</span></button>
+            ); }
             const a = actionsFor(s, content).find((x) => x.id === p.id);
             if (!a) return null;
             return (

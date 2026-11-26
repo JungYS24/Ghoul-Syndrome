@@ -2,7 +2,7 @@ import { create } from "zustand";
 import { get as idbGet, set as idbSet, del as idbDel } from "idb-keyval";
 import {
   LEGACY_PERKS, SEASON_KO, legacyPointsFor, relicById, seasonOf, useRelic, actionsFor, endTurn, enactDecree, migrateState, newGame, npcVisit, repealDecree, resolveNpc, nextTurn, openEvents, resolveAction, resolveEvent, skipEvent, setPreset, setTarget, startTurn, yearOf,
-  type Boost, type Difficulty, type FactionId, type GameState, type ImpactDot, type PresetId, type RegionId, type RollOutcome, outcomeLine, FACTIONS, josa, RULER, WAR_HOW_LABEL, cityById, declareWar, resolveWarPrep, surrender, warPrepCard,
+  type Boost, type Difficulty, type FactionId, type GameState, type ImpactDot, type PresetId, type RegionId, type RollOutcome, outcomeLine, FACTIONS, josa, RULER, WAR_HOW_LABEL, cityById, declareWar, resolveWarPrep, surrender, warPrepCard, warActionCard, resolveWarAction,
 } from "@guul/engine";
 import { content } from "@guul/content";
 import { addEnding, migrateBook, type EndingBook } from "./share";
@@ -80,6 +80,8 @@ interface Store {
   clearNotice: () => void;
   /** 전쟁 준비 판정 (행동권 1) */
   rtWarPrep: (i: number, boost?: Boost) => void;
+  /** 전시 행동권 행동 (게릴라 습격·정치적 압박) */
+  rtWarAction: (id: string, i: number, boost?: Boost) => void;
   /** 선전포고 */
   declareWar: () => void;
   /** 항복 (언제든) */
@@ -165,6 +167,14 @@ export const useGame = create<Store>((set, get) => ({
     get().rtPushLog(`전쟁 준비 · ${FACTIONS[ch.target!].short} — ${r.outcome.grade.name}`, r.outcome.grade.tone, line);
     if (r.state.warReady) get().rtPushLog(`⚔ ${FACTIONS[r.state.warReady].short}에 선전포고할 수 있습니다`, "great");
     set({ state: r.state, openAction: null, preview: null, rtRoll: { outcome: r.outcome, title: "전쟁 준비", label: ch.label, line } });
+  },
+  rtWarAction(id, i, boost) {
+    const s = get().state; if (!s || get().rtRoll) return;
+    const card = warActionCard(s, id); const ch = card.choices[i]; if (!ch) return;
+    let r; try { r = resolveWarAction(s, id, i, boost); } catch { return; }
+    persist(r.state); const line = outcomeLine(ch, r.outcome.final);
+    get().rtPushLog(`${card.title} — ${r.outcome.grade.name}`, r.outcome.grade.tone, line);
+    set({ state: r.state, openAction: null, preview: null, rtRoll: { outcome: r.outcome, title: card.title, label: ch.label, line } });
   },
   declareWar() {
     const s = get().state; if (!s) return;

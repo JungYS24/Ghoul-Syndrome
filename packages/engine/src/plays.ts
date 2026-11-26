@@ -3,7 +3,7 @@
 import { actionsFor, canAfford, foodUseOf, isBadUp, mapKey } from "./game";
 import { decreesFor, enactBlocker } from "./decrees";
 import { FACTIONS } from "./factions";
-import { canPrepWar } from "./war";
+import { WAR_PRESSURE_ID, WAR_RAID_ID, canPrepWar } from "./war";
 import type { EffectKey, Effects, GameContent, GameState, GaugeKey } from "./types";
 
 export type Play =
@@ -12,7 +12,9 @@ export type Play =
   /** 전쟁 준비 (id = 준비 중인 상대 또는 "") */
   | { kind: "warprep"; id: string; score: number }
   /** 선전포고 (id = 상대). 행동권을 쓰지 않으며 맨 앞에 고정 */
-  | { kind: "declare"; id: string; score: number };
+  | { kind: "declare"; id: string; score: number }
+  /** 전시 행동권 행동 (게릴라 습격 · 정치적 압박) */
+  | { kind: "waract"; id: string; score: number };
 
 const GAUGES: GaugeKey[] = ["morale", "order", "finance", "legit", "faith", "control", "offering", "stealth"];
 /** 효과 1단위의 크기 (이 값만큼 움직이면 "1") */
@@ -92,6 +94,13 @@ export function suggestPlays(s: GameState, content: GameContent, n = 4): Play[] 
     const hostile = rs.some((v) => v <= 30) || (s.faction === "voodoo" && s.gauges.control >= 60);
     const score = s.warPrep ? 50 : 0.1 + (strong ? 0.9 : 0) + (hostile ? 0.9 : 0) + hash(salt, "war") * 1.4;
     cands.push({ kind: "warprep", id: s.warPrep?.target ?? "", score });
+  }
+  // 전시 행동 — 일정 확률로 섞임 (게릴라 습격·정치적 압박)
+  if (s.war) {
+    for (const id of [WAR_RAID_ID, WAR_PRESSURE_ID]) {
+      const roll = hash(salt, id);
+      if (roll < 0.6) cands.push({ kind: "waract", id, score: 0.7 + roll * 0.8 });
+    }
   }
   cands.sort((x, y) => y.score - x.score);
   const out: Play[] = [...pinned];
