@@ -5,7 +5,7 @@ import {
   type Boost, type Difficulty, type FactionId, type GameState, type ImpactDot, type PresetId, type RegionId, type RollOutcome, outcomeLine,
 } from "@guul/engine";
 import { content } from "@guul/content";
-import { addEnding, type EndingBook } from "./share";
+import { addEnding, migrateBook, type EndingBook } from "./share";
 
 // ───────── 실시간 달력 (1초 = 1일) ─────────
 export const DAYS_PER_SEASON = 90; // 3개월 × 30일
@@ -110,7 +110,7 @@ export const useGame = create<Store>((set, get) => ({
 
   async init() {
     try { const saved = await idbGet<GameState>(SAVE_KEY); set({ hasSave: !!saved, saveInfo: saved ? { faction: saved.faction, turn: saved.turn } : null }); } catch { /* ignore */ }
-    try { const book = await idbGet<EndingBook>(BOOK_KEY); if (book) set({ book }); } catch { /* ignore */ }
+    try { const book = await idbGet<EndingBook>(BOOK_KEY); if (book) set({ book: migrateBook(book) }); } catch { /* ignore */ }
     try { const lg = await idbGet<LegacyBook>(LEGACY_KEY); if (lg) set({ legacy: lg }); } catch { /* ignore */ }
   },
   recordEnding(s) {
@@ -147,7 +147,7 @@ export const useGame = create<Store>((set, get) => ({
     const s = get().state; const date = s ? rtDateStr(s.turn, get().dayOffset) : "";
     set({ rtLog: [...get().rtLog, { id: ++logSeq, date, text, tone, detail }].slice(-120) });
   },
-  start(f, seed, difficulty = "normal") {
+  start(f, seed, difficulty = "base") {
     const s = startTurn(newGame(f, seed, { difficulty, legacy: get().legacy.perks }), content);
     persist(s);
     logSeq = 0;

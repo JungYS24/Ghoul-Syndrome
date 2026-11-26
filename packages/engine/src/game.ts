@@ -4,7 +4,7 @@ import { createRng, type Rng } from "./rng";
 import {
   abilityModifier, baseSpread, continentalInfection, foodUse, popLoss, preyUse, production, r1, seasonMod, stateModifier,
 } from "./rules";
-import { diffOf, isDifficulty, type Difficulty } from "./difficulty";
+import { diffOf, migrateDifficulty, type Difficulty } from "./difficulty";
 import { settleDecrees } from "./decrees";
 import { chainTailIds, scheduleChain, takeDueChain } from "./chains";
 import { makeEnding } from "./endings";
@@ -30,7 +30,7 @@ export function newGame(faction: FactionId, seed: number, opts: { difficulty?: D
   const rel: Partial<Record<FactionId, number>> = {};
   if (faction !== "voodoo") rel[faction === "arkandal" ? "iruth" : "arkandal"] = 40;
   const st: GameState = {
-    version: 3, difficulty: opts.difficulty ?? "normal", tally: { rolls: 0, great: 0, fumble: 0 },
+    version: 3, difficulty: opts.difficulty ?? "base", tally: { rolls: 0, great: 0, fumble: 0 },
     seed: seed >>> 0, rng: seed >>> 0, faction, turn: 1, phase: "start",
     gauges, res: { ...F.res }, startPop: F.res.pop,
     infection, infHist: [infection[faction], infection[faction]], streak: { arkandal: 0, iruth: 0, voodoo: 0, neutral: 0 }, ciStreak: 0,
@@ -51,7 +51,7 @@ export const ci = (s: GameState) => continentalInfection(s.infection);
 export function migrateState(raw: unknown): GameState {
   const o = { ...(raw as Record<string, unknown>) };
   o.version = 3;
-  o.difficulty = isDifficulty(o.difficulty) ? o.difficulty : "normal";
+  o.difficulty = migrateDifficulty(o.difficulty);
   o.tally = (o.tally as GameState["tally"]) ?? { rolls: 0, great: 0, fumble: 0 };
   o.decrees = (o.decrees as GameState["decrees"]) ?? [];
   o.decreeHistory = (o.decreeHistory as string[]) ?? [];

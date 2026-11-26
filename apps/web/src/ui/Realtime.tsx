@@ -173,7 +173,7 @@ export function RealtimeTopBar({ s, menu }: { s: GameState; menu?: React.ReactNo
       <div className="flex items-center gap-2 min-w-0 lg:flex-1">
         <span className="w-6 h-6 shrink-0"><Illus keys={CREST[s.faction]} faction={s.faction} accent /></span>
         <b className="font-display text-[17px] leading-none whitespace-nowrap">{F.short}</b>
-        <span className="font-ui text-[12px] text-muted hidden sm:inline">{s.difficulty !== "normal" ? DIFFICULTIES[s.difficulty].name : ""}</span>
+        <span className="font-ui text-[12px] text-muted hidden sm:inline">{s.difficulty !== "base" ? DIFFICULTIES[s.difficulty].name : ""}</span>
         {menu && <div className="hidden lg:flex gap-1 ml-2">{menu}</div>}
         <div className="ml-auto text-right">
           <div className="font-display text-[17px] sm:text-[19px] leading-none text-gold tabular-nums whitespace-nowrap">여신력 {d.year}년 {d.month}월 {d.day}일</div>

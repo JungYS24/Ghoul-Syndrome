@@ -14,13 +14,12 @@ const GAUGES: Record<FactionId, GaugeKey[]> = {
   arkandal: ["morale", "order", "finance", "legit"], iruth: ["morale", "order", "finance", "legit"], voodoo: ["faith", "control", "offering", "stealth"],
 };
 
-/** 엔딩 하나로 얻는 유산 점수: 승리 3 / 생존 S~D 3~1 / 패배 1(+10턴마다 1), 어려움 +1, 지옥 +2 */
+/** 엔딩 하나로 얻는 유산 점수: 승리 3 / 생존 S~D 3~1 / 패배 1(+10턴마다 1), 어려움 +2 */
 export function legacyPointsFor(s: Pick<GameState, "ended" | "turn" | "difficulty">): number {
   const e: Ending | null = s.ended;
   if (!e) return 0;
   let p = e.type === "victory" ? 3 : e.type === "survive" ? ({ S: 3, A: 3, B: 2, C: 2, D: 1 } as Record<string, number>)[e.grade ?? "B"] ?? 1 : 1 + Math.floor(s.turn / 10);
-  if (s.difficulty === "hard") p += 1;
-  else if (s.difficulty === "hell") p += 2;
+  if (s.difficulty === "brutal") p += 2;
   return p;
 }
 /** 새 판의 시작 상태에 산 보너스를 적용합니다 (state 를 직접 바꿉니다). */

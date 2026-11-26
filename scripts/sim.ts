@@ -64,8 +64,8 @@ const DECREE_PREF: Record<FactionId, string[]> = {
 // SIM_DECREES=id,id 로 선호 목록을 덮어써 법령별 효과를 잴 수 있습니다 (빈 값이면 법령을 쓰지 않음).
 const OVERRIDE = process.env.SIM_DECREES;
 const ONLY = process.env.SIM_FACTION as FactionId | undefined;
-// SIM_DIFFICULTY=hard|hell 로 난이도별 승률을 잴 수 있습니다 (기본 보통).
-const DIFF = isDifficulty(process.env.SIM_DIFFICULTY) ? process.env.SIM_DIFFICULTY : "normal";
+// SIM_DIFFICULTY=brutal 로 어려움 승률을 잴 수 있습니다 (기본은 base).
+const DIFF = isDifficulty(process.env.SIM_DIFFICULTY) ? process.env.SIM_DIFFICULTY : "base";
 function maybeEnact(s: GameState): GameState {
   if (s.turn < 2 || s.ap < 2 || s.decrees.length >= 2) return s;
   const pref = OVERRIDE !== undefined ? OVERRIDE.split(",").filter(Boolean) : DECREE_PREF[s.faction];

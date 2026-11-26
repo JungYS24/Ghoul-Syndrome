@@ -1,44 +1,49 @@
 import { describe, expect, it } from "vitest";
 import {
-  DIFFICULTIES, ENDINGS, applyEffects, checkDefeat, checkVictory, createRng, endingsFor, epilogueOf, finalScore, isDifficulty, makeEnding,
+  DIFFICULTIES, ENDINGS, applyEffects, checkDefeat, checkVictory, createRng, endingsFor, epilogueOf, finalScore, isDifficulty, makeEnding, migrateDifficulty,
   migrateState, newGame, resolveChoice, startTurn, endTurn, type Card, type GameContent,
 } from "../src";
 
 const content: GameContent = { cards: [{ id: "c", faction: "common", title: "x", text: "", choices: [{ label: "x", check: { stat: "order" }, effects: {} }] }], situational: [], collapse: [], fixed: {}, actions: [], decrees: [] };
 
 describe("난이도", () => {
-  it("보통이 기본이고, 배율이 단계마다 커진다", () => {
-    expect(newGame("arkandal", 1).difficulty).toBe("normal");
-    expect(DIFFICULTIES.normal).toMatchObject({ spread: 1, wrath: 1, pressure: 1, aiDefense: 1, aiProgress: 1 });
+  it("기본·어려움 두 단계이고, 기본이 기본값이며 어려움의 배율이 더 크다", () => {
+    expect(newGame("arkandal", 1).difficulty).toBe("base");
     for (const k of ["spread", "wrath", "pressure", "aiDefense", "aiProgress"] as const) {
-      expect(DIFFICULTIES.hard[k]).toBeGreaterThan(DIFFICULTIES.normal[k]);
-      expect(DIFFICULTIES.hell[k]).toBeGreaterThan(DIFFICULTIES.hard[k]);
+      expect(DIFFICULTIES.base[k]).toBeGreaterThan(1.02);
+      expect(DIFFICULTIES.brutal[k]).toBeGreaterThan(DIFFICULTIES.base[k]);
     }
-    expect(isDifficulty("hell")).toBe(true); expect(isDifficulty("easy")).toBe(false);
+    expect(isDifficulty("brutal")).toBe(true); expect(isDifficulty("hell")).toBe(false); expect(isDifficulty("normal")).toBe(false);
+  });
+  it("예전 값은 새 값으로: 보통·어려움 → 기본, 지옥 → 어려움", () => {
+    expect(migrateDifficulty("normal")).toBe("base");
+    expect(migrateDifficulty("hard")).toBe("base");
+    expect(migrateDifficulty("hell")).toBe("brutal");
+    expect(migrateDifficulty("brutal")).toBe("brutal");
+    expect(migrateDifficulty(undefined)).toBe("base");
   });
   it("기본 확산량이 배율만큼 커진다", () => {
-    const inf = (d: "normal" | "hard" | "hell") => startTurn(newGame("arkandal", 5, { difficulty: d }), content).infection.arkandal;
-    expect(inf("hard")).toBeGreaterThanOrEqual(inf("normal"));
-    expect(inf("hell")).toBeGreaterThan(inf("normal"));
+    const inf = (d: "base" | "brutal") => startTurn(newGame("arkandal", 5, { difficulty: d }), content).infection.arkandal;
+    expect(inf("brutal")).toBeGreaterThan(inf("base"));
   });
   it("오르는 진노만 배율을 받는다", () => {
-    const s = newGame("arkandal", 1, { difficulty: "hell" });
-    applyEffects(s, { wrath: 10 }, null); expect(s.wrath).toBe(15);
-    applyEffects(s, { wrath: -4 }, null); expect(s.wrath).toBe(11);
+    const s = newGame("arkandal", 1, { difficulty: "brutal" });
+    applyEffects(s, { wrath: 10 }, null); expect(s.wrath).toBe(20);
+    applyEffects(s, { wrath: -4 }, null); expect(s.wrath).toBe(16);
   });
   it("AI 부두교 압박이 커진다 (같은 시드에서 우리 땅+이웃+중립지 누적 감염)", () => {
-    const total = (d: "normal" | "hell") => {
+    const total = (d: "base" | "brutal") => {
       let s = { ...newGame("iruth", 3, { difficulty: d }), phase: "action" as const };
       for (let i = 0; i < 8; i++) s = { ...endTurn(s, content), phase: "action", turn: s.turn + 1 };
       return s.infection.iruth + s.infection.arkandal + s.infection.neutral;
     };
-    expect(total("hell")).toBeGreaterThan(total("normal"));
+    expect(total("brutal")).toBeGreaterThan(total("base"));
   });
-  it("이전 저장은 보통으로", () => {
+  it("이전 저장은 기본으로", () => {
     const old = JSON.parse(JSON.stringify(newGame("voodoo", 1))) as Record<string, unknown>;
     delete old.difficulty; delete old.tally;
     const m = migrateState(old);
-    expect(m.difficulty).toBe("normal");
+    expect(m.difficulty).toBe("base");
     expect(m.tally).toEqual({ rolls: 0, great: 0, fumble: 0 });
   });
 });

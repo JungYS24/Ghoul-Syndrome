@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { applyEffects, createRng, newGame, resolveChoice, type Card, type GameContent, startTurn, openEvents, endTurn, resolveEvent } from "../src";
+import { DIFFICULTIES, applyEffects, createRng, newGame, resolveChoice, type Card, type GameContent, startTurn, openEvents, endTurn, resolveEvent } from "../src";
 
 const card: Card = {
   id: "t", faction: "arkandal", title: "감염된 국경 수비대", text: "",
@@ -35,7 +35,7 @@ describe("효과", () => {
     s.infection.arkandal = 50; s.res.silver = 50;
     applyEffects(s, { infection: -10, wrath: 10, silver: -4 }, 1.5);
     expect(s.infection.arkandal).toBe(35);
-    expect(s.wrath).toBe(5);
+    expect(s.wrath).toBe(Math.round(5 * DIFFICULTIES.base.wrath)); // 오르는 진노는 난이도 배율도 받음
     expect(s.res.silver).toBe(46);
   });
   it("부두교 withSuccess 은닉은 성공할수록 더 깎인다", () => {
@@ -57,7 +57,7 @@ describe("턴 진행", () => {
     const s = startTurn(newGame("arkandal", 9), content);
     expect(s.phase).toBe("start");
     expect(s.res.food).toBeCloseTo(90 - 14.8, 1);
-    expect(s.infection.arkandal).toBe(28 + Math.round((1.5 + 28 * 0.04 + 1) * 1 + 0));
+    expect(s.infection.arkandal).toBe(28 + Math.round((1.5 + 28 * 0.04 + 1) * DIFFICULTIES.base.spread + 0));
     expect(s.events.length).toBeGreaterThanOrEqual(2);
   });
   it("같은 시드의 게임은 끝까지 같다 (리플레이)", () => {

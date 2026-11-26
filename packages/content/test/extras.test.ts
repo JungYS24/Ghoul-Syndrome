@@ -46,7 +46,7 @@ describe("역사의 유산", () => {
   it("엔딩 유형·난이도로 점수를 계산한다", () => {
     const v = newGame("arkandal", 1); v.ended = makeEnding("v-arkandal-wall");
     expect(legacyPointsFor(v)).toBe(3);
-    v.difficulty = "hell"; expect(legacyPointsFor(v)).toBe(5);
+    v.difficulty = "brutal"; expect(legacyPointsFor(v)).toBe(5);
     const d = newGame("arkandal", 1); d.turn = 25; d.ended = makeEnding("d-morale");
     expect(legacyPointsFor(d)).toBe(3);
     expect(legacyPointsFor(newGame("arkandal", 1))).toBe(0);

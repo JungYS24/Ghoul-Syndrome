@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { DIFFICULTIES, DIFFICULTY_IDS, ENDINGS, FACTIONS, LEGACY_PERKS, FACTION_IDS, type Difficulty, type FactionId } from "@guul/engine";
+import { DIFFICULTIES, DIFFICULTY_IDS, ENDINGS, HARD_UNLOCK_ENDINGS, FACTIONS, LEGACY_PERKS, FACTION_IDS, type Difficulty, type FactionId } from "@guul/engine";
 import { content } from "@guul/content";
 import { useGame } from "../store/store";
 import { Illus } from "../art/Art";
@@ -20,8 +20,12 @@ export function Title() {
   const cont = useGame((z) => z.continueSave);
   const book = useGame((z) => z.book);
   const [seed, setSeed] = useState(() => String(shared.seed ?? Math.floor(Math.random() * 900000) + 100000));
-  const [diff, setDiff] = useState<Difficulty>(shared.difficulty ?? "normal");
-  const begin = (id: FactionId) => start(id, (parseInt(seed, 10) || 1) >>> 0, diff);
+  const [diff, setDiff] = useState<Difficulty>(shared.difficulty ?? "base");
+  // 어려움은 엔딩 컬렉션을 HARD_UNLOCK_ENDINGS 개 모아야 열림 (잠겨 있으면 기본으로 시작)
+  const gotNow = ENDINGS.filter((e) => book[e.id]).length;
+  const hardOpen = gotNow >= HARD_UNLOCK_ENDINGS;
+  const playDiff: Difficulty = diff === "brutal" && !hardOpen ? "base" : diff;
+  const begin = (id: FactionId) => start(id, (parseInt(seed, 10) || 1) >>> 0, playDiff);
   const [rules, setRules] = useState(false);
   const [settings, setSettings] = useState(false);
   const legacy = useGame((z) => z.legacy);
@@ -62,15 +66,22 @@ export function Title() {
         </div>
       )}
       {shared.seed !== undefined && (
-        <p className="font-ui text-[13px] text-gold text-center m-0 mb-3">공유 링크 — 시드 {shared.seed}{shared.difficulty ? ` · ${DIFFICULTIES[shared.difficulty].name}` : ""}</p>
+        <p className="font-ui text-[13px] text-gold text-center m-0 mb-3">공유 링크 — 시드 {shared.seed}{shared.difficulty ? ` · ${DIFFICULTIES[playDiff].name}` : ""}</p>
       )}
 
       {/* 설정 한 줄: 난이도 · 시드 */}
       <div className="flex flex-wrap items-center justify-center gap-x-5 gap-y-2.5 mb-5">
         <div className="flex items-center gap-1" role="group" aria-label="난이도">
-          {DIFFICULTY_IDS.map((d) => (
-            <button key={d} type="button" aria-pressed={diff === d} onClick={() => setDiff(d)} title={DIFFICULTIES[d].desc} className={seg(diff === d, d === "hell")}>{DIFFICULTIES[d].name}</button>
-          ))}
+          {DIFFICULTY_IDS.map((d) => {
+            const locked = d === "brutal" && !hardOpen;
+            return (
+              <button key={d} type="button" aria-pressed={playDiff === d} disabled={locked} onClick={() => setDiff(d)} data-testid={`diff-${d}`}
+                title={locked ? `엔딩 컬렉션 ${HARD_UNLOCK_ENDINGS}개를 모으면 열립니다 (${gotNow}/${HARD_UNLOCK_ENDINGS})` : DIFFICULTIES[d].desc}
+                className={`${seg(playDiff === d, d === "brutal")} disabled:opacity-60 disabled:cursor-not-allowed`}>
+                {DIFFICULTIES[d].name}{locked ? ` 🔒 ${gotNow}/${HARD_UNLOCK_ENDINGS}` : ""}
+              </button>
+            );
+          })}
         </div>
         <label htmlFor="seed" className="flex items-center gap-1.5 font-ui text-[12px] text-faint">시드
           <input id="seed" inputMode="numeric" value={seed} onChange={(e) => setSeed(e.target.value.replace(/\D/g, ""))}

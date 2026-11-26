@@ -1,5 +1,7 @@
-// 난이도 — 기본 확산량, 진노 증가량, AI 압박을 배율로 조정합니다. 보통이 밸런스 기준(승률 30~45%)입니다.
-export type Difficulty = "normal" | "hard" | "hell";
+// 난이도 — 기본 확산량, 진노 증가량, AI 압박을 배율로 조정합니다.
+// 두 단계: 기본(예전 지옥보다 조금 더 어려움)과 어려움(엔딩 5개를 모으면 열림, 정말 어렵게).
+// 배율 1 은 예전 "보통"(자동 플레이 승률 30~45%) 기준입니다.
+export type Difficulty = "base" | "brutal";
 export interface DifficultyDef {
   name: string;
   desc: string;
@@ -15,10 +17,16 @@ export interface DifficultyDef {
   aiProgress: number;
 }
 export const DIFFICULTIES: Record<Difficulty, DifficultyDef> = {
-  normal: { name: "보통", desc: "기획 의도대로의 균형", spread: 1, wrath: 1, pressure: 1, aiDefense: 1, aiProgress: 1 },
-  hard: { name: "어려움", desc: "확산 ×1.2 · 진노 ×1.25 · 부두교 압박 ×1.3", spread: 1.2, wrath: 1.25, pressure: 1.3, aiDefense: 1.01, aiProgress: 1.1 },
-  hell: { name: "지옥", desc: "확산 ×1.45 · 진노 ×1.5 · 부두교 압박 ×1.6", spread: 1.45, wrath: 1.5, pressure: 1.6, aiDefense: 1.02, aiProgress: 1.15 },
+  base: { name: "기본", desc: "확산 ×1.55 · 진노 ×1.6 · 부두교 압박 ×1.75", spread: 1.55, wrath: 1.6, pressure: 1.75, aiDefense: 1.03, aiProgress: 1.2 },
+  brutal: { name: "어려움", desc: "확산 ×1.9 · 진노 ×2 · 부두교 압박 ×2.3", spread: 1.9, wrath: 2, pressure: 2.3, aiDefense: 1.05, aiProgress: 1.35 },
 };
-export const DIFFICULTY_IDS: Difficulty[] = ["normal", "hard", "hell"];
+export const DIFFICULTY_IDS: Difficulty[] = ["base", "brutal"];
+/** 어려움을 여는 데 필요한 엔딩 수 (엔딩 컬렉션) */
+export const HARD_UNLOCK_ENDINGS = 5;
 export const isDifficulty = (v: unknown): v is Difficulty => typeof v === "string" && (DIFFICULTY_IDS as string[]).includes(v);
-export const diffOf = (s: { difficulty?: Difficulty }): DifficultyDef => DIFFICULTIES[s.difficulty ?? "normal"];
+/** 예전 저장의 난이도 값 → 지금 값 (보통·어려움 → 기본, 지옥 → 어려움) */
+export function migrateDifficulty(v: unknown): Difficulty {
+  if (isDifficulty(v)) return v;
+  return v === "hell" ? "brutal" : "base";
+}
+export const diffOf = (s: { difficulty?: Difficulty }): DifficultyDef => DIFFICULTIES[s.difficulty ?? "base"];
